@@ -13,8 +13,8 @@ make setup
 ```
 3. Activate the virtual environment 
 
-```
-bash source venv/bin/activate
+```bash 
+source venv/bin/activate
 ```
 
 . Run the app by pointing to the module directory
