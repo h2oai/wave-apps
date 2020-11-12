@@ -60,13 +60,13 @@ def dashboard_content():
 
 
 def profile_content():
-    df = pd.read_csv(config.working_data).head(10)
+    df = pd.read_csv(config.working_data).head(40)
 
-    choices = [ui.choice(id, id) for id in df[config.id_column]]
+    choices = [ui.choice(name=phone, label=f'{phone}') for phone in df[config.id_column]]
 
     items = [
         ui.text_xl(f'Customer Profiles from {config.get_analysis_type()}'),
-        ui.dropdown(name='customers', label=f'Customer {config.id_column}', required=True, choices=choices),
+        ui.picker(name='customers', label=f'Customer Phone Number', choices=choices, max_choices=1),
         ui.button(name='select_customer_button', label='Submit', primary=True)
     ]
     return items
@@ -75,7 +75,7 @@ def profile_content():
 async def profile_selected_page(q: Q):
     df = pd.read_csv(config.working_data)
 
-    q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers))]
+    q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
 
     if config.model_loaded:
         churn_pct = df[df[config.id_column] == q.args.customers]['Churn.1'].values[0]
@@ -99,13 +99,12 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
+    q.page["day_stat"] = stat_card_dollars(df, q.args.customers[0], "Day Charges", 4, config.color)
+    q.page["eve_stat"] = stat_card_dollars(df, q.args.customers[0], "Evening Charges", 5, config.color)
+    q.page["night_stat"] = stat_card_dollars(df, q.args.customers[0], "Night Charges", 6, config.color)
+    q.page["intl_stat"] = stat_card_dollars(df, q.args.customers[0], "Int'l Charges", 7, config.color)
 
-    q.page["day_stat"] = stat_card_dollars(df, q.args.customers, "Day Charges", 4, config.color)
-    q.page["eve_stat"] = stat_card_dollars(df, q.args.customers, "Evening Charges", 5, config.color)
-    q.page["night_stat"] = stat_card_dollars(df, q.args.customers, "Night Charges", 6, config.color)
-    q.page["intl_stat"] = stat_card_dollars(df, q.args.customers, "Int'l Charges", 7, config.color)
-
-    q.page["total_stat"] = stat_card_dollars(df, q.args.customers, "Total Charges", 9, config.color)
+    q.page["total_stat"] = stat_card_dollars(df, q.args.customers[0], "Total Charges", 9, config.color)
 
 
 async def initialize_page(q: Q):
