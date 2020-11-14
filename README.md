@@ -33,7 +33,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Automatic Restock
+### [Automatic Restock](automatic-restock/README.md)
 
 **Industry**: Supply Chain
 
@@ -43,7 +43,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Explaining Hotel Ratings
+### [Explaining Ratings](explaining-ratings/README.md)
 
 **Industry:** Tourism
 
@@ -53,7 +53,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Getting Started with Images
+### [Getting Started with Images](getting-started-with-images/README.md)
 
 **Industry:** Data Science
 
@@ -63,7 +63,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Getting Started with NLP
+### [Getting Started with NLP](getting-started-with-nlp/README.md)
 
 **Industry:** Data Science
 
@@ -73,7 +73,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Getting Started with Teachable Machines
+### [Getting Started with Teachable Machines](getting-started-with-teachable-machines/README.md)
 
 **Industry:** Data Science
 
@@ -83,7 +83,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Guess the Number
+### [Guess the Number](guess-the-number/README.md)
 
 **Industry:**
 
@@ -93,7 +93,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Human-in-the-Loop Credit Risk
+### [Human-in-the-Loop Credit Risk](credit-risk/README.md)
 
 **Industry:** Banking
 
@@ -103,7 +103,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Identifying Fraudsters
+### [Identifying Fraudsters](identifying-fraudsters/README.md)
 
 **Industry:** finance
 
@@ -113,7 +113,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Model Card
+### [Model Card](model-card/README.md)
 
 **Industry:** Anything regulated 
 
@@ -123,7 +123,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Mitigating Churn Risk
+### [Mitigating Churn Risk](churn-risk/README.md)
 
 **Industry**: Telco
 
@@ -133,7 +133,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Model Revenue Impact
+### [Model Revenue Impact](model-impact/README.md)
 
 **Industry:** All
 
@@ -143,7 +143,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Online Shopping Reccomendations
+### [Online Shopping Recommendations](shopping-cart-recommendations/README.md)
 
 **Industry:** Retail
 
@@ -153,7 +153,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Sales Forecasting EDA
+### [Sales Forecasting EDA](sales-forecasting/README.md)
 
 **Industry**: Retail
 
@@ -163,7 +163,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
- ### Social Media Sentiment
+ ### [Social Media Sentiment](twitter-sentiment/README.md)
 
 **Industry**: any customer facing business
 
