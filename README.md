@@ -23,7 +23,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### Advanced Wave App Development
+### [Advanced Wave App Development](advanced-wave-dev/README.md)
 
 **Industry:** N/A
 
