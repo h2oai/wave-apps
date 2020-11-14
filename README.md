@@ -1,25 +1,27 @@
 # wave-apps
 Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
-## Sample Apps Overview
+| Application Name                                             | Priority | Progress                                                     | Something Can Be Demod Today |
+| ------------------------------------------------------------ | -------- | ------------------------------------------------------------ | ---------------------------- |
+| [Mitigating Churn Risk](churn-risk/README.md)                | 1        | Needs to be re-written for OSS                               | √                            |
+| [Automatic Restock](automatic-restock/README.md)             | 1        |                                                              |                              |
+| [Sales Forecasting EDA](sales-forecasting/README.md)         | 2        | Needs to be re-written for OSS                               | √                            |
+| [Explaining Ratings](explaining-ratings/README.md)           | 2        | Explainable NLP app exists, need to make a paired down use case focused version | √                            |
+| [Identifying Fraudsters](identifying-fraudsters/README.md)   | 2        |                                                              |                              |
+| [Social Media Sentiment](twitter-sentiment/README.md)        | 3        | Explainable NLP app exists, need to make a paried down use case focused version | √                            |
+| [Human-in-the-Loop Credit Risk](credit-risk/README.md)       | 3        |                                                              |                              |
+| [Online Shopping Recommendations](shopping-cart-recommendations/README.md) | 3        | Marketbasket application exists, need to make a paried down use case focused version | √                            |
+| [Model Revenue Impact](model-impact/README.md)               | 3        |                                                              |                              |
+| [Getting Started with Teachable Machines](getting-started-with-teachable-machines/README.md) | 4        |                                                              |                              |
+| [Getting Started with Images](getting-started-with-images/README.md) | 4        |                                                              |                              |
+| [Getting Started with NLP](getting-started-with-nlp/README.md) | 4        | Demo app from Gartner of text genration using GPT-2, needs to be rewritting for OSS | √                            |
+| [Model Card](model-card/README.md)                           | 4        |                                                              |                              |
+| [Advanced Wave App Development](advanced-wave-dev/README.md) | 5        |                                                              |                              |
+| [Guess the Number](guess-the-number/README.md)               | 5        |                                                              |                              |
 
-| Application Name                        | Priority | Progress                                                     | Something Can Be Demod Today |
-| --------------------------------------- | -------- | ------------------------------------------------------------ | ---------------------------- |
-| Mitigating Churn Risk                   | 1        | Needs to be re-written for OSS                               | √                            |
-| Automatic Restock                       | 1        |                                                              |                              |
-| Sales Forecasting EDA                   | 2        | Needs to be re-written for OSS                               | √                            |
-| Explaining Hotel Ratings                | 2        | Explainable NLP app exists, need to make a paired down use case focused version | √                            |
-| Identifying Fraudsters                  | 2        |                                                              |                              |
-| Social Media Sentiment                  | 3        | Explainable NLP app exists, need to make a paried down use case focused version | √                            |
-| Human-in-the-Loop Credit Risk           | 3        |                                                              |                              |
-| Online Shopping Reccomendations         | 3        | Marketbasket application exists, need to make a paried down use case focused version | √                            |
-| Model Revenue Impact                    | 3        |                                                              |                              |
-| Getting Started with Teachable Machines | 4        |                                                              |                              |
-| Getting Started with Images             | 4        |                                                              |                              |
-| Getting Started with NLP                | 4        | Demo app from Gartner of text genration using GPT-2, needs to be rewritting for OSS | √                            |
-| Model Card                              | 4        |                                                              |                              |
-| Advanced Wave App Development           | 5        |                                                              |                              |
-| Guess the Number                        | 5        |                                                              |                              |
+
+
+## Sample Apps Overview
 
 
 
@@ -113,16 +115,6 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### [Model Card](model-card/README.md)
-
-**Industry:** Anything regulated 
-
-**App User Persona:** Risk Officer
-
-**Details:** This application is robust documentation that explains one of the models in another OSS App. See https://modelcards.withgoogle.com/about for an example.
-
-
-
 ### [Mitigating Churn Risk](churn-risk/README.md)
 
 **Industry**: Telco
@@ -130,6 +122,16 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 **App User Persona:** Call center rep
 
 **Details:** Provided liklihood to churn and actionable recommendations to prevent churn via nicely-presented top shapley values
+
+
+
+### [Model Card](model-card/README.md)
+
+**Industry:** Anything regulated 
+
+**App User Persona:** Risk Officer
+
+**Details:** This application is robust documentation that explains one of the models in another OSS App. See https://modelcards.withgoogle.com/about for an example.
 
 
 
