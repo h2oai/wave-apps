@@ -79,7 +79,7 @@ async def profile_selected_page(q: Q):
     # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
     # print(df[q.args.customers['Churn?']])
     cust_phone_no = q.args.customers[0]
-    q.client.selected_customer_index = df[df[config.id_column] == cust_phone_no].index[0]
+    q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
 
     if config.model_loaded:
         churn_pct = df[df[config.id_column] == cust_phone_no]['Churn.1'].values[0]
@@ -123,24 +123,29 @@ async def profile_selected_page(q: Q):
         ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
     ])
 
-    plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
-    image = get_image_from_matplotlib(plot)
-
-    q.page['shap_negative'] = ui.image_card(
+    shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
+    q.page['shap_plot'] = ui.image_card(
         box='1 5 -1 11',
         title='An image',
         type='png',
-        image=image,
+        image=get_image_from_matplotlib(shap_plot),
     )
 
-    q.page['shap_positive'] = ui.image_card(
+    top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
+    q.page['top_negative_pd_plot'] = ui.image_card(
         box='1 16 -1 11',
         title='An image',
         type='png',
-        image=image,
+        image=get_image_from_matplotlib(top_negative_pd_plot),
     )
 
-    plot = churn_predictor.get_partial_dependence_explanation(q.client.selected_customer_index, 's')
+    top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
+    q.page['top_positive_pd_plot'] = ui.image_card(
+        box='1 27 -1 11',
+        title='An image',
+        type='png',
+        image=get_image_from_matplotlib(top_positive_pd_plot),
+    )
 
 
 async def initialize_page(q: Q):
