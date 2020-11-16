@@ -5,6 +5,12 @@ from plotly import io as pio
 
 from h2o_wave import ui
 
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import uuid
+import io
+import base64
 
 def html_map_of_target_percent(data_location, target_variable, state_variable, company_color):
     df = pd.read_csv(data_location)
@@ -113,3 +119,8 @@ def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
     )
     return card
 
+def get_image_from_matplotlib(matplotlib_obj):
+    buffer = io.BytesIO()
+    matplotlib_obj.savefig(buffer, format='png')
+    buffer.seek(0)
+    return base64.b64encode(buffer.read()).decode('utf-8')
