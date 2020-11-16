@@ -4,6 +4,7 @@ class Configuration:
     """
     def __init__(self):
         self.color = '#00A8E0'
+        self.total_gauge_color = '#FF0102'
         self.image_path = 'static/churn.png'
 
         self.training_path = 'data/churnTrain.csv'
