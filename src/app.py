@@ -2,6 +2,9 @@ from h2o_wave import Q, ui, app, main
 
 import pandas as pd
 import numpy as np
+
+from matplotlib import pyplot as plt
+
 from .utils import ui_table_from_df, python_code_content
 from .plots import html_hist_of_target_percent, html_map_of_target_percent, html_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars, get_image_from_matplotlib
 from .config import Configuration
@@ -113,15 +116,24 @@ async def profile_selected_page(q: Q):
     q.page['prediction'] = ui.small_stat_card(box='1 3 1 1', title='Churn Rate',
                                               value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
-    lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
-    values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[1]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
+    # lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
+    # values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
+    #           df[df[config.id_column] == cust_phone_no][lables[1]].values[0],
+    #           df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
+    #           df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
+    #
+    # fig = plt.figure(figsize=(2.5,2.5))
+    # plt.pie(values, labels=lables, autopct='%1.2f%%')
+    # q.page['stat_pie'] = ui.image_card(
+    #     box='7 2 -1 3',
+    #     title='An image',
+    #     type='png',
+    #     image=get_image_from_matplotlib(fig),
+    # )
 
-    q.page['stat_pie'] = ui.form_card(box='7 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
-        ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
-    ])
+    # q.page['stat_pie'] = ui.form_card(box='7 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
+    #     ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
+    # ])
 
     shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page['shap_plot'] = ui.image_card(
