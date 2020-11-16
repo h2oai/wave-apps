@@ -103,14 +103,14 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '2 2 2 1', config.color)
-    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '4 2 2 1', config.color)
-    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '2 3 2 1', config.color)
-    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '4 3 2 1', config.color)
-    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '6 2 1 2', config.total_gauge_color)
+    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '3 2 2 1', config.color)
+    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '5 2 2 1', config.color)
+    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '3 3 2 1', config.color)
+    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '5 3 2 1', config.color)
+    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '7 2 1 2', config.total_gauge_color)
 
-    q.page['customer'] = ui.small_stat_card(box='1 2 1 1', title='Customer', value=str(cust_phone_no))
-    q.page['prediction'] = ui.small_stat_card(box='1 3 1 1', title='Churn Rate',
+    q.page['customer'] = ui.small_stat_card(box='1 2 2 1', title='Customer', value=str(cust_phone_no))
+    q.page['prediction'] = ui.small_stat_card(box='1 3 2 1', title='Churn Rate',
                                               value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
     lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
@@ -119,30 +119,29 @@ async def profile_selected_page(q: Q):
               df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
               df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
 
-    q.page['stat_pie'] = ui.form_card(box='7 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
-        ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
-    ])
+    q.page['stat_pie'] = ui.frame_card(box='8 2 -1 2', title='Total call charges breakdown',
+        content=html_pie_of_target_percent('', lables,values))
 
     shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page['shap_plot'] = ui.image_card(
-        box='1 5 -1 11',
-        title='An image',
+        box='1 4 -1 11',
+        title='',
         type='png',
         image=get_image_from_matplotlib(shap_plot),
     )
 
     top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
     q.page['top_negative_pd_plot'] = ui.image_card(
-        box='1 16 -1 11',
-        title='An image',
+        box='1 15 -1 11',
+        title='',
         type='png',
         image=get_image_from_matplotlib(top_negative_pd_plot),
     )
 
     top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
     q.page['top_positive_pd_plot'] = ui.image_card(
-        box='1 27 -1 11',
-        title='An image',
+        box='1 26 -1 11',
+        title='',
         type='png',
         image=get_image_from_matplotlib(top_positive_pd_plot),
     )

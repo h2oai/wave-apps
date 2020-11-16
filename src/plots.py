@@ -43,10 +43,19 @@ def html_pie_of_target_percent(title, labels, values):
         'displayModeBar': None
     }
 
-    fig = go.Figure(data=[go.Pie(title=title, labels=labels, values=values)])
+    layout = go.Layout(
+        margin=go.layout.Margin(
+            l=0,
+            r=0,
+            b=0,
+            t=0,
+            pad=0,
+            autoexpand=True
+        )
+    )
 
-    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20)
-
+    fig = go.Figure(data=[go.Pie(title=title, labels=labels, values=values)], layout=layout)
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=14)
     return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
 
 
