@@ -66,7 +66,8 @@ def profile_content():
 
     items = [
         ui.text_xl(f'Customer Profiles from {config.get_analysis_type()}'),
-        ui.picker(name='customers', label=f'Customer Phone Number', choices=choices, max_choices=1),
+        ui.picker(name='customers', label=f'Customer Phone Number', choices=choices, max_choices=1,
+                  tooltip='Start typing to search for a customer'),
         ui.button(name='select_customer_button', label='Submit', primary=True)
     ]
     return items
