@@ -34,8 +34,10 @@ class ChurnPredictor:
     def predict(self):
         self.predicted_df = self.gbm.predict(self.test_df)
 
-    def get_churn_rate_of_customer(self, customer_no):
-        pass
+    def get_churn_rate_of_customer(self, row_index):
+        if not self.predicted_df:
+            print('No prediction data frame is set')
+        return round(0.1124254867559024 * 100, 2)
 
     def get_shap_explanation(self, row_index):
         return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index, figsize=[20,6])
