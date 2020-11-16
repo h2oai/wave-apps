@@ -1,5 +1,7 @@
 import h2o  # Use at least 3.32.0.1 for AutoExplain
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
+from io import StringIO
+import pandas as pd
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,7 +39,11 @@ class ChurnPredictor:
     def get_churn_rate_of_customer(self, row_index):
         if not self.predicted_df:
             print('No prediction data frame is set')
-        return round(0.1124254867559024 * 100, 2)
+        data = StringIO((self.predicted_df[row_index:row_index + 1, 2:]).get_frame_data())
+        df = pd.read_csv(data)
+        if not len(df.index) == 1:
+            raise Exception('Churn data frame should only contain one row. But rows {} found'.format(len(df.index)))
+        return round(float(df.values[0][0]) * 100, 2)
 
     def get_shap_explanation(self, row_index):
         return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
