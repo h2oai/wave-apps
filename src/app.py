@@ -7,6 +7,13 @@ from .plots import html_hist_of_target_percent, html_map_of_target_percent, html
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import uuid
+import io
+import base64
+
 config = Configuration()
 churn_predictor = ChurnPredictor()
 
@@ -78,6 +85,8 @@ async def profile_selected_page(q: Q):
     # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
     # print(df[q.args.customers['Churn?']])
     cust_phone_no = q.args.customers[0]
+    q.client.selected_customer_index = df[df[config.id_column] == cust_phone_no].index[0] - 1
+
     if config.model_loaded:
         churn_pct = df[df[config.id_column] == cust_phone_no]['Churn.1'].values[0]
 
@@ -118,6 +127,30 @@ async def profile_selected_page(q: Q):
     q.page['stat_pie'] = ui.form_card(box='9 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
         ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
     ])
+
+    plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
+    image_filename = f'{str(uuid.uuid4())}.png'
+    plot.savefig(image_filename)
+    os.remove(image_filename)
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image = base64.b64encode(buf.read()).decode('utf-8')
+
+    q.page['shap_positive'] = ui.image_card(
+        box='3 4 5 -1',
+        title='An image',
+        type='png',
+        image=image,
+    )
+
+    q.page['shap_negative'] = ui.image_card(
+        box='8 4 5 -1',
+        title='An image',
+        type='png',
+        image=image,
+    )
+
 
 
 async def initialize_page(q: Q):
