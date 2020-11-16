@@ -38,7 +38,7 @@ class Configuration:
         if self.model_loaded:
             return "Churn Prediction"
         else:
-            return "Churn"
+            return "Churn?"
 
     def get_analysis_type(self):
         if self.model_loaded:
