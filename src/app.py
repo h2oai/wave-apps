@@ -114,7 +114,8 @@ async def initialize_page(q: Q):
 
     if not q.client.app_initialized:
         churn_predictor.build_model(config.training_data_url)
-        churn_predictor.predict(config.testing_data_url)
+        churn_predictor.set_testing_data_frame(config.testing_data_url)
+        churn_predictor.predict()
 
         q.app.header_png, = await q.site.upload([config.image_path])
         q.app.training_file_url, = await q.site.upload([config.working_data])
