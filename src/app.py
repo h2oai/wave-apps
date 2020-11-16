@@ -125,20 +125,19 @@ async def profile_selected_page(q: Q):
     plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     image = get_image_from_matplotlib(plot)
 
-    q.page['shap_positive'] = ui.image_card(
-        box='1 5 6 -1',
-        title='An image',
-        type='png',
-        image=image,
-    )
-
     q.page['shap_negative'] = ui.image_card(
-        box='6 5 6 -1',
+        box='1 5 -1 7',
         title='An image',
         type='png',
         image=image,
     )
 
+    q.page['shap_positive'] = ui.image_card(
+        box='1 12 -1 7',
+        title='An image',
+        type='png',
+        image=image,
+    )
 
 
 async def initialize_page(q: Q):
