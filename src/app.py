@@ -5,8 +5,10 @@ import numpy as np
 from .utils import ui_table_from_df, python_code_content
 from .plots import html_hist_of_target_percent, html_map_of_target_percent, stat_card_dollars
 from .config import Configuration
+from .churn_predictor import ChurnPredictor
 
 config = Configuration()
+churn_predictor = ChurnPredictor()
 
 
 def home_content(training_file_url, header_png):
