@@ -37,11 +37,7 @@ class ChurnPredictor:
         self.predicted_df = self.gbm.predict(self.test_df)
 
     def get_churn_rate_of_customer(self, row_index):
-        data = StringIO((self.predicted_df[row_index:row_index + 1, 2:]).get_frame_data())
-        df = pd.read_csv(data)
-        if not len(df.index) == 1:
-            raise Exception('Churn data frame should only contain one row. But rows {} found'.format(len(df.index)))
-        return round(float(df.values[0][0]) * 100, 2)
+        return round(float(self.predicted_df.as_data_frame()['TRUE'][row_index]) * 100, 2)
 
     def get_shap_explanation(self, row_index):
         return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
