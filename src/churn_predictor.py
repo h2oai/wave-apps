@@ -37,8 +37,6 @@ class ChurnPredictor:
         self.predicted_df = self.gbm.predict(self.test_df)
 
     def get_churn_rate_of_customer(self, row_index):
-        if not self.predicted_df:
-            print('No prediction data frame is set')
         data = StringIO((self.predicted_df[row_index:row_index + 1, 2:]).get_frame_data())
         df = pd.read_csv(data)
         if not len(df.index) == 1:
@@ -49,5 +47,7 @@ class ChurnPredictor:
         return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
 
     def get_partial_dependence_explanation(self, customer_no, feature):
+        contributions = self.gbm.predict_contributions(self.test_df)
+        print(contributions)
         pass
 
