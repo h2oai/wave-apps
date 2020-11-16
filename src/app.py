@@ -126,14 +126,14 @@ async def profile_selected_page(q: Q):
     image = get_image_from_matplotlib(plot)
 
     q.page['shap_negative'] = ui.image_card(
-        box='1 5 -1 7',
+        box='1 5 -1 11',
         title='An image',
         type='png',
         image=image,
     )
 
     q.page['shap_positive'] = ui.image_card(
-        box='1 12 -1 7',
+        box='1 16 -1 11',
         title='An image',
         type='png',
         image=image,
