@@ -13,6 +13,7 @@ class ChurnPredictor:
     def __init__(self):
         self.gbm = None
         self.train_df = None
+        self.test_df = None
         self.predicted_df = None
         h2o.init()
 
@@ -26,16 +27,17 @@ class ChurnPredictor:
         self.gbm = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)
         self.gbm.train(x=predictors, y=response, training_frame=train, validation_frame=valid)
 
-    def predict(self, testing_data_path=None):
-        test_df = self.train_df
+    def set_testing_data_frame(self, testing_data_path):
+        self.test_df = h2o.import_file(path=testing_data_path, destination_frame='telco_churn_test.csv')
 
-        if testing_data_path:
-            test_df = h2o.import_file(path=testing_data_path, destination_frame='telco_churn_test.csv')
-
-        self.predicted_df = self.gbm.predict(test_df)
+    def predict(self):
+        self.predicted_df = self.gbm.predict(self.test_df)
 
     def get_churn_rate_of_customer(self, customer_no):
         pass
 
     def get_shap_explanation(self, customer_no):
+        pass
+
+    def get_partial_dependence_explanation(self, customer_no, feature):
         pass
