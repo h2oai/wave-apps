@@ -42,8 +42,6 @@ def home_content(training_file_url, header_png):
 # TODO currently 3 cols hard coded, make this more general
 def dashboard_content():
 
-    print(config.working_data)
-
     column_name = config.get_column_type()
 
     items = [
@@ -75,8 +73,8 @@ def profile_content():
 async def profile_selected_page(q: Q):
     df = pd.read_csv(config.working_data)
 
-    q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
-
+    # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
+    # print(df[q.args.customers['Churn?']])
     if config.model_loaded:
         churn_pct = df[df[config.id_column] == q.args.customers]['Churn.1'].values[0]
 
@@ -86,7 +84,7 @@ async def profile_selected_page(q: Q):
             color = '$green'
 
         q.page['churn_stat'] = ui.tall_gauge_stat_card(
-            box='4 3 1 2',
+            box='4 4 1 2',
             title="Likelihood to Churn",
             value='={{intl foo style="percent" minimum_fraction_digits=2 maximum_fraction_digits=2}}',
             aux_value='',
@@ -99,12 +97,13 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-    q.page["day_stat"] = stat_card_dollars(df, q.args.customers[0], "Day Charges", 4, config.color)
-    q.page["eve_stat"] = stat_card_dollars(df, q.args.customers[0], "Evening Charges", 5, config.color)
-    q.page["night_stat"] = stat_card_dollars(df, q.args.customers[0], "Night Charges", 6, config.color)
-    q.page["intl_stat"] = stat_card_dollars(df, q.args.customers[0], "Int'l Charges", 7, config.color)
-
-    q.page["total_stat"] = stat_card_dollars(df, q.args.customers[0], "Total Charges", 9, config.color)
+    q.page["day_stat"]  = stat_card_dollars(df, q.args.customers[0], "Day Charges", '5 2 1 2', config.color)
+    q.page["eve_stat"] = stat_card_dollars(df, q.args.customers[0], "Evening Charges", '6 2 1 2', config.color)
+    q.page["night_stat"] = stat_card_dollars(df, q.args.customers[0], "Night Charges", '7 2 1 2', config.color)
+    q.page["intl_stat"] = stat_card_dollars(df, q.args.customers[0], "Int'l Charges", '5 4 1 2', config.color)
+    q.page["total_stat"] = stat_card_dollars(df, q.args.customers[0], "Total Charges", '7 4 1 2', config.total_gauge_color)
+    q.page['customer'] = ui.markdown_card(box='3 2 2 1', title='Customer', content=str(q.args.customers[0]))
+    q.page['prediction'] = ui.markdown_card(box='8 2 -1 4', title='Churn Rate', content=str(q.args.customers[0]))
 
 
 async def initialize_page(q: Q):
