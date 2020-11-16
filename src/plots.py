@@ -5,10 +5,6 @@ from plotly import io as pio
 
 from h2o_wave import ui
 
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-import uuid
 import io
 import base64
 
@@ -38,6 +34,7 @@ def html_map_of_target_percent(data_location, target_variable, state_variable, c
     }
 
     return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
+
 
 def html_pie_of_target_percent(title, labels, values):
 
@@ -103,6 +100,7 @@ def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
     )
     return card
 
+
 def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
 
     df['rank'] = df[x_variable].rank(pct=True)
@@ -118,6 +116,7 @@ def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
         data=dict(foo=cust[x_variable].values[0], bar=df['rank'].values[0]),
     )
     return card
+
 
 def get_image_from_matplotlib(matplotlib_obj):
     buffer = io.BytesIO()

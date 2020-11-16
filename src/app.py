@@ -7,13 +7,6 @@ from .plots import html_hist_of_target_percent, html_map_of_target_percent, html
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-import uuid
-import io
-import base64
-
 config = Configuration()
 churn_predictor = ChurnPredictor()
 
@@ -129,14 +122,6 @@ async def profile_selected_page(q: Q):
     ])
 
     plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
-    # # image_filename = f'{str(uuid.uuid4())}.png'
-    # # plot.savefig(image_filename)
-    # # os.remove(image_filename)
-    # buf = io.BytesIO()
-    # plot.savefig(buf, format='png')
-    # buf.seek(0)
-    # image = base64.b64encode(buf.read()).decode('utf-8')
-
     image = get_image_from_matplotlib(plot)
 
     q.page['shap_positive'] = ui.image_card(
