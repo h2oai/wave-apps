@@ -140,6 +140,8 @@ async def profile_selected_page(q: Q):
         image=image,
     )
 
+    plot = churn_predictor.get_partial_dependence_explanation(q.client.selected_customer_index, 's')
+
 
 async def initialize_page(q: Q):
 
