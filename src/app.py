@@ -113,14 +113,14 @@ async def profile_selected_page(q: Q):
     q.page['prediction'] = ui.small_stat_card(box='1 3 2 1', title='Churn Rate',
                                               value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
-    lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
-    values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[1]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
-              df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
+    labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
+    values = [df[df[config.id_column] == cust_phone_no][labels[0]].values[0],
+              df[df[config.id_column] == cust_phone_no][labels[1]].values[0],
+              df[df[config.id_column] == cust_phone_no][labels[2]].values[0],
+              df[df[config.id_column] == cust_phone_no][labels[3]].values[0]]
 
     q.page['stat_pie'] = ui.frame_card(box='8 2 -1 2', title='Total call charges breakdown',
-        content=html_pie_of_target_percent('', lables,values))
+        content=html_pie_of_target_percent('', labels,values))
 
     shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page['shap_plot'] = ui.image_card(
