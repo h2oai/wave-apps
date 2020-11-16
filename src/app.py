@@ -3,7 +3,7 @@ from h2o_wave import Q, ui, app, main
 import pandas as pd
 import numpy as np
 from .utils import ui_table_from_df, python_code_content
-from .plots import html_hist_of_target_percent, html_map_of_target_percent, html_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars
+from .plots import html_hist_of_target_percent, html_map_of_target_percent, html_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars, get_image_from_matplotlib
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
@@ -129,13 +129,15 @@ async def profile_selected_page(q: Q):
     ])
 
     plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
-    image_filename = f'{str(uuid.uuid4())}.png'
-    plot.savefig(image_filename)
-    os.remove(image_filename)
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    image = base64.b64encode(buf.read()).decode('utf-8')
+    # # image_filename = f'{str(uuid.uuid4())}.png'
+    # # plot.savefig(image_filename)
+    # # os.remove(image_filename)
+    # buf = io.BytesIO()
+    # plot.savefig(buf, format='png')
+    # buf.seek(0)
+    # image = base64.b64encode(buf.read()).decode('utf-8')
+
+    image = get_image_from_matplotlib(plot)
 
     q.page['shap_positive'] = ui.image_card(
         box='3 4 5 -1',

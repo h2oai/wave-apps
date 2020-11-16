@@ -25,8 +25,10 @@ class Configuration:
 
         self.model_loaded = False
         self.working_data = self.training_path
-        self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
-        self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
+        # self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
+        self.training_data_url = '/Users/datapattu-mbp16/IdeaProjects/wave-churn-risk/data/churnTrain.csv'
+        # self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
+        self.testing_data_url = '/Users/datapattu-mbp16/IdeaProjects/wave-churn-risk/data/churnTest.csv'
 
     def load_model(self, predictions_file_path):
         self.model_loaded = True
