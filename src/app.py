@@ -102,14 +102,15 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '4 2 2 1', config.color)
-    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '6 2 2 1', config.color)
-    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '4 3 2 1', config.color)
-    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '6 3 2 1', config.color)
-    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '8 2 1 2', config.total_gauge_color)
+    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '2 2 2 1', config.color)
+    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '4 2 2 1', config.color)
+    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '2 3 2 1', config.color)
+    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '4 3 2 1', config.color)
+    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '6 2 1 2', config.total_gauge_color)
 
-    q.page['customer'] = ui.markdown_card(box='3 2 1 1', title='Customer', content=str(cust_phone_no))
-    q.page['prediction'] = ui.small_stat_card(box='3 3 1 1', title='Churn Rate', value=str(round(0.1124254867559024 * 100, 2)) + ' %' )
+    q.page['customer'] = ui.markdown_card(box='1 2 1 1', title='Customer', content=str(cust_phone_no))
+    q.page['prediction'] = ui.small_stat_card(box='1 3 1 1', title='Churn Rate',
+                                              value=str(round(0.1124254867559024 * 100, 2)) + ' %')
 
     lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
     values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
@@ -117,7 +118,7 @@ async def profile_selected_page(q: Q):
               df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
               df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
 
-    q.page['stat_pie'] = ui.form_card(box='9 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
+    q.page['stat_pie'] = ui.form_card(box='7 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
         ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
     ])
 
@@ -125,14 +126,14 @@ async def profile_selected_page(q: Q):
     image = get_image_from_matplotlib(plot)
 
     q.page['shap_positive'] = ui.image_card(
-        box='3 4 5 -1',
+        box='1 5 6 -1',
         title='An image',
         type='png',
         image=image,
     )
 
     q.page['shap_negative'] = ui.image_card(
-        box='8 4 5 -1',
+        box='6 5 6 -1',
         title='An image',
         type='png',
         image=image,
@@ -157,26 +158,24 @@ async def initialize_page(q: Q):
     q.page.drop()
 
     q.page['title'] = ui.header_card(
-        box='1 1 -1 1',
+        box='1 1 3 1',
         title=config.title,
         subtitle=config.subtitle,
         icon=config.icon,
         icon_color=config.color,
     )
 
-    q.page['side_bar'] = ui.nav_card(
-        box='1 2 2 -1',
+    q.page['side_bar'] = ui.tab_card(
+        box='4 1 -1 1',
         items=[
-            ui.nav_group('Menu', items=[
-                ui.nav_item(name='#home', label='Home'),
-                ui.nav_item(name='#dashboard', label='Global Dashboard'),
-                ui.nav_item(name='#profile', label='Customer Profiles'),
-                ui.nav_item(name='#tour', label='Application Code'),
-            ])
+            ui.tab(name='#home', label='Home'),
+            ui.tab(name='#dashboard', label='Global Dashboard'),
+            ui.tab(name='#profile', label='Customer Profiles'),
+            ui.tab(name='#tour', label='Application Code'),
         ],
     )
     q.page['content'] = ui.form_card(
-        box='3 2 -1 -1',
+        box='1 2 -1 -1',
         items=content
     )
 
