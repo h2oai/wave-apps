@@ -9,6 +9,7 @@ class Configuration:
 
         self.training_path = 'data/churnTrain.csv'
         self.testing_path = 'data/churnTest.csv'
+        self.default_model = 'telco_churn_model'
 
         self.y_col = 'Churn'
         self.x_cols = ['Account_Length', 'No_Vmail_Messages', 'Total_Day_minutes', 'Total_Day_Calls',
