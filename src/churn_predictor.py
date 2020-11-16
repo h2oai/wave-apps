@@ -40,7 +40,7 @@ class ChurnPredictor:
         return round(0.1124254867559024 * 100, 2)
 
     def get_shap_explanation(self, row_index):
-        return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index, figsize=[20,6])
+        return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
 
     def get_partial_dependence_explanation(self, customer_no, feature):
         pass
