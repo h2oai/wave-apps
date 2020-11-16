@@ -109,7 +109,7 @@ async def profile_selected_page(q: Q):
     q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '4 3 2 1', config.color)
     q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '6 2 1 2', config.total_gauge_color)
 
-    q.page['customer'] = ui.markdown_card(box='1 2 1 1', title='Customer', content=str(cust_phone_no))
+    q.page['customer'] = ui.small_stat_card(box='1 2 1 1', title='Customer', value=str(cust_phone_no))
     q.page['prediction'] = ui.small_stat_card(box='1 3 1 1', title='Churn Rate',
                                               value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
