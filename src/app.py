@@ -3,7 +3,7 @@ from h2o_wave import Q, ui, app, main
 import pandas as pd
 import numpy as np
 from .utils import ui_table_from_df, python_code_content
-from .plots import html_hist_of_target_percent, html_map_of_target_percent, stat_card_dollars
+from .plots import html_hist_of_target_percent, html_map_of_target_percent, html_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
@@ -77,8 +77,9 @@ async def profile_selected_page(q: Q):
 
     # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
     # print(df[q.args.customers['Churn?']])
+    cust_phone_no = q.args.customers[0]
     if config.model_loaded:
-        churn_pct = df[df[config.id_column] == q.args.customers]['Churn.1'].values[0]
+        churn_pct = df[df[config.id_column] == cust_phone_no]['Churn.1'].values[0]
 
         if churn_pct > 0.5:
             color = '$red'
@@ -99,13 +100,24 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-    q.page["day_stat"]  = stat_card_dollars(df, q.args.customers[0], "Day Charges", '5 2 1 2', config.color)
-    q.page["eve_stat"] = stat_card_dollars(df, q.args.customers[0], "Evening Charges", '6 2 1 2', config.color)
-    q.page["night_stat"] = stat_card_dollars(df, q.args.customers[0], "Night Charges", '7 2 1 2', config.color)
-    q.page["intl_stat"] = stat_card_dollars(df, q.args.customers[0], "Int'l Charges", '5 4 1 2', config.color)
-    q.page["total_stat"] = stat_card_dollars(df, q.args.customers[0], "Total Charges", '7 4 1 2', config.total_gauge_color)
-    q.page['customer'] = ui.markdown_card(box='3 2 2 1', title='Customer', content=str(q.args.customers[0]))
-    q.page['prediction'] = ui.markdown_card(box='8 2 -1 4', title='Churn Rate', content=str(q.args.customers[0]))
+    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '4 2 2 1', config.color)
+    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '6 2 2 1', config.color)
+    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '4 3 2 1', config.color)
+    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '6 3 2 1', config.color)
+    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '8 2 1 2', config.total_gauge_color)
+
+    q.page['customer'] = ui.markdown_card(box='3 2 1 1', title='Customer', content=str(cust_phone_no))
+    q.page['prediction'] = ui.small_stat_card(box='3 3 1 1', title='Churn Rate', value=str(round(0.1124254867559024 * 100, 2)) + ' %' )
+
+    lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
+    values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
+              df[df[config.id_column] == cust_phone_no][lables[1]].values[0],
+              df[df[config.id_column] == cust_phone_no][lables[2]].values[0],
+              df[df[config.id_column] == cust_phone_no][lables[3]].values[0]]
+
+    q.page['stat_pie'] = ui.form_card(box='9 2 -1 4', items=[ui.text_xl('Total call charges breakdown'),
+        ui.frame(content=html_pie_of_target_percent('', lables,values), height='95%')
+    ])
 
 
 async def initialize_page(q: Q):
