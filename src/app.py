@@ -73,6 +73,7 @@ def profile_content():
 
 
 async def profile_selected_page(q: Q):
+    del q.page["content"]
     df = pd.read_csv(config.testing_data_url)
 
     # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
