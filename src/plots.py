@@ -33,6 +33,19 @@ def html_map_of_target_percent(data_location, target_variable, state_variable, c
 
     return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
 
+def html_pie_of_target_percent(title, labels, values):
+
+    config = {
+        'scrollZoom': False,
+        'displayModeBar': None
+    }
+
+    fig = go.Figure(data=[go.Pie(title=title, labels=labels, values=values)])
+
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=20)
+
+    return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
+
 
 def html_hist_of_target_percent(data_location, target_varible, x_variable, company_color):
     df = pd.read_csv(data_location)
@@ -68,12 +81,28 @@ def html_hist_of_target_percent(data_location, target_varible, x_variable, compa
     return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
 
 
-def stat_card_dollars(df, cust_id, x_variable, box, company_color):
+def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
 
     df['rank'] = df[x_variable].rank(pct=True)
     cust = df[df["Phone_No"] == cust_id]
 
     card = ui.tall_gauge_stat_card(
+        box=box,
+        title=x_variable,
+        value='=${{intl foo minimum_fraction_digits=2 maximum_fraction_digits=2}}',
+        aux_value='={{intl bar style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
+        plot_color=company_color,
+        progress=df['rank'].values[0],
+        data=dict(foo=cust[x_variable].values[0], bar=df['rank'].values[0]),
+    )
+    return card
+
+def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
+
+    df['rank'] = df[x_variable].rank(pct=True)
+    cust = df[df["Phone_No"] == cust_id]
+
+    card = ui.wide_gauge_stat_card(
         box=box,
         title=x_variable,
         value='=${{intl foo minimum_fraction_digits=2 maximum_fraction_digits=2}}',
