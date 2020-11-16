@@ -25,6 +25,8 @@ class Configuration:
 
         self.model_loaded = False
         self.working_data = self.training_path
+        self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
+        self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
 
     def load_model(self, predictions_file_path):
         self.model_loaded = True
