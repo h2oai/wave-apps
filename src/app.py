@@ -60,7 +60,7 @@ def dashboard_content():
 
 
 def profile_content():
-    df = pd.read_csv(config.working_data).head(40)
+    df = pd.read_csv(config.testing_data_url).head(40)
 
     choices = [ui.choice(name=phone, label=f'{phone}') for phone in df[config.id_column]]
 
@@ -73,12 +73,12 @@ def profile_content():
 
 
 async def profile_selected_page(q: Q):
-    df = pd.read_csv(config.working_data)
+    df = pd.read_csv(config.testing_data_url)
 
     # q.page["content"].items = [ui.text_xl(content="Values and Percentiles for Customer: " + str(q.args.customers[0]))]
     # print(df[q.args.customers['Churn?']])
     cust_phone_no = q.args.customers[0]
-    q.client.selected_customer_index = df[df[config.id_column] == cust_phone_no].index[0] - 1
+    q.client.selected_customer_index = df[df[config.id_column] == cust_phone_no].index[0]
 
     if config.model_loaded:
         churn_pct = df[df[config.id_column] == cust_phone_no]['Churn.1'].values[0]
@@ -110,7 +110,7 @@ async def profile_selected_page(q: Q):
 
     q.page['customer'] = ui.markdown_card(box='1 2 1 1', title='Customer', content=str(cust_phone_no))
     q.page['prediction'] = ui.small_stat_card(box='1 3 1 1', title='Churn Rate',
-                                              value=str(round(0.1124254867559024 * 100, 2)) + ' %')
+                                              value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
     lables = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
     values = [df[df[config.id_column] == cust_phone_no][lables[0]].values[0],
