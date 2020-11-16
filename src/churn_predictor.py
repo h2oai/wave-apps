@@ -20,7 +20,7 @@ class ChurnPredictor:
         train_df = h2o.import_file(path=training_data_path, destination_frame='telco_churn_train.csv')
 
         predictors = train_df.columns
-        response = "Churn"
+        response = "Churn?"
         train, valid = train_df.split_frame([0.8])
 
         self.gbm = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)

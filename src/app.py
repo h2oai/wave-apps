@@ -113,6 +113,9 @@ async def initialize_page(q: Q):
     content = []
 
     if not q.client.app_initialized:
+        churn_predictor.build_model(config.training_data_url)
+        churn_predictor.predict(config.testing_data_url)
+
         q.app.header_png, = await q.site.upload([config.image_path])
         q.app.training_file_url, = await q.site.upload([config.working_data])
         content = home_content(q.app.training_file_url, q.app.header_png)
