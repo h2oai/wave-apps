@@ -34,5 +34,8 @@ class ChurnPredictor:
 
         self.predicted_df = self.gbm.predict(test_df)
 
+    def churn_rate_of_customer(self, customer_no):
+        pass
+
     def get_shap_explanation(self, customer_no):
         pass
