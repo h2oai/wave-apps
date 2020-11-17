@@ -1,8 +1,14 @@
-import h2o  # Use at least 3.32.0.1 for AutoExplain
+import h2o
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
 class ChurnPredictor:
+    """
+    Wrapper for H2O-3
+
+    ChurnPredictor builds an abstraction between H2O-3 machine learning library and the Churn Risk app
+    giving the developer to freedom to integrate any 3rd party machine library with a minimal change to the app code.
+    """
     def __init__(self):
         self.gbm = None
         self.train_df = None
@@ -36,9 +42,21 @@ class ChurnPredictor:
         return self.gbm.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
 
     def get_top_negative_pd_explanation(self, row_index):
+        """
+        Return the partial dependence explanation of the top negatively contributing feature.
+
+        :param row_index: row index to select from H2OFrame for the explanation
+        :return: matplotlib figure object
+        """
         column_index = self.contributions_df.idxmin(axis=1).as_data_frame()['which.min'][row_index]
         return self.gbm.pd_plot(frame=self.test_df, row_index=row_index, column=self.test_df.col_names[column_index])
 
     def get_top_positive_pd_explanation(self, row_index):
+        """
+        Return the partial dependence explanation of the top positively contributing feature.
+
+        :param row_index: row index to select from H2OFrame for the explanation
+        :return: matplotlib figure object
+        """
         column_index = self.contributions_df.idxmax(axis=1).as_data_frame()['which.max'][row_index]
         return self.gbm.pd_plot(frame=self.test_df, row_index=row_index, column=self.test_df.col_names[column_index])
