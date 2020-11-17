@@ -7,27 +7,14 @@ import io
 import base64
 
 
-def html_pie_of_target_percent(title, labels, values):
-
-    config = {
-        'scrollZoom': False,
-        'displayModeBar': None
-    }
-
-    layout = go.Layout(
-        margin=go.layout.Margin(
-            l=0,
-            r=0,
-            b=0,
-            t=0,
-            pad=0,
-            autoexpand=True
-        )
-    )
-
+def generate_figure_pie_of_target_percent(title, labels, values, layout):
     fig = go.Figure(data=[go.Pie(title=title, labels=labels, values=values)], layout=layout)
-    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=14)
-    return pio.to_html(fig, validate=False, include_plotlyjs='cdn', config=config)
+    return fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=14)
+    return convert_plot_to_html(config, fig)
+
+
+def convert_plot_to_html(config, fig, include_plotlyjs, validate):
+    return pio.to_html(fig, validate=validate, include_plotlyjs=include_plotlyjs, config=config)
 
 
 def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
