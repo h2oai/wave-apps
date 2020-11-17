@@ -117,11 +117,12 @@ async def initialize_page(q: Q):
         icon_color=config.color,
     )
 
-    q.page['nav_bar'] = ui.tab_card(
+    q.page['nav_bar'] = ui.form_card(
         box=config.boxes['navbar'],
         items=[
-            ui.tab(name='#profile', label='Customer Profiles'),
-            ui.tab(name='#tour', label='Application Code'),
+            ui.tabs(name="menu", value=q.args.menu, items=[
+                ui.tab(name='profile', label='Customer Profiles'),
+                ui.tab(name='tour', label='Application Code')])
         ],
     )
     q.page['content'] = ui.form_card(
@@ -142,12 +143,12 @@ async def serve(q: Q):
         await profile_selected_page(q)
 
     else:
-        hash = q.args['#']
+        tab = q.args['menu']
 
-        if hash == 'profile':
+        if tab == 'profile':
             content.items = profile_content()
 
-        elif hash == 'tour':
+        elif tab == 'tour':
             content.items = python_code_content('app.py')
 
     await q.page.save()
