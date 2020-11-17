@@ -15,7 +15,7 @@ def profile_content():
 
     choices = [ui.choice(name=phone, label=f'{phone}') for phone in df[config.id_column]]
     items = [
-        ui.text_xl(f'Customer Profiles from {config.get_analysis_type()}'),
+        ui.text_xl(f'Customer Profiles from Model Predictions'),
         ui.picker(name='customers', label=f'Customer Phone Number', choices=choices, max_choices=1,
                   tooltip='Start typing to search for a customer'),
         ui.button(name='select_customer_button', label='Submit', primary=True)
