@@ -128,13 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# InetlliJ
 .idea
 *.iml
-
-# Wave
-*.state
-
-# Test in Wave Apps
-unit-test-report/
-*.xml
