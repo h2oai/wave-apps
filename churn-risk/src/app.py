@@ -1,8 +1,10 @@
 from h2o_wave import Q, ui, app, main
 
 import pandas as pd
+from plotly import graph_objects as go
 from .utils import python_code_content
-from .plots import html_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars, get_image_from_matplotlib
+from .plots import generate_figure_pie_of_target_percent, wide_stat_card_dollars, tall_stat_card_dollars, \
+    get_image_from_matplotlib, convert_plot_to_html
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
@@ -62,7 +64,6 @@ def populate_churn_plots(q):
 
 
 def populate_customer_churn_stats(cust_phone_no, df, q):
-
     df['Total Charges'] = df.Total_Day_charge + df.Total_Eve_Charge + df.Total_Night_Charge + df.Total_Intl_Charge
 
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
@@ -92,12 +93,17 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
               df[df[config.id_column] == cust_phone_no][labels[2]].values[0],
               df[df[config.id_column] == cust_phone_no][labels[3]].values[0]]
 
+    html_plot = generate_figure_pie_of_target_percent('', labels, values, get_figure_layout())
+
     q.page['stat_pie'] = ui.frame_card(box=config.boxes['stat_pie'], title='Total call charges breakdown',
-                                       content=html_pie_of_target_percent('', labels, values))
+                                       content=convert_plot_to_html(config.figure_config, html_plot, 'cdn', False))
+
+
+def get_figure_layout():
+    return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True))
 
 
 async def initialize_page(q: Q):
-
     content = []
 
     if not q.client.app_initialized:

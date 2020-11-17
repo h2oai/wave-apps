@@ -8,3 +8,6 @@ tabulate
 colorama>=0.3.8
 future
 matplotlib
+pytest==4.4.0
+pytest-mock==1.10.3
+pytest-watch==4.2.0
