@@ -24,18 +24,18 @@ def profile_content():
     return items
 
 
-async def profile_selected_page(q: Q):
+def profile_selected_page(q: Q):
     del q.page["content"]
     df = pd.read_csv(config.testing_data_url)
 
     cust_phone_no = q.args.customers[0]
     q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
 
-    await populate_customer_churn_stats(cust_phone_no, df, q)
-    await populate_churn_plots(q)
+    populate_customer_churn_stats(cust_phone_no, df, q)
+    populate_churn_plots(q)
 
 
-async def populate_churn_plots(q):
+def populate_churn_plots(q):
     shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page['shap_plot'] = ui.image_card(
         box=config.boxes['shap_plot'],
@@ -61,7 +61,7 @@ async def populate_churn_plots(q):
     )
 
 
-async def populate_customer_churn_stats(cust_phone_no, df, q):
+def populate_customer_churn_stats(cust_phone_no, df, q):
 
     df['Total Charges'] = df.Total_Day_charge + df.Total_Eve_Charge + df.Total_Night_Charge + df.Total_Intl_Charge
 
@@ -135,8 +135,6 @@ async def initialize_page(q: Q):
         items=content
     )
 
-    await q.page.save()
-
 
 @app('/')
 async def serve(q: Q):
@@ -144,7 +142,7 @@ async def serve(q: Q):
     content = q.page["content"]
 
     if q.args.select_customer_button:
-        await profile_selected_page(q)
+        profile_selected_page(q)
     else:
         tab = q.args['menu']
 
