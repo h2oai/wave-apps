@@ -48,19 +48,3 @@ class Configuration:
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
         }
-
-    def load_model(self, predictions_file_path):
-        self.model_loaded = True
-        self.working_data = predictions_file_path
-
-    def get_column_type(self):
-        if self.model_loaded:
-            return "Churn Prediction"
-        else:
-            return "Churn?"
-
-    def get_analysis_type(self):
-        if self.model_loaded:
-            return "Model Predictions"
-        else:
-            return "Historical Data"
