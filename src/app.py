@@ -33,14 +33,14 @@ async def profile_selected_page(q: Q):
     df = df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge", "Total_Intl_Charge", config.id_column,
              "Total Charges"]]
     df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", '3 2 2 1', config.color)
-    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", '5 2 2 1', config.color)
-    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", '3 3 2 1', config.color)
-    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", '5 3 2 1', config.color)
-    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", '7 2 1 2', config.total_gauge_color)
+    q.page["day_stat"]  = wide_stat_card_dollars(df, cust_phone_no, "Day Charges", config.boxes['day_stat'], config.color)
+    q.page["eve_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Evening Charges", config.boxes['eve_stat'], config.color)
+    q.page["night_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Night Charges", config.boxes['night_stat'], config.color)
+    q.page["intl_stat"] = wide_stat_card_dollars(df, cust_phone_no, "Int'l Charges", config.boxes['intl_stat'], config.color)
+    q.page["total_stat"] = tall_stat_card_dollars(df, cust_phone_no, "Total Charges", config.boxes['total_stat'], config.total_gauge_color)
 
-    q.page['customer'] = ui.small_stat_card(box='1 2 2 1', title='Customer', value=str(cust_phone_no))
-    q.page['prediction'] = ui.small_stat_card(box='1 3 2 1', title='Churn Rate',
+    q.page['customer'] = ui.small_stat_card(box=config.boxes['customer'], title='Customer', value=str(cust_phone_no))
+    q.page['churn_rate'] = ui.small_stat_card(box=config.boxes['churn_rate'], title='Churn Rate',
                                               value=str(churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)) + ' %')
 
     labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
@@ -49,12 +49,12 @@ async def profile_selected_page(q: Q):
               df[df[config.id_column] == cust_phone_no][labels[2]].values[0],
               df[df[config.id_column] == cust_phone_no][labels[3]].values[0]]
 
-    q.page['stat_pie'] = ui.frame_card(box='8 2 -1 2', title='Total call charges breakdown',
+    q.page['stat_pie'] = ui.frame_card(box=config.boxes['stat_pie'], title='Total call charges breakdown',
         content=html_pie_of_target_percent('', labels,values))
 
     shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page['shap_plot'] = ui.image_card(
-        box='1 4 -1 11',
+        box=config.boxes['shap_plot'],
         title='',
         type='png',
         image=get_image_from_matplotlib(shap_plot),
@@ -62,7 +62,7 @@ async def profile_selected_page(q: Q):
 
     top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
     q.page['top_negative_pd_plot'] = ui.image_card(
-        box='1 15 -1 11',
+        box=config.boxes['top_negative_pd_plot'],
         title='',
         type='png',
         image=get_image_from_matplotlib(top_negative_pd_plot),
@@ -70,7 +70,7 @@ async def profile_selected_page(q: Q):
 
     top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
     q.page['top_positive_pd_plot'] = ui.image_card(
-        box='1 26 -1 11',
+        box=config.boxes['top_positive_pd_plot'],
         title='',
         type='png',
         image=get_image_from_matplotlib(top_positive_pd_plot),
@@ -93,22 +93,22 @@ async def initialize_page(q: Q):
     q.page.drop()
 
     q.page['title'] = ui.header_card(
-        box='1 1 3 1',
+        box=config.boxes['banner'],
         title=config.title,
         subtitle=config.subtitle,
         icon=config.icon,
         icon_color=config.color,
     )
 
-    q.page['side_bar'] = ui.tab_card(
-        box='4 1 -1 1',
+    q.page['nav_bar'] = ui.tab_card(
+        box=config.boxes['navbar'],
         items=[
             ui.tab(name='#profile', label='Customer Profiles'),
             ui.tab(name='#tour', label='Application Code'),
         ],
     )
     q.page['content'] = ui.form_card(
-        box='1 2 -1 -1',
+        box=config.boxes['content'],
         items=content
     )
 
