@@ -3,7 +3,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 | Application Name                                             | Priority | Progress                                                     | Something Can Be Demod Today |
 | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ | ---------------------------- |
-| [Mitigating Churn Risk](churn-risk/README.md)                | 1        | Needs to be re-written for OSS                               | √                            |
+| [Mitigating Churn Risk](churn-risk-bak/README.md)                | 1        | Needs to be re-written for OSS                               | √                            |
 | [Automatic Restock](automatic-restock/README.md)             | 1        |                                                              |                              |
 | [Sales Forecasting EDA](sales-forecasting/README.md)         | 2        | Needs to be re-written for OSS                               | √                            |
 | [Explaining Ratings](explaining-ratings/README.md)           | 2        | Explainable NLP app exists, need to make a paired down use case focused version | √                            |
@@ -115,7 +115,7 @@ Sample AI Apps built with H2O Wave. Maintained by the Wave core team.
 
 
 
-### [Mitigating Churn Risk](churn-risk/README.md)
+### [Mitigating Churn Risk](churn-risk-bak/README.md)
 
 **Industry**: Telco
 
