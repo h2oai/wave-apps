@@ -9,18 +9,20 @@ from .churn_predictor import ChurnPredictor
 config = Configuration()
 churn_predictor = ChurnPredictor()
 
+
 def profile_content():
     df = pd.read_csv(config.testing_data_url).head(40)
 
     choices = [ui.choice(name=phone, label=f'{phone}') for phone in df[config.id_column]]
-
     items = [
         ui.text_xl(f'Customer Profiles from {config.get_analysis_type()}'),
         ui.picker(name='customers', label=f'Customer Phone Number', choices=choices, max_choices=1,
                   tooltip='Start typing to search for a customer'),
         ui.button(name='select_customer_button', label='Submit', primary=True)
     ]
+
     return items
+
 
 async def profile_selected_page(q: Q):
     del q.page["content"]
@@ -30,7 +32,6 @@ async def profile_selected_page(q: Q):
     q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
 
     await populate_customer_churn_stats(cust_phone_no, df, q)
-
     await populate_churn_plots(q)
 
 
@@ -42,6 +43,7 @@ async def populate_churn_plots(q):
         type='png',
         image=get_image_from_matplotlib(shap_plot),
     )
+
     top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
     q.page['top_negative_pd_plot'] = ui.image_card(
         box=config.boxes['top_negative_pd_plot'],
@@ -49,6 +51,7 @@ async def populate_churn_plots(q):
         type='png',
         image=get_image_from_matplotlib(top_negative_pd_plot),
     )
+
     top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
     q.page['top_positive_pd_plot'] = ui.image_card(
         box=config.boxes['top_positive_pd_plot'],
@@ -98,6 +101,7 @@ async def initialize_page(q: Q):
     content = []
 
     if not q.client.app_initialized:
+        # Initialize H2O-3 model and tests data set
         churn_predictor.build_model(config.training_data_url)
         churn_predictor.set_testing_data_frame(config.testing_data_url)
         churn_predictor.predict()
@@ -125,6 +129,7 @@ async def initialize_page(q: Q):
                 ui.tab(name='tour', label='Application Code')])
         ],
     )
+
     q.page['content'] = ui.form_card(
         box=config.boxes['content'],
         items=content
@@ -135,19 +140,16 @@ async def initialize_page(q: Q):
 
 @app('/')
 async def serve(q: Q):
-
     await initialize_page(q)
     content = q.page["content"]
 
     if q.args.select_customer_button:
         await profile_selected_page(q)
-
     else:
         tab = q.args['menu']
 
         if tab == 'profile':
             content.items = profile_content()
-
         elif tab == 'tour':
             content.items = python_code_content('app.py')
 
