@@ -8,6 +8,8 @@ from .plots import generate_figure_pie_of_target_percent, wide_stat_card_dollars
 from .config import Configuration
 from .churn_predictor import ChurnPredictor
 
+from test.e2e import walkthrough
+
 config = Configuration()
 churn_predictor = ChurnPredictor()
 
