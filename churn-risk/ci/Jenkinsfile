@@ -69,7 +69,7 @@ ansiColor("xterm") {
                                             -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
                                             -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
                                             ${waveTag} \
-                                            bash -c 'apt-get install openjdk-11-jre ; . /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                                            bash -c 'sudo apt-get install openjdk-11-jre -y ; . /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
                                     """
                                 } finally {
                                     ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
