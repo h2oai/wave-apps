@@ -1,4 +1,4 @@
-FROM wave-test:${DOCKER_TAG}
+FROM ${DOCKER_TAG}
 
 #ENV FLASK_APP=app.py
 #ENV FLASK_RUN_HOST=0.0.0.0
