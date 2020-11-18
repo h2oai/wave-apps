@@ -42,11 +42,12 @@ ansiColor("xterm") {
                 parallel([
                         E2E : {
                             withCredentials([
-                                    AmazonWebServicesCredentialsBinding(
+                                    [
+                                            $class: 'AmazonWebServicesCredentialsBinding',
                                             credentialsId: 'awsArtifactsUploader',
                                             accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                             secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                                    )
+                                    ]
                             ]) {
                                 def workspace = env.WORKSPACE
                                 sh "mkdir -p cypress/videos cypress/reports cypress/screenshots cypress/integration"
