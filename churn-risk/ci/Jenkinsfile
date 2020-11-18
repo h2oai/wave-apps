@@ -40,6 +40,9 @@ ansiColor("xterm") {
                 }
             }
             stage("Run tests") {
+                environment {
+                    DOCKER_TAG = waveTag
+                }
                 parallel([
                         E2E : {
                             withCredentials([
