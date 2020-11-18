@@ -29,7 +29,7 @@ def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
         aux_value='={{intl bar style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
         plot_color=company_color,
         progress=df['rank'].values[0],
-        data=dict(foo=cust[x_variable].values[0], bar=df['rank'].values[0]),
+        data=dict(charge=cust[x_variable].values[0], rank=df['rank'].values[0]),
     )
     return card
 
@@ -46,7 +46,7 @@ def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
         aux_value='={{intl bar style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
         plot_color=company_color,
         progress=df['rank'].values[0],
-        data=dict(foo=cust[x_variable].values[0], bar=df['rank'].values[0]),
+        data=dict(charge=cust[x_variable].values[0], rank=df['rank'].values[0]),
     )
     return card
 
