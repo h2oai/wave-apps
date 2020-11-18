@@ -24,4 +24,11 @@ wave run src.app
 
 4. Point your web browswer to localhost:55555
 
+5. Generate test coverage report.
+
+```bash
+pytest --cov={APP_SOURCE_DIRECTORY} --cov-report html
+```
+This will generate an html report inside htmlcov directory.
+
 In the future, if you want to run this app you can skip step 2 as the environment is already set up
