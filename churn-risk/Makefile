@@ -14,7 +14,6 @@ setup:
 	$(MAKE) install
 
 install: ## Install dependencies
-	pip install http://h2o-release.s3.amazonaws.com/h2o/rel-zermelo/1/Python/h2o-3.32.0.1-py2.py3-none-any.whl
 	pip install -r requirements.txt
 
 clean: ## Clean
