@@ -15,6 +15,7 @@ ansiColor("xterm") {
             def waveRevision = params.getOrDefault("WAVE_REVISION", "master")
             def version = waveRevision.replaceAll("/", "-")
             def waveTag = "wave-test:${version}"
+            def appDir = "churn-risk"
 
             stage("Init") {
                 deleteDir()
@@ -59,7 +60,7 @@ ansiColor("xterm") {
                                             -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
                                             -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
                                             -e PYTHONPATH=/app \
-                                            -v ${workspace}:/app \
+                                            -v ${workspace}/${appDir}:/app \
                                             -v ${workspace}/cypress/screenshots:/wave/test/cypress/screenshots \
                                             -v ${workspace}/cypress/videos:/wave/test/cypress/videos \
                                             -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
