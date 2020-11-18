@@ -36,6 +36,7 @@ ansiColor("xterm") {
                         ${gitCommand} clone --single-branch --branch ${waveRevision} git@github.com:h2oai/wave.git
                         cd wave
                         VERSION=${version} make build-docker
+                        DOCKER_TAG=${waveTag} docker build -t ${waveTag} /churn-risk/ci/docker/
                     """
                 }
             }
@@ -69,7 +70,7 @@ ansiColor("xterm") {
                                             -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
                                             -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
                                             ${waveTag} \
-                                            bash -c 'sudo apt-get install openjdk-11-jre -y ; . /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                                            bash -c 'apt-get install openjdk-11-jre -y ; . /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
                                     """
                                 } finally {
                                     ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
