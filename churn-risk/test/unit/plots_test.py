@@ -1,7 +1,10 @@
 import pytest
 import src.plots as plots
 from plotly import graph_objects as go
+import pandas as pd
 
+pytest.df = pd.read_csv('data/churnTest.csv')
+id_column = "Phone_No"
 
 def test_pie_chart_figure_generation():
     labels = ['Day Charges', 'Evening Charges', 'Night Charges', 'Intl Charges']
@@ -55,3 +58,49 @@ def test_html_pie_chart_conversion_missing_param():
         layout = go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True))
         pie_chart = plots.generate_figure_pie_of_target_percent(title, labels, values, layout)
         plots.convert_plot_to_html(None, pie_chart, 'cdn')
+
+def test_wide_stat_card_for_dollars():
+    cust_phone_no = 4034933
+    day_charges = "Day Charges"
+    day_stat_box = "3 2 2 1"
+    plot_color = '#00A8E0'
+
+    pytest.df['Total Charges'] = pytest.df.Total_Day_charge + pytest.df.Total_Eve_Charge\
+                                 + pytest.df.Total_Night_Charge + pytest.df.Total_Intl_Charge
+
+    df = pytest.df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge",
+                    "Total_Intl_Charge", id_column, "Total Charges"]]
+
+    df.columns = [day_charges, "Evening Charges", "Night Charges", "Int'l Charges", id_column, "Total Charges"]
+
+    wide_stat_card = plots.wide_stat_card_dollars(df, cust_phone_no, day_charges, day_stat_box,plot_color)
+
+    assert_stat_card(cust_phone_no, day_charges, day_stat_box, df, plot_color, wide_stat_card)
+
+def test_tall_stat_card_for_dollars():
+    cust_phone_no = 4034933
+    day_charges = "Day Charges"
+    day_stat_box = "3 2 2 1"
+    plot_color = '#00A8E0'
+
+    pytest.df['Total Charges'] = pytest.df.Total_Day_charge + pytest.df.Total_Eve_Charge\
+                                 + pytest.df.Total_Night_Charge + pytest.df.Total_Intl_Charge
+
+    df = pytest.df[["Total_Day_charge", "Total_Eve_Charge", "Total_Night_Charge",
+                    "Total_Intl_Charge", id_column, "Total Charges"]]
+
+    df.columns = [day_charges, "Evening Charges", "Night Charges", "Int'l Charges", id_column, "Total Charges"]
+
+    wide_stat_card = plots.tall_stat_card_dollars(df, cust_phone_no, day_charges, day_stat_box,plot_color)
+
+    assert_stat_card(cust_phone_no, day_charges, day_stat_box, df, plot_color, wide_stat_card)
+
+
+def assert_stat_card(cust_phone_no, day_charges, day_stat_box, df, plot_color, wide_stat_card):
+    rank = df['rank'] = df[day_charges].rank(pct=True)
+    assert wide_stat_card.title == day_charges
+    assert wide_stat_card.box == day_stat_box
+    assert wide_stat_card.plot_color == plot_color
+    assert wide_stat_card.progress == rank.values[0]
+    assert wide_stat_card.data['charge'] == df[df[id_column] == cust_phone_no][day_charges].values[0]
+    assert wide_stat_card.data['rank'] == rank.values[0]
