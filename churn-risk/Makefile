@@ -6,11 +6,14 @@ all: ## Build wheel
         --exclude="*__pycache__/*" \
         $(shell basename $$PWD).qz .
 
-setup: ## Install dependencies
+setup:
 	python3 -m venv venv
 	. ./venv/bin/activate
 	pip install -U pip
 	pip install wheel
+	$(MAKE) install
+
+install: ## Install dependencies
 	pip install -r requirements.txt
 
 clean: ## Clean
