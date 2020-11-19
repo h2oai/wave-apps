@@ -25,8 +25,8 @@ def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
     card = ui.tall_gauge_stat_card(
         box=box,
         title=x_variable,
-        value='=${{intl foo minimum_fraction_digits=2 maximum_fraction_digits=2}}',
-        aux_value='={{intl bar style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
+        value='=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}',
+        aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
         plot_color=company_color,
         progress=df['rank'].values[0],
         data=dict(charge=cust[x_variable].values[0], rank=df['rank'].values[0]),
@@ -42,8 +42,8 @@ def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
     card = ui.wide_gauge_stat_card(
         box=box,
         title=x_variable,
-        value='=${{intl foo minimum_fraction_digits=2 maximum_fraction_digits=2}}',
-        aux_value='={{intl bar style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
+        value='=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}',
+        aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
         plot_color=company_color,
         progress=df['rank'].values[0],
         data=dict(charge=cust[x_variable].values[0], rank=df['rank'].values[0]),
