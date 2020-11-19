@@ -27,9 +27,9 @@ class Configuration:
         self.model_loaded = False
         self.working_data = self.training_path
         # self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
-        self.training_data_url = 'data/churnTrain.csv'
+        self.training_data_url = './data/churnTrain.csv'
         # self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
-        self.testing_data_url = 'data/churnTest.csv'
+        self.testing_data_url = './data/churnTest.csv'
 
         self.boxes = {
             "banner": "1 1 3 1",
