@@ -10,7 +10,7 @@ def app_walkthrough(cy: Cypress):
     def getbuttoncontain(name: str, *args):
         return cy.get('button').contains(f'{name}', *args)
 
-    cy.visit("/")
+    cy.visit("/abc")
     # getbuttoncontain('Customer Profiles').click()
     # cy.get('[data-test=customers]').click()
     # cy.get('[data-test=customers]').type('3548815')
