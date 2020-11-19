@@ -15,7 +15,8 @@ ansiColor("xterm") {
             def waveRevision = params.getOrDefault("WAVE_REVISION", "master")
             def version = waveRevision.replaceAll("/", "-")
             def waveTag = "wave-test:${version}"
-            def appDir = "${workspace}/churn-risk"
+            def appModule = "churn-risk"
+            def appDir = "${workspace}/${appModule}"
 
             stage("Init") {
                 deleteDir()
@@ -87,7 +88,7 @@ ansiColor("xterm") {
                                     ${waveTag} \
                                     bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=. --cov-report html'
                                 """
-                            archiveArtifacts artifacts: "churn-risk/htmlcov/**/*.*", fingerprint: true
+                            archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
                         }
                 ])
             }
