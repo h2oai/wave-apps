@@ -87,7 +87,7 @@ ansiColor("xterm") {
                                     ${waveTag} \
                                     bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=. --cov-report html'
                                 """
-                            archiveArtifacts artifacts: "${appDir}/htmlcov/**/*.*", fingerprint: true
+                            archiveArtifacts artifacts: "churn-risk/htmlcov/**/*.*", fingerprint: true
                         }
                 ])
             }
