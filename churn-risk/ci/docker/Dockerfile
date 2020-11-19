@@ -1,6 +1,9 @@
 ARG WAVE_IMAGE
 FROM ${WAVE_IMAGE}
 
+ARG uid
+ARG gid
+
 #ENV FLASK_APP=app.py
 #ENV FLASK_RUN_HOST=0.0.0.0
 RUN apt-get install openjdk-11-jre -y
