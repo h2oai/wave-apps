@@ -87,6 +87,7 @@ ansiColor("xterm") {
                                     ${waveTag} \
                                     bash -c '. /wave/py/venv/bin/activate ; make install ; pytest'
                                 """
+                            archiveArtifacts artifacts: '${workspace}/${appDir}/htmlcov/**/*.*', fingerprint: true
                         }
                 ])
             }

@@ -1,6 +1,5 @@
 ARG WAVE_IMAGE
 FROM ${WAVE_IMAGE}
-ENV DEBIAN_FRONTEND=noninteractive
 
 ARG uid
 
@@ -12,4 +11,3 @@ RUN apt-get install -q -y openjdk-11-jre
 USER ${uid}
 
 WORKDIR /app
-
