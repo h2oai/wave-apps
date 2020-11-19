@@ -80,16 +80,22 @@ ansiColor("xterm") {
                             }
                         },
                         Unit: {
-                            sh """
+                            try {
+                                sh """
                                 docker run -t --rm \
                                     -u \$(id -u) \
                                     -e PYTHONPATH=/app \
                                     -v ${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=src --cov-report html  --cov-report xml'
+                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=src --cov-report html  --junit-xml=unit-test-report.xml --html=unit-test-report.html'
                                 """
-                            archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
-                            ignoreError { junit "${appModule}/coverage.xml" }
+                            } finally {
+                                ignoreError {
+                                    archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
+                                    archiveArtifacts artifacts: "${appModule}/unit-test-report.html", fingerprint: true
+                                }
+                                ignoreError { junit "${appModule}/unit-test-report.xml" }
+                            }
                         }
                 ])
             }
