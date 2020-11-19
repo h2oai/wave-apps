@@ -16,8 +16,6 @@ ansiColor("xterm") {
             def version = waveRevision.replaceAll("/", "-")
             def waveTag = "wave-test:${version}"
             def appDir = "churn-risk"
-            def uid = $(id -u)
-            def gid = $(id -g)
 
             stage("Init") {
                 deleteDir()
