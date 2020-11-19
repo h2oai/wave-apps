@@ -1,6 +1,5 @@
-#ARG WAVE_IMAGE
-#FROM ${WAVE_IMAGE}
-FROM wave-test:wave-cli-for-cypress
+ARG WAVE_IMAGE
+FROM ${WAVE_IMAGE}
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG uid
