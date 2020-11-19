@@ -1,5 +1,6 @@
 ARG WAVE_IMAGE
 FROM ${WAVE_IMAGE}
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG uid
 ARG gid
