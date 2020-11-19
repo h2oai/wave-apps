@@ -1,4 +1,5 @@
 import os
+import sys
 from h2o_wave import main, ui, Q, app
 
 import altair as alt
