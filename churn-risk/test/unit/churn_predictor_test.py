@@ -13,7 +13,7 @@ id_column = "Phone_No"
 
 def test_churn_predictor_init():
     assert isinstance(churn_predictor, ChurnPredictor)
-    assert churn_predictor.gbm == None
+    assert churn_predictor.gbm != None
     assert churn_predictor.gbm == None
 
 
