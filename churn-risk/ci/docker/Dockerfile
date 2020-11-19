@@ -6,7 +6,8 @@ ARG gid
 
 #ENV FLASK_APP=app.py
 #ENV FLASK_RUN_HOST=0.0.0.0
-RUN apt-get install openjdk-11-jre -y
+RUN apt-get -q -y update
+RUN apt-get install -y openjdk-11-jre
 #COPY requirements.txt requirements.txt
 #RUN pip install -r requirements.txt
 #EXPOSE 5000
