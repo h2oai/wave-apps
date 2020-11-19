@@ -1,4 +1,3 @@
-
 [App]
 Name = "ai.h2o.wave.walmart-forecasting"
 Version = "0.1.0"
@@ -9,3 +8,13 @@ Keywords = [""]
 
 [Runtime]
 Module = "wave-forecast"
+
+[[Env]]
+Name = "AWS_ACCESS_KEY_ID"
+Secret = "h2o-s3-readonly"
+SecretKey = "accessKey"
+
+[[Env]]
+Name = "AWS_SECRET_ACCESS_KEY"
+Secret = "h2o-s3-readonly"
+SecretKey = "secretKey"
