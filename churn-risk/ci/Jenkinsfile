@@ -36,7 +36,7 @@ ansiColor("xterm") {
                         ${gitCommand} clone --single-branch --branch ${waveRevision} git@github.com:h2oai/wave.git
                         cd wave
                         VERSION=${version} make build-docker
-                        docker build -t ${waveTag} -f ../churn-risk/ci/docker/Dockerfile --build-arg WAVE_IMAGE=${waveTag} --build-arg uid=\$(id -u) --build-arg gid=\$(id -g) .
+                        docker build -t ${waveTag} -f ${appDir}/ci/docker/Dockerfile --build-arg WAVE_IMAGE=${waveTag} --build-arg uid=\$(id -u) --build-arg gid=\$(id -g) .
                     """
                 }
             }
@@ -85,7 +85,7 @@ ansiColor("xterm") {
                                     -e PYTHONPATH=/app \
                                     -v ${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=${appDir} --cov-report html'
+                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=. --cov-report html'
                                 """
                             archiveArtifacts artifacts: "${appDir}/htmlcov/**/*.*", fingerprint: true
                         }
