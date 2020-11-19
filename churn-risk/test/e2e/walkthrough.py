@@ -1,37 +1,30 @@
 from h2o_wave.test import cypress, Cypress
 
 BIG_TIMEOUT = {"timeout": 90000}
+CUSTOMER_NO = '3548815'
+
 
 @cypress("Walk through the churn risk app")
 def app_walkthrough(cy: Cypress):
     def getdiv(name: str, *args):
-        return cy.get('div[data-test="{name}"', *args)
+        return cy.get(f'div[data-test="{name}"', *args)
 
-    def getbuttoncontain(name: str, *args):
-        return cy.get('button').contains(f'{name}', *args)
+    def getdivcontain(value: str, *args):
+        return cy.get('div').contains(f'{value}', *args)
 
-    cy.visit("/")
-    # getbuttoncontain('Customer Profiles').click()
-    # cy.get('[data-test=customers]').click()
-    # cy.get('[data-test=customers]').type('3548815')
-    # getbuttoncontain('Submit').click()
+    def button(name: str, *args):
+        return cy.get(f'button[name="{name}"],button[data-test="{name}"]', *args)
 
-    # cy.visit('http://localhost:55555/');
-    # cy.get('#Pivot1-Tab0 .ms-Pivot-text').click();
-    # cy.get('[data-test=customers]').click();
-    # cy.get('[data-test=customers]').type('3548815');
-    # cy.get('.ms-TagItem-TextOverflow').click();
-    # cy.get('#id__26').click();
+    def contains_text(divname, content):
+        getdiv(divname).contains(content, BIG_TIMEOUT)
 
-
-# getbuttoncontain('Upload', BIG_TIMEOUT).click()
-    # getdiv("Customer Profiles").click()
-    # getbuttoncontain('default payment next month').click()
-    # cy.get('button[data-test="select"').click()
-    # getdiv("predict_what").click()
-    # cy.get('button[data-index="0"').click()
-    # getbuttoncontain('Select All').click()
-    # cy.get('button[data-test="selection_features"').click()
-    # cy.get('button[data-test="run_scorecard"').click()
-    # cy.wait(5000)
-    # cy.get('button[data-content="Diagnostics"').click()
+    cy.visit("/", BIG_TIMEOUT)
+    cy.locate("customers", BIG_TIMEOUT).click().type(CUSTOMER_NO)
+    getdivcontain(CUSTOMER_NO).click();
+    button('select_customer_button', BIG_TIMEOUT).click()
+    contains_text('customer', CUSTOMER_NO)
+    contains_text('day_stat', 'Day Charges')
+    contains_text('eve_stat', 'Evening Charges')
+    contains_text('night_stat', 'Night Charges')
+    contains_text('intl_stat', 'Int\'l Charges')
+    contains_text('stat_pie', 'Total call charges breakdown')
