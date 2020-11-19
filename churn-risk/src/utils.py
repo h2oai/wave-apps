@@ -1,6 +1,6 @@
-from h2o_wave import ui
-
 import os
+
+from h2o_wave import ui
 
 
 def python_code_content(file_to_display):
@@ -20,8 +20,8 @@ def python_code_content(file_to_display):
     with open(os.path.join(local_dir, file_to_display)) as f:
         contents = f.read()
 
-    py_lexer = get_lexer_by_name('python')
-    html_formatter = HtmlFormatter(full=True, style='xcode')
+    py_lexer = get_lexer_by_name("python")
+    html_formatter = HtmlFormatter(full=True, style="xcode")
     code = highlight(contents, py_lexer, html_formatter)
 
-    return [ui.text_xl(f'Application Code'), ui.frame(content=code, height="100%")]
+    return [ui.text_xl("Application Code"), ui.frame(content=code, height="100%")]

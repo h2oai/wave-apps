@@ -2,34 +2,52 @@ class Configuration:
     """
     Configuration file for Telco Customer Churn
     """
+
     def __init__(self):
-        self.color = '#00A8E0'
-        self.total_gauge_color = '#FF0102'
-        self.image_path = 'static/churn.png'
+        self.color = "#00A8E0"
+        self.total_gauge_color = "#FF0102"
+        self.image_path = "static/churn.png"
 
-        self.training_path = 'data/churnTrain.csv'
-        self.testing_path = 'data/churnTest.csv'
-        self.default_model = 'telco_churn_model'
+        self.training_path = "data/churnTrain.csv"
+        self.testing_path = "data/churnTest.csv"
+        self.default_model = "telco_churn_model"
 
-        self.y_col = 'Churn'
-        self.x_cols = ['Account_Length', 'No_Vmail_Messages', 'Total_Day_minutes', 'Total_Day_Calls',
-                       'Total_Day_charge', 'Total_Eve_Minutes', 'Total_Eve_Calls', 'Total_Eve_Charge',
-                       'Total_Night_Minutes', 'Total_Night_Calls', 'Total_Night_Charge', 'Total_Intl_Minutes',
-                       'Total_Intl_Calls', 'Total_Intl_Charge', 'No_CS_Calls', 'Area_Code', 'International_Plan',
-                       'Voice_Mail_Plan', 'State', 'Phone_No']
+        self.y_col = "Churn"
+        self.x_cols = [
+            "Account_Length",
+            "No_Vmail_Messages",
+            "Total_Day_minutes",
+            "Total_Day_Calls",
+            "Total_Day_charge",
+            "Total_Eve_Minutes",
+            "Total_Eve_Calls",
+            "Total_Eve_Charge",
+            "Total_Night_Minutes",
+            "Total_Night_Calls",
+            "Total_Night_Charge",
+            "Total_Intl_Minutes",
+            "Total_Intl_Calls",
+            "Total_Intl_Charge",
+            "No_CS_Calls",
+            "Area_Code",
+            "International_Plan",
+            "Voice_Mail_Plan",
+            "State",
+            "Phone_No",
+        ]
 
         self.id_column = "Phone_No"
 
-        self.title = 'Telecom Churn Analytics'
-        self.subtitle = 'EDA & Churn Modeling with AutoML & Wave'
-        self.icon = 'AddPhone'
+        self.title = "Telecom Churn Analytics"
+        self.subtitle = "EDA & Churn Modeling with AutoML & Wave"
+        self.icon = "AddPhone"
 
         self.model_loaded = False
         self.working_data = self.training_path
         # self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
-        self.training_data_url = './data/churnTrain.csv'
+        self.training_data_url = "./data/churnTrain.csv"
         # self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
-        self.testing_data_url = './data/churnTest.csv'
+        self.testing_data_url = "./data/churnTest.csv"
 
         self.boxes = {
             "banner": "1 1 3 1",
@@ -49,7 +67,4 @@ class Configuration:
             "top_positive_pd_plot": "1 26 -1 11",
         }
 
-        self.figure_config = {
-            'scrollZoom': False,
-            'displayModeBar': None
-        }
+        self.figure_config = {"scrollZoom": False, "displayModeBar": None}
