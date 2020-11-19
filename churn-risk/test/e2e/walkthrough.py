@@ -11,10 +11,10 @@ def app_walkthrough(cy: Cypress):
         return cy.get('button').contains(f'{name}', *args)
 
     cy.visit("/")
-    getbuttoncontain('Customer Profiles').click()
-    cy.get('[data-test=customers]').click()
-    cy.get('[data-test=customers]').type('3548815')
-    getbuttoncontain('Submit').click()
+    # getbuttoncontain('Customer Profiles').click()
+    # cy.get('[data-test=customers]').click()
+    # cy.get('[data-test=customers]').type('3548815')
+    # getbuttoncontain('Submit').click()
 
     # cy.visit('http://localhost:55555/');
     # cy.get('#Pivot1-Tab0 .ms-Pivot-text').click();
