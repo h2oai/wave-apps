@@ -85,9 +85,9 @@ ansiColor("xterm") {
                                     -e PYTHONPATH=/app \
                                     -v ${workspace}/${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest'
+                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=${workspace}/${appDir} --cov-report html'
                                 """
-                            archiveArtifacts artifacts: '${workspace}/${appDir}/htmlcov/**/*.*', fingerprint: true
+                            archiveArtifacts artifacts: "${workspace}/${appDir}/htmlcov/**/*.*", fingerprint: true
                         }
                 ])
             }
