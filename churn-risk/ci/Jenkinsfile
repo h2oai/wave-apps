@@ -70,7 +70,7 @@ ansiColor("xterm") {
                                             -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
                                             -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
                                             ${waveTag} \
-                                            bash -c '. /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                                            bash -c '. /wave/py/venv/bin/activate ; make setup ; /wave/test/cypress.py -w -l debug -m src.app'
                                     """
                                 } finally {
                                     ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
@@ -85,7 +85,7 @@ ansiColor("xterm") {
                                     -e PYTHONPATH=/app \
                                     -v ${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=. --cov-report html'
+                                    bash -c '. /wave/py/venv/bin/activate ; make setup ; pytest --cov=. --cov-report html'
                                 """
                             archiveArtifacts artifacts: "churn-risk/htmlcov/**/*.*", fingerprint: true
                         }
