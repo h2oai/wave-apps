@@ -86,9 +86,10 @@ ansiColor("xterm") {
                                     -e PYTHONPATH=/app \
                                     -v ${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=src --cov-report html'
+                                    bash -c '. /wave/py/venv/bin/activate ; make install ; pytest --cov=src --cov-report html  --cov-report xml'
                                 """
                             archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
+                            ignoreError { junit "${appModule}/coverage.xml" }
                         }
                 ])
             }
