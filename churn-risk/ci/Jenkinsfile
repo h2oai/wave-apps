@@ -16,6 +16,8 @@ ansiColor("xterm") {
             def version = waveRevision.replaceAll("/", "-")
             def waveTag = "wave-test:${version}"
             def appDir = "churn-risk"
+            def uid = $(id -u)
+            def gid = $(id -g)
 
             stage("Init") {
                 deleteDir()
@@ -70,7 +72,7 @@ ansiColor("xterm") {
                                             -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
                                             -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
                                             ${waveTag} \
-                                            bash -c 'apt-get install openjdk-11-jre -y ; . /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                                            bash -c '. /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
                                     """
                                 } finally {
                                     ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
@@ -83,7 +85,7 @@ ansiColor("xterm") {
                                 docker run -t --rm \
                                     -u \$(id -u) \
                                     -e PYTHONPATH=/app \
-                                    -v ${workspace}:/app \
+                                    -v ${workspace}/${appDir}:/app \
                                     ${waveTag} \
                                     bash -c '. /wave/py/venv/bin/activate ; make install ; pytest'
                                 """
