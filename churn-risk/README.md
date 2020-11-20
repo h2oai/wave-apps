@@ -42,6 +42,11 @@ After the initial setup, you can skip step 2 and 3 as the virtual environment is
     ```
     This will generate a html report in `htmlcov` directory.
     
+#### Run integration tests on local machine 
+##### Prerequisite 
+1. All the above  
+1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine)
+
 #### Run unit and integration tests on Jenkins
 
 1. Go to [Wave OSS/CI/Wave Telco Churn Risk](http://mr-0xc1:8080/job/wave-oss/job/ci/job/wave-churn-risk) pipeline 
