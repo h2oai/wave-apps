@@ -1,6 +1,10 @@
+import os
+import sys
 from h2o_wave import main, ui, Q, app
 
 import altair as alt
+import boto3
+import botocore
 import pandas as pd
 
 
@@ -25,9 +29,35 @@ def my_font():
 _ = alt.themes.register("my_font", my_font)
 _ = alt.themes.enable("my_font")
 
+walmart_train_s3 = "s3://ai.h2o.benchmark/temp/walmart_train.csv"
+walmart_predictions_s3 = "s3://ai.h2o.benchmark/temp/walmart_test_preds.csv"
+walmart_train = './walmart_train.csv'
+walmart_predictions = './walmart_test_preds.csv'
 
-walmart_train = './data/walmart_train.csv'
-walmart_predictions = './data/walmart_test_preds.csv'
+
+def download_file_from_s3(s3_uri, file_path):
+    access_key = os.environ.get("AWS_ACCESS_KEY_ID")
+    secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    if not all([access_key, secret_key]):
+        return None
+    if not s3_uri.startswith('s3://'):
+        return None
+
+    bucket_name, *key = s3_uri.split('s3://')[-1].split('/')
+    file_key = '/'.join(key)
+    file_local_path = os.path.abspath(file_path)
+
+    try:
+        s3 = boto3.resource(
+            "s3", aws_access_key_id=access_key, aws_secret_access_key=secret_key
+        )
+        s3.Bucket(bucket_name).download_file(file_key, file_local_path)
+    except botocore.exceptions.ClientError as error:
+        print("Unable to connect to S3!")
+        print(error)
+        return None
+    else:
+        return file_local_path
 
 
 def plot_data(stores, departments, n_test_set):
@@ -126,6 +156,14 @@ def get_selection_content(stores, departments, forecast_horizon):
 
 
 async def initialize_app(q: Q):
+
+    # Download input data from S3
+    train = download_file_from_s3(walmart_train_s3, walmart_train)
+    if train is None or not os.path.isfile(train):
+        sys.exit(1)
+    pred = download_file_from_s3(walmart_predictions_s3, walmart_predictions)
+    if pred is None or not os.path.isfile(pred):
+        sys.exit(1)
 
     # simple default values
     q.app.store_selection = ['1', '2', '3', '4', '5', '6']
