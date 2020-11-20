@@ -11,10 +11,10 @@ setup: ## Create venv and install dependencies on it
 	. ./venv/bin/activate
 	pip install -U pip
 	pip install wheel
-	$(MAKE) install
-
+      $(MAKE) install
+      
 install: ## Install dependencies on active python environment
-	pip install -r requirements.txt
+	./venv/bin/pip install -r requirements.txt
 
 clean: ## Clean
 	rm -rf dist venv *.whl *.qz
