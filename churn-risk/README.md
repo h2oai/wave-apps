@@ -30,7 +30,7 @@ _This has only been tested only on OSX._
 
 After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
 
-#### Run tests on local machine 
+#### Run unit tests on local machine 
 
 1. Run unit tests.
     ```
@@ -41,7 +41,7 @@ After the initial setup, you can skip step 2 and 3 as the virtual environment is
     pytest --cov=src --cov-report html
     ```
     This will generate a html report in `htmlcov` directory.
-
+    
 #### Run unit and integration tests on Jenkins
 
 1. Go to [Wave OSS/CI/Wave Telco Churn Risk](http://mr-0xc1:8080/job/wave-oss/job/ci/job/wave-churn-risk) pipeline 
