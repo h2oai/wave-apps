@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import pandas as pd
 import pytest
+from matplotlib.figure import Figure
 from src.churn_predictor import ChurnPredictor
 
 
@@ -14,12 +15,12 @@ id_column = "Phone_No"
 def test_churn_predictor_init():
     assert isinstance(churn_predictor, ChurnPredictor)
     assert churn_predictor.gbm is None
-    assert churn_predictor.gbm is None
 
 
 def test_churn_predictor_get_churn_rate():
     cust_phone_no = 4034933
-    churn_predictor.build_model(training_data_path)
+    model = "telco_churn_model"
+    churn_predictor.build_model(training_data_path, model)
     churn_predictor.set_testing_data_frame(training_data_path)
     churn_predictor.predict()
     assert churn_predictor is not None
@@ -33,7 +34,8 @@ def test_churn_predictor_get_churn_rate():
 
 def test_get_shap_explanation():
     cust_phone_no = 4034933
-    churn_predictor.build_model(training_data_path)
+    model = "telco_churn_model"
+    churn_predictor.build_model(training_data_path, model)
     churn_predictor.set_testing_data_frame(training_data_path)
     churn_predictor.predict()
     selected_customer_index = int(
@@ -41,3 +43,7 @@ def test_get_shap_explanation():
     )
     shap_explanation = churn_predictor.get_shap_explanation(selected_customer_index)
     assert shap_explanation is not None
+    assert isinstance(shap_explanation, Figure)
+    assert f"SHAP explanation for \"{model}\" on row {selected_customer_index}" in str(shap_explanation.axes[0].title)
+
+

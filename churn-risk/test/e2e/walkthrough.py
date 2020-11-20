@@ -1,6 +1,6 @@
 from h2o_wave.test import Cypress, cypress
 
-BIG_TIMEOUT = {"timeout": 90000}
+OPERATION_TIMEOUT = {"timeout": 10000}
 CUSTOMER_NO = "3548815"
 
 
@@ -11,12 +11,12 @@ def app_walkthrough(cy: Cypress):
         return cy.get(f'div[aria-label="{label}"]', *args)
 
     def contains_text(component, content):
-        cy.locate(component).contains(content, BIG_TIMEOUT)
+        cy.locate(component).contains(content, OPERATION_TIMEOUT)
 
-    cy.visit("/", BIG_TIMEOUT)
-    cy.locate("customers", BIG_TIMEOUT).click().type(CUSTOMER_NO)
+    cy.visit("/", OPERATION_TIMEOUT)
+    cy.locate("customers", OPERATION_TIMEOUT).click().type(CUSTOMER_NO)
     get_aria_label(CUSTOMER_NO).click()
-    cy.locate("select_customer_button", BIG_TIMEOUT).click()
+    cy.locate("select_customer_button", OPERATION_TIMEOUT).click()
     contains_text("customer", CUSTOMER_NO)
     contains_text("day_stat", "Day Charges")
     contains_text("eve_stat", "Evening Charges")

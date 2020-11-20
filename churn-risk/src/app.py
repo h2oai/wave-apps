@@ -173,7 +173,7 @@ async def initialize_page(q: Q):
 
     if not q.client.app_initialized:
         # Initialize H2O-3 model and tests data set
-        churn_predictor.build_model(config.training_data_url)
+        churn_predictor.build_model(config.training_data_url, config.default_model)
         churn_predictor.set_testing_data_frame(config.testing_data_url)
         churn_predictor.predict()
 
