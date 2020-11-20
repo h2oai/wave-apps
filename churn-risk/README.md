@@ -8,8 +8,9 @@ This application allows users to explore the [Kaggle Churn Data](https://www.kag
 1. Python 3.8+
 2. pip3
 3. JRE 11+
+4. NodeJS (Only needed for [Run integration tests on local machine](#run-integration-tests-on-local-machine))
 
-#### Run app on local machine 
+### Run app on local machine 
 
 _This has only been tested only on OSX._
 
@@ -30,7 +31,7 @@ _This has only been tested only on OSX._
 
 After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
 
-#### Run unit tests on local machine 
+### Run unit tests on local machine 
 
 1. Run unit tests.
     ```
@@ -42,12 +43,23 @@ After the initial setup, you can skip step 2 and 3 as the virtual environment is
     ```
     This will generate a html report in `htmlcov` directory.
     
-#### Run integration tests on local machine 
-##### Prerequisite 
-1. All the above  
-1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine)
+### Run integration tests on local machine 
 
-#### Run unit and integration tests on Jenkins
+1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine).
+2. Go to test folder inside Wave folder.
+3. Run `npm install`
+4. Go pack to `churn-risk` app directory.
+5. Here I assume I have Wave downloaded in my home directory. 
+If you have already running wave instance,
+    ```bash
+    python3 ~/wave/test/cypress.py -m src.app
+    ```
+   else if you want to launch a new instance,
+   ```bash
+       python3 ~/wave/test/cypress.py -m src.app -w ~/wave/waved -wd ~/wave/www
+   ```
+
+### Run unit and integration tests on Jenkins
 
 1. Go to [Wave OSS/CI/Wave Telco Churn Risk](http://mr-0xc1:8080/job/wave-oss/job/ci/job/wave-churn-risk) pipeline 
 (You should be logged into H2O.ai VPN to access Jenkins).
