@@ -23,7 +23,7 @@ def profile_content():
     df = pd.read_csv(config.testing_data_url).head(40)
 
     choices = [
-        ui.choice(name=phone, label=f"{phone}") for phone in df[config.id_column]
+        ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]
     ]
     items = [
         ui.text_xl("Customer Profiles from Model Predictions"),
