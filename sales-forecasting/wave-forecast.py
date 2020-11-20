@@ -27,8 +27,14 @@ class UserInputs:
             return
         if q_args.stores:
             self.stores = [int(x) for x in q_args.stores]
+            # Hack: Forcing limits to handle app freeze
+            if len(self.stores) > 20:
+                self.stores = self.stores[:20]
         if q_args.departments:
             self.departments = [int(x) for x in q_args.departments]
+            # Hack: Forcing limits to handle app freeze
+            if len(self.departments) > 20:
+                self.departments = self.departments[:20]
         if q_args.n_forecast_weeks:
             self.n_forecast_weeks = q_args.n_forecast_weeks
 
@@ -209,9 +215,8 @@ async def initialize_app(q: Q):
     await draw_weekly_sales_plot(q, plot_data)
 
 
-@app('/walmart')
+@app('/')
 async def serve(q: Q):
-    print(q.args)
 
     if not q.client.app_initialized:
         await initialize_app(q)
