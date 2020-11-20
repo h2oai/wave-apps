@@ -15,15 +15,15 @@ This application allows users to explore the [Kaggle Churn Data](https://www.kag
 _This has only been tested only on OSX._
 
 1. Download a [Wave](https://github.com/h2oai/wave/releases) version higher than 0.9.0 and have that running. 
-2. Create a python environment in the home app directory and install requirements. 
+2. Create a python virtual environment in the home app directory and install requirements. 
     ```bash
     make setup
     ```
-3. Activate the virtual environment 
+3. Activate the virtual environment.
     ```bash 
     source venv/bin/activate
     ```
-4. Run the app by pointing to the module directory.
+4. Run the app with Wave CLI.
     ```bash
     wave run src.app
     ```
@@ -46,15 +46,15 @@ After the initial setup, you can skip step 2 and 3 as the virtual environment is
 ### Run integration tests on local machine 
 
 1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine).
-2. Go to test folder inside Wave folder.
+2. Go to `test` folder inside Wave folder.
 3. Run `npm install`
-4. Go pack to `churn-risk` app directory.
+4. Go back to `churn-risk` app directory.
 5. Here I assume I have Wave downloaded in my home directory. 
-If you have already running wave instance,
+If you have an already running wave instance,
     ```bash
     python3 ~/wave/test/cypress.py -m src.app
     ```
-   else if you want to launch a new instance,
+   else if you want to launch a new Wave instance automatically,
    ```bash
        python3 ~/wave/test/cypress.py -m src.app -w ~/wave/waved -wd ~/wave/www
    ```
