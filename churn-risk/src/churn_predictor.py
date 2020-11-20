@@ -7,7 +7,7 @@ class ChurnPredictor:
     Wrapper for H2O-3
 
     ChurnPredictor builds an abstraction between H2O-3 machine learning library and the Churn Risk app
-    giving the developer to freedom to integrate any 3rd party machine library with a minimal change to the app code.
+    giving the developer freedom to integrate any 3rd party machine library with a minimal change to the app code.
     """
 
     def __init__(self):
@@ -43,6 +43,12 @@ class ChurnPredictor:
         self.contributions_df = self.gbm.predict_contributions(self.test_df)
 
     def get_churn_rate_of_customer(self, row_index):
+        """
+        Return the churn rate of given customer as a percentage.
+
+        :param row_index: row index of the customer in dataframe
+        :return: percentage as a float
+        """
         return round(
             float(self.predicted_df.as_data_frame()["TRUE"][row_index]) * 100, 2
         )
