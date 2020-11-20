@@ -1,22 +1,44 @@
 # Wave Retail Forecasting Application 
 
-This application allows users to explore the Kaggle Walmart Sales data to understand seasonality of sales by department. This application uses predictions made from Driverless AI but doesn't explictily connect to a DAI instance.
+This application allows users to explore the Kaggle Walmart Sales data to understand seasonality of sales by department.
+This application uses predictions made from Driverless AI but doesn't explicitly connect to a DAI instance.
 
+![Screenshot of the app][screenshot-main]
 
 ## Running this App Locally
 
-_This has only been tested on OSX._
+### 1. Download the latest release of Wave and have that running
 
-1. Download a release of Wave and have that running
+- Read instructions from [Wave Documentation][wave-docs-installation]
 
-2. Create a python environment in the home app directory and install reqirements
-`make setup`
+### 2. Create a python environment in the home app directory and install requirements
 
-3. Activate the virtual environment
-`source venv/bin/activate`
+- Need Python `3.7.9`
 
-4. Run the app by pointing to the module directory
-`wave run src.app`
+```console
+$ git clone git@github.com:h2oai/wave-apps.git
+$ cd wave-apps/sales-forecasting
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+```
 
-Point your web browswer to `localhost:55555`
-In the future, if you want to run this app you can skip step 2 as the environment is already set up.
+### 3. Download input data from AWS S3
+
+```console
+$ cd wave-apps/sales-forecasting
+$ s3cmd get s3://ai.h2o.benchmark/temp/walmart_train.csv .
+$ s3cmd get s3://ai.h2o.benchmark/temp/walmart_test_preds.csv .
+```
+
+### 4. Run the app by pointing to the module directory
+
+```console
+$ wave run wave-forecast
+```
+
+- Point your web browser to `localhost:55555`. In the future, if you want to run this app you can skip steps 2 and 3 as
+  the environment is already set up.
+
+[screenshot-main]: ./static/wave_sales_forecast.png "Screenshot of the app"
+[wave-docs-installation]: https://h2oai.github.io/wave/docs/installation
