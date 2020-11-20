@@ -10,10 +10,10 @@ setup: ## Create venv and install dependencies on it
 	python3 -m venv venv
 	./venv/bin/pip install -U pip
 	./venv/bin/pip install wheel
-	$(MAKE) install
+	./venv/bin/pip install -r requirements.txt
       
 install: ## Install dependencies on active python environment
-	./venv/bin/pip install -r requirements.txt
+	pip install -r requirements.txt
 
 clean: ## Clean
 	rm -rf dist venv *.whl *.qz
