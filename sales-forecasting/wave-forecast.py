@@ -1,41 +1,69 @@
 import os
 import sys
-from h2o_wave import main, ui, Q, app
+from dataclasses import asdict, dataclass, field
+from typing import List, Optional
 
-import altair as alt
 import boto3
 import botocore
 import pandas as pd
+from h2o_wave import app, data, main, Q, ui
 
 
-# Disable max row limit of 5000 for Altair
-_ = alt.data_transformers.disable_max_rows()
+@dataclass
+class UserInputs:
+    stores: Optional[List[int]] = field(default_factory=list)
+    departments: Optional[List[int]] = field(default_factory=list)
+    n_forecast_weeks: Optional[int] = 0
+
+    # Default values for user inputs. Should be read from a config file
+    def reset(self):
+        self.stores = list(range(1, 7))
+        self.departments = [3]
+        self.n_forecast_weeks = 0
+
+    def update(self, q_args):
+        if q_args.reset:
+            self.reset()
+            return
+        if q_args.stores:
+            self.stores = [int(x) for x in q_args.stores]
+        if q_args.departments:
+            self.departments = [int(x) for x in q_args.departments]
+        if q_args.n_forecast_weeks:
+            self.n_forecast_weeks = q_args.n_forecast_weeks
 
 
-# Define a custom font for Altair. This is the font used by Wave.
-def my_font():
-    font_name = "Inter"
-    return {
-        "config": {
-            "title": {"font": font_name},
-            "axis": {"labelFont": font_name, "titleFont": font_name},
-            "header": {"labelFont": font_name, "titleFont": font_name},
-            "legend": {"labelFont": font_name, "titleFont": font_name},
-        }
-    }
+class SalesData:
+    def __init__(self, train_dataset, predictions):
+        self.train_dataset = train_dataset
+        self.predictions = predictions
+        self._prepare_data()
+
+    def _prepare_data(self):
+        self.df_train = pd.read_csv(self.train_dataset)
+        self.df_predictions = pd.read_csv(self.predictions)
+        self.df_train['data_type'] = 'History'
+        self.df_predictions['data_type'] = 'Predictions'
+        self.prediction_dates = list(self.df_predictions['Date'].unique())
+        self.stores_unique = list(self.df_train['Store'].unique())
+        self.departments_unique = list(self.df_train['Dept'].unique())
+
+    def get_plot_data(self, stores, departments, n_forecast_weeks):
+        dfp = self.df_predictions.loc[self.df_predictions['Date'].isin(self.prediction_dates[:n_forecast_weeks]), :]
+        df = pd.concat([self.df_train, dfp], ignore_index=True)
+        subset = df[df['Store'].isin(stores) & df['Dept'].isin(departments)].reset_index(drop=True)
+        s1 = subset.drop(
+            columns=['Store', 'Dept', 'Temperature', 'Fuel_Price', 'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4',
+                     'MarkDown5', 'CPI', 'Unemployment', 'IsHoliday', 'sample_weight', 'sample_weight',
+                     'Weekly_Sales.lower', 'Weekly_Sales.upper'])
+        return s1.values.tolist()
 
 
-# Enable Altair to use Inter as font
-_ = alt.themes.register("my_font", my_font)
-_ = alt.themes.enable("my_font")
+def download_file_from_s3(s3_uri, file_path, overwrite=True):
+    file_local_path = os.path.abspath(file_path)
+    if os.path.isfile(file_local_path) and not overwrite:
+        return file_local_path
 
-walmart_train_s3 = "s3://ai.h2o.benchmark/temp/walmart_train.csv"
-walmart_predictions_s3 = "s3://ai.h2o.benchmark/temp/walmart_test_preds.csv"
-walmart_train = './walmart_train.csv'
-walmart_predictions = './walmart_test_preds.csv'
-
-
-def download_file_from_s3(s3_uri, file_path):
     access_key = os.environ.get("AWS_ACCESS_KEY_ID")
     secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
     if not all([access_key, secret_key]):
@@ -45,7 +73,6 @@ def download_file_from_s3(s3_uri, file_path):
 
     bucket_name, *key = s3_uri.split('s3://')[-1].split('/')
     file_key = '/'.join(key)
-    file_local_path = os.path.abspath(file_path)
 
     try:
         s3 = boto3.resource(
@@ -60,166 +87,142 @@ def download_file_from_s3(s3_uri, file_path):
         return file_local_path
 
 
-def plot_data(stores, departments, n_test_set):
+def get_user_input_items(sales_data, user_inputs, progress=False):
+    return [
+        ui.text_l('**Select Area of Interest**'),
+        ui.dropdown(
+            name='stores',
+            label='Store IDs',
+            values=[str(x) for x in user_inputs.stores],
+            choices=[ui.choice(name=str(x), label=str(x)) for x in sales_data.stores_unique],
+            tooltip='Select the Stores to include in the prediction',
+            trigger=True,
+        ),
+        ui.text_xs('⠀'),
+        ui.dropdown(
+            name='departments',
+            label='Product IDs',
+            values=[str(x) for x in user_inputs.departments],
+            choices=[ui.choice(name=str(x), label=str(x)) for x in sales_data.departments_unique],
+            tooltip='Select the Products to include in the prediction',
+            trigger=True,
+        ),
+        ui.frame(content=' ', height="40px"),
+        ui.text_l('**Generate Sales Forecast**'),
+        ui.slider(
+            name='n_forecast_weeks',
+            label='Number of Weeks',
+            min=0,
+            max=len(sales_data.prediction_dates) - 1,
+            step=1,
+            value=user_inputs.n_forecast_weeks,
+            trigger=True,
+            tooltip='Select the number of weeks into the future to predict'
+        ),
+        ui.text_xs('⠀'),
+        ui.button(
+            name='reset',
+            label='Reset',
+            primary=True,
+            tooltip='Click to reset all values to defaults'
+        ),
+        ui.text_xs('⠀'),
+        ui.progress(label='', caption='', visible=progress),
+    ]
 
-    stores = [int(i) for i in stores]
-    departments = [int(i) for i in departments]
 
-    df_train = pd.read_csv(walmart_train)
-    df_train['data_type'] = 'History'
-
-    df_preds = pd.read_csv(walmart_predictions)
-    df_preds['data_type'] = 'Predictions'
-    df_preds = df_preds[df_preds['Date'].isin(list(df_preds['Date'].unique()[0:n_test_set]))]
-
-    df = df_train.append(df_preds)
-
-    subset = df[df['Store'].isin(stores) & df['Dept'].isin(departments)].reset_index(drop=True)
-
+async def draw_weekly_sales_plot(q: Q, plot_data):
+    # del q.page['content']
     # Colors from Wave default Theme.
     # https://github.com/h2oai/wave/blob/4ec0f6a6a2b8f43f11cdb557ba35a540ad23c13c/ui/src/theme.ts#L86
-    blue = '#2196F3'
-    orange = '#FF9800'
-
-    chart = (
-        alt.Chart(subset)
-        .mark_circle(size=40)
-        .encode(
-            x=alt.X(
-                'Date:T',
-                axis=alt.Axis(
-                    title='Date',
-                    labelFontSize=12,
-                    titleFontSize=14,
-                    titlePadding=20,
-                ),
-            ),
-            y=alt.Y(
-                'Weekly_Sales:Q',
-                axis=alt.Axis(
-                    title='Weekly Sales',
-                    labelFontSize=12,
-                    titleFontSize=14,
-                    titlePadding=20,
-                ),
-            ),
-            color=alt.Color(
-                'data_type:N',
-                scale=alt.Scale(domain=['History', 'Predictions'], range=[blue, orange]),
-                sort=alt.EncodingSortField('data_type', order='ascending'),
-                legend=alt.Legend(labelFontSize=12, title="Data Type"),
-            ),
-            tooltip=[
-                alt.Tooltip('Date:T', format='%A, %B %d %Y'),
-                'Store',
-                'Dept',
-                alt.Tooltip('Weekly_Sales:Q', format=',.0~f')
-            ]
-        )
-        .properties(height=500, width=1200)
-    ).configure_view(
-        fillOpacity=0,
-    ).interactive()
-
-    spec = chart.to_json()
-    return spec
-
-
-def get_selection_content(stores, departments, forecast_horizon):
-
-    train_df = pd.read_csv(walmart_train)
-    test_df = pd.read_csv(walmart_predictions)
-
-    stores_unique = train_df['Store'].unique()
-    stores_choices = [ui.choice(name=str(i), label=str(i)) for i in stores_unique]
-
-    departments_unique = train_df['Dept'].unique()
-    departments_choices = [ui.choice(name=str(i), label=str(i)) for i in departments_unique]
-
-    forcast_choices = [ui.choice(name=str(i), label=str(i)) for i in range(len(test_df['Date'].unique()))]
-
-    items = [
-        ui.separator('Select Area of Interest'),
-        ui.dropdown(name='store_selection', label='Store IDs', values=stores, required=True, choices=stores_choices),
-        ui.dropdown(name='department_selection', label='Product IDs', values=departments, required=True,
-                    choices=departments_choices),
-        ui.button(name='selection_button', label='Submit', primary=True),
-
-        ui.frame(content=' ', height="40px"),
-
-        ui.separator('Generate Sales Forecast'),
-        ui.dropdown(name='forecast_horizon', label='Number of Weeks', value=str(forecast_horizon), required=True,
-                    choices=forcast_choices),
-        ui.button(name='forcast_button', label='Submit', primary=True),
-    ]
-    return items
+    blue_orange = '#2196F3 #FF9800'
+    v = q.page.add(
+        'content',
+        ui.plot_card(
+            box='4 2 9 9',
+            title='Walmart Weekly Sales Forecast',
+            data=data('Date Weekly_Sales data_type', len(plot_data)),
+            plot=ui.plot([
+                ui.mark(
+                    type='point',
+                    x='=Date',
+                    y='=Weekly_Sales',
+                    x_scale='time',
+                    y_min=0,
+                    x_title='Date',
+                    y_title='Weekly Sales (USD)',
+                    color='=data_type',
+                    color_range=blue_orange,
+                    shape='circle'
+                )
+            ])
+        ))
+    v.data = plot_data
+    await q.page.save()
 
 
 async def initialize_app(q: Q):
-
-    # Download input data from S3
-    train = download_file_from_s3(walmart_train_s3, walmart_train)
-    if train is None or not os.path.isfile(train):
-        sys.exit(1)
-    pred = download_file_from_s3(walmart_predictions_s3, walmart_predictions)
-    if pred is None or not os.path.isfile(pred):
-        sys.exit(1)
-
-    # simple default values
-    q.app.store_selection = ['1', '2', '3', '4', '5', '6']
-    q.app.department_selection = ['3']
-    q.app.forecast_horizon = 0
+    # Inputs for the app, Should be read from a config file
+    walmart_train_s3 = "s3://ai.h2o.benchmark/temp/walmart_train.csv"
+    walmart_predictions_s3 = "s3://ai.h2o.benchmark/temp/walmart_test_preds.csv"
+    walmart_train = './walmart_train.csv'
+    walmart_predictions = './walmart_test_preds.csv'
 
     # Setup UI elements on the page
-    q.page['meta'] = ui.meta_card(box='', title='H2O Wave')
+    q.page['meta'] = ui.meta_card(box='', title='H2O Wave - Sales Forecasting')
     q.page['title'] = ui.header_card(
-        box='1 1 -1 1',
+        box='1 1 12 1',
         title='Sales Forecasting',
         subtitle='Exploring historic demand and forecasts for supply chain optimization',
         icon='GiftBox',
         icon_color='#ffe600',
     )
+    q.page['loading'] = ui.form_card(
+        box='4 4 6 1',
+        items=[ui.progress(label='Downloading sales data from AWS S3 ...', caption='')]
+    )
+    await q.page.save()
+
+    # Download input data from S3
+    train = download_file_from_s3(walmart_train_s3, walmart_train, overwrite=False)
+    if train is None or not os.path.isfile(train):
+        sys.exit(1)
+    pred = download_file_from_s3(walmart_predictions_s3, walmart_predictions, overwrite=False)
+    if pred is None or not os.path.isfile(pred):
+        sys.exit(1)
+
+    q.page['loading'].items[0].progress.label = 'Processing sales data ...'
+    await q.page.save()
+
+    # Create default UserInputs and SalesData
+    q.app.user_inputs = UserInputs()
+    q.app.user_inputs.reset()
+    q.app.sales_data = SalesData(walmart_train, walmart_predictions)
+
+    plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
+
+    del q.page['loading']
     q.page['sidebar'] = ui.form_card(
-        box='1 2 2 -1',
-        items=get_selection_content(q.app.store_selection, q.app.department_selection, q.app.forecast_horizon)
+        box='1 2 3 9',
+        items=get_user_input_items(q.app.sales_data, q.app.user_inputs)
     )
-    q.page['content'] = ui.vega_card(
-        box='3 2 -1 -1',
-        title='Historic Weekly Sales',
-        specification=plot_data(q.app.store_selection, q.app.department_selection, q.app.forecast_horizon),
-    )
+    await draw_weekly_sales_plot(q, plot_data)
 
 
 @app('/walmart')
 async def serve(q: Q):
-
     print(q.args)
 
     if not q.client.app_initialized:
         await initialize_app(q)
         q.client.app_initialized = True
+        return
 
-    if q.args.selection_button:
-        q.page['sidebar'].items = [ui.progress('Processing data request...')]
-        await q.page.save()
+    q.app.user_inputs.update(q.args)
 
-        q.app.store_selection = q.args.store_selection or q.app.store_selection
-        q.app.department_selection = q.args.department_selection or q.app.department_selection
-
-        q.page['sidebar'].items = get_selection_content(q.app.store_selection, q.app.department_selection,
-                                                        q.app.forecast_horizon)
-        q.page['content'].specification = plot_data(q.app.store_selection, q.app.department_selection,
-                                                    q.app.forecast_horizon)
-
-    if q.args.forcast_button:
-        q.page['sidebar'].items = [ui.progress('Forecasting demand...')]
-        await q.page.save()
-
-        q.app.forecast_horizon = int(q.args.forecast_horizon)
-
-        q.page['sidebar'].items = get_selection_content(q.app.store_selection, q.app.department_selection,
-                                                        q.app.forecast_horizon)
-        q.page['content'].specification = plot_data(q.app.store_selection, q.app.department_selection,
-                                                    q.app.forecast_horizon)
-
+    q.page['sidebar'].items = get_user_input_items(q.app.sales_data, q.app.user_inputs, progress=True)
     await q.page.save()
+
+    plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
+    q.page['sidebar'].items[10].progress.visible = False
+    await draw_weekly_sales_plot(q, plot_data)
