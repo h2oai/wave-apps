@@ -3,7 +3,7 @@ import io
 
 from h2o_wave import ui
 from plotly import graph_objects as go
-from plotly import io as pio
+from plotly.io import to_html
 
 
 def generate_figure_pie_of_target_percent(title, labels, values, layout):
@@ -16,7 +16,7 @@ def generate_figure_pie_of_target_percent(title, labels, values, layout):
 
 
 def convert_plot_to_html(config, fig, include_plotlyjs, validate):
-    return pio.to_html(
+    return to_html(
         fig, validate=validate, include_plotlyjs=include_plotlyjs, config=config
     )
 
