@@ -87,7 +87,7 @@ ansiColor("xterm") {
                                     -e PYTHONPATH=/app \
                                     -v ${appDir}:/app \
                                     ${waveTag} \
-                                    bash -c 'make setup ; pytest --cov=src --cov-report html --junit-xml=unit-test-report.xml --html=unit-test-report/index.html'
+                                    bash -c 'make setup ; . venv/bin/activate ; pytest --cov=src --cov-report html --junit-xml=unit-test-report.xml --html=unit-test-report/index.html'
                                 """
                                 sh "ls -la"
                             } finally {
