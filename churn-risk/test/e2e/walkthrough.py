@@ -6,22 +6,17 @@ CUSTOMER_NO = "3548815"
 
 @cypress("Walk through the churn risk app")
 def app_walkthrough(cy: Cypress):
-    def getdiv(name: str, *args):
-        return cy.get(f'div[data-test="{name}"', *args)
 
-    def getdivcontain(value: str, *args):
-        return cy.get("div").contains(f"{value}", *args)
+    def get_aria_label(label: str, *args):
+        return cy.get(f'div[aria-label="{label}"]', *args)
 
-    def button(name: str, *args):
-        return cy.get(f'button[name="{name}"],button[data-test="{name}"]', *args)
-
-    def contains_text(divname, content):
-        getdiv(divname).contains(content, BIG_TIMEOUT)
+    def contains_text(component, content):
+        cy.locate(component).contains(content, BIG_TIMEOUT)
 
     cy.visit("/", BIG_TIMEOUT)
     cy.locate("customers", BIG_TIMEOUT).click().type(CUSTOMER_NO)
-    getdivcontain(CUSTOMER_NO).click()
-    button("select_customer_button", BIG_TIMEOUT).click()
+    get_aria_label(CUSTOMER_NO).click()
+    cy.locate("select_customer_button", BIG_TIMEOUT).click()
     contains_text("customer", CUSTOMER_NO)
     contains_text("day_stat", "Day Charges")
     contains_text("eve_stat", "Evening Charges")
