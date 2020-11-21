@@ -67,7 +67,7 @@ def populate_churn_plots(q):
     )
     q.page["top_negative_pd_plot"] = ui.image_card(
         box=config.boxes["top_negative_pd_plot"],
-        title="",
+        title="Feature Most Contributing to Retention",
         type="png",
         image=get_image_from_matplotlib(top_negative_pd_plot),
     )
@@ -77,7 +77,7 @@ def populate_churn_plots(q):
     )
     q.page["top_positive_pd_plot"] = ui.image_card(
         box=config.boxes["top_positive_pd_plot"],
-        title="",
+        title="Feature Most Contributing to Churn",
         type="png",
         image=get_image_from_matplotlib(top_positive_pd_plot),
     )
