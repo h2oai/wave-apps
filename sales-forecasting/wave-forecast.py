@@ -10,6 +10,30 @@ from h2o_wave import app, data, main, Q, ui
 
 
 @dataclass
+class WaveColors:
+    # Colors from Wave default Theme.
+    # https://github.com/h2oai/wave/blob/4ec0f6a6a2b8f43f11cdb557ba35a540ad23c13c/ui/src/theme.ts#L86
+    red: str = '#F44336'
+    pink: str = '#E91E63'
+    purple: str = '#9C27B0'
+    violet: str = '#673AB7'
+    indigo: str = '#3F51B5'
+    blue: str = '#2196F3'
+    azure: str = '#03A9F4'
+    cyan: str = '#00BCD4'
+    teal: str = '#009688'
+    mint: str = '#4CAF50'
+    green: str = '#8BC34A'
+    lime: str = '#CDDC39'
+    yellow: str = '#FFEB3B'
+    amber: str = '#FFC107'
+    orange: str = '#FF9800'
+    tangerine: str = '#FF5722'
+    brown: str = '#795548'
+    gray: str = '#9E9E9E'
+
+
+@dataclass
 class UserInputs:
     stores: Optional[List[int]] = field(default_factory=list)
     departments: Optional[List[int]] = field(default_factory=list)
@@ -137,17 +161,21 @@ def get_user_input_items(sales_data, user_inputs, progress=False):
     ]
 
 
+async def update_sidebar(q: Q, user_inputs, progress=False):
+    q.page['sidebar'].items[1].dropdown.values = [str(x) for x in user_inputs.stores]
+    q.page['sidebar'].items[3].dropdown.values = [str(x) for x in user_inputs.departments]
+    q.page['sidebar'].items[6].slider.value = user_inputs.n_forecast_weeks
+    q.page['sidebar'].items[10].progress.visible = progress
+    await q.page.save()
+
+
 async def draw_weekly_sales_plot(q: Q, plot_data):
-    # del q.page['content']
-    # Colors from Wave default Theme.
-    # https://github.com/h2oai/wave/blob/4ec0f6a6a2b8f43f11cdb557ba35a540ad23c13c/ui/src/theme.ts#L86
-    blue_orange = '#2196F3 #FF9800'
     v = q.page.add(
         'content',
         ui.plot_card(
             box='4 2 9 9',
             title='Walmart Weekly Sales Forecast',
-            data=data('Date Weekly_Sales data_type', len(plot_data)),
+            data=data('Date Weekly_Sales data_type', 0),
             plot=ui.plot([
                 ui.mark(
                     type='point',
@@ -158,7 +186,9 @@ async def draw_weekly_sales_plot(q: Q, plot_data):
                     x_title='Date',
                     y_title='Weekly Sales (USD)',
                     color='=data_type',
-                    color_range=blue_orange,
+                    color_range=' '.join([WaveColors.red, WaveColors.purple]),
+                    size=6,
+                    fill_opacity=0.75,
                     shape='circle'
                 )
             ])
@@ -217,17 +247,14 @@ async def initialize_app(q: Q):
 
 @app('/')
 async def serve(q: Q):
-
     if not q.client.app_initialized:
         await initialize_app(q)
         q.client.app_initialized = True
         return
 
     q.app.user_inputs.update(q.args)
-
-    q.page['sidebar'].items = get_user_input_items(q.app.sales_data, q.app.user_inputs, progress=True)
-    await q.page.save()
-
+    await update_sidebar(q, q.app.user_inputs, progress=True)
     plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
     q.page['sidebar'].items[10].progress.visible = False
-    await draw_weekly_sales_plot(q, plot_data)
+    q.page['content'].data = plot_data
+    await q.page.save()
