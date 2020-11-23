@@ -17,18 +17,19 @@ predictor = Predictor()
 
 
 def show_customer_page(q: Q):
-    customer_id = q.client.selected_customer = q.args.risk_table[0]
-    top_menu = q.page["top_menu"]
-    top_menu.items = customer_id
+    selected_row = q.args.risk_table[0]
+    q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
 
-    content = [
+    # predictor.get_shap_explanation(selected_row)
+
+    items = [
         ui.buttons([
             ui.button(name='reject_btn', label='Reject'),
             ui.button(name='approve_btn', label='Approve', primary=True),
         ])
     ]
 
-    return content
+    return items
 
 
 def get_column_headers_for_df(df):
@@ -42,20 +43,20 @@ def get_column_headers_for_df(df):
 
 
 def get_rows(q: Q, df):
+    df = df.head(20)
     rows = [
         ui.table_row(
-            name=row["ID"],
-            cells=[row[column] for column in df.columns] + [q.app.customer_status.get(row["ID"]) or '']
+            name=index,
+            cells=[str(row[column]) for column in df.columns] + [q.app.customer_status.get(row["ID"]) or '']
         )
         for index, row in df.iterrows()
     ]
-
     return rows
 
 
 def load_home(q: Q):
     del q.page["content"]
-    df = pd.read_csv(config.training_data_url).head(20)
+    df = predictor.get_testing_data_as_pd_frame()
 
     q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
         ui.table(
@@ -110,9 +111,9 @@ async def initialize_page(q: Q):
 
     if not q.client.app_initialized:
         # Initialize H2O-3 model and tests data set
-        # predictor.build_model(config.training_data_url, config.default_model)
-        # predictor.set_testing_data_frame(config.testing_data_url)
-        # predictor.predict()
+        predictor.build_model(config.training_data_url, config.default_model)
+        predictor.set_testing_data_frame(config.testing_data_url)
+        predictor.predict()
 
         (q.app.header_png,) = await q.site.upload([config.image_path])
         q.args.menu = "home"
@@ -144,15 +145,17 @@ async def serve(q: Q):
     await initialize_page(q)
     content = q.page["content"]
 
+    print(q.app.customer_status)
+
     if q.args.risk_table:
         content.items = show_customer_page(q)
     elif q.args.approve_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer] = 'BoxCheckmarkSolid'
+        customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
         load_home(q)
     elif q.args.reject_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer] = 'BoxMultiplySolid'
+        customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
         load_home(q)
     else:
         load_home(q)

@@ -1,6 +1,6 @@
 import h2o
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
-
+import pandas as pd
 
 class Predictor:
     """
@@ -33,6 +33,9 @@ class Predictor:
 
     def set_testing_data_frame(self, testing_data_path):
         self.test_df = h2o.import_file(path=testing_data_path)
+
+    def get_testing_data_as_pd_frame(self):
+        return pd.DataFrame(self.test_df.as_data_frame())
 
     def predict(self):
         self.predicted_df = self.model.predict(self.test_df)
