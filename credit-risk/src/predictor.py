@@ -2,7 +2,7 @@ import h2o
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
-class ChurnPredictor:
+class Predictor:
     """
     Wrapper for H2O-3
 
@@ -20,23 +20,19 @@ class ChurnPredictor:
         h2o.init()
 
     def build_model(self, training_data_path, model_id):
-        train_df = h2o.import_file(
-            path=training_data_path, destination_frame="telco_churn_train.csv"
-        )
+        train_df = h2o.import_file(path=training_data_path)
 
         predictors = train_df.columns
-        response = "Churn?"
+        response = "default.payment.next.month"
         train, valid = train_df.split_frame([0.8])
 
-        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=1234)
+        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=100)
         self.model.train(
             x=predictors, y=response, training_frame=train, validation_frame=valid
         )
 
     def set_testing_data_frame(self, testing_data_path):
-        self.test_df = h2o.import_file(
-            path=testing_data_path, destination_frame="telco_churn_test.csv"
-        )
+        self.test_df = h2o.import_file(path=testing_data_path)
 
     def predict(self):
         self.predicted_df = self.model.predict(self.test_df)

@@ -2,7 +2,7 @@ import pandas as pd
 from h2o_wave import app, Q, ui, main
 from plotly import graph_objects as go
 
-from .churn_predictor import ChurnPredictor
+from .predictor import Predictor
 from .config import Configuration
 from .plots import (
     convert_plot_to_html,
@@ -13,56 +13,64 @@ from .plots import (
 )
 
 config = Configuration()
-churn_predictor = ChurnPredictor()
+predictor = Predictor()
 
 
-def profile_content():
-    df = pd.read_csv(config.training_data_url).head(40)
+def show_customer_page(q: Q):
+    customer_id = q.client.selected_customer = q.args.risk_table[0]
+    top_menu = q.page["top_menu"]
+    top_menu.items = customer_id
 
-    choices = [
-        ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]
-    ]
-    items = [
-        ui.text_xl("Customer Profiles from Model Predictions"),
-        ui.picker(
-            name="customers",
-            label="Customer Phone Number",
-            choices=choices,
-            max_choices=1,
-            tooltip="Start typing to search for a customer",
-        ),
-        ui.button(name="select_customer_button", label="Submit", primary=True),
+    content = [
+        ui.buttons([
+            ui.button(name='reject_btn', label='Reject'),
+            ui.button(name='approve_btn', label='Approve', primary=True),
+        ])
     ]
 
-    return items
+    return content
 
 
-def profile_selected_page(q: Q):
+def get_column_headers_for_df(df):
+    columns = [
+        ui.table_column(name=column, label=column, sortable=True, searchable=True, max_width='300')
+        for column in df.columns
+    ]
+    columns += [ui.table_column(name='approved', label='Approved', cell_type=ui.icon_table_cell_type())]
+
+    return columns
+
+
+def get_rows(q: Q, df):
+    rows = [
+        ui.table_row(
+            name=row["ID"],
+            cells=[row[column] for column in df.columns] + [q.app.customer_status.get(row["ID"]) or '']
+        )
+        for index, row in df.iterrows()
+    ]
+
+    return rows
+
+
+def load_home(q: Q):
     del q.page["content"]
-    df = pd.read_csv(config.training_data_url).head(10)
+    df = pd.read_csv(config.training_data_url).head(20)
 
-    q.page["table"] = ui.form_card(box=config.boxes["table"], items=[
+    q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
         ui.table(
-            name='issues',
-            columns=[
-                ui.table_column(name=column, label=column, sortable=True, searchable=True, max_width='300')
-                for column in df.columns
-            ],
-            rows=[
-                ui.table_row(
-                    name=index,
-                    cells=[row[column] for column in df.columns]
-                )
-                for index, row in df.iterrows()
-            ],
+            name='risk_table',
+            columns=get_column_headers_for_df(df),
+            rows=get_rows(q, df),
             groupable=True,
             resettable=True,
+            multiple=False,
         )
     ])
 
 
 def populate_churn_plots(q):
-    shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
+    shap_plot = predictor.get_shap_explanation(q.client.selected_customer_index)
     q.page["shap_plot"] = ui.image_card(
         box=config.boxes["shap_plot"],
         title="",
@@ -70,7 +78,7 @@ def populate_churn_plots(q):
         image=get_image_from_matplotlib(shap_plot),
     )
 
-    top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(
+    top_negative_pd_plot = predictor.get_top_negative_pd_explanation(
         q.client.selected_customer_index
     )
     q.page["top_negative_pd_plot"] = ui.image_card(
@@ -80,7 +88,7 @@ def populate_churn_plots(q):
         image=get_image_from_matplotlib(top_negative_pd_plot),
     )
 
-    top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(
+    top_positive_pd_plot = predictor.get_top_positive_pd_explanation(
         q.client.selected_customer_index
     )
     q.page["top_positive_pd_plot"] = ui.image_card(
@@ -88,85 +96,6 @@ def populate_churn_plots(q):
         title="Feature Most Contributing to Churn",
         type="png",
         image=get_image_from_matplotlib(top_positive_pd_plot),
-    )
-
-
-def populate_customer_churn_stats(cust_phone_no, df, q):
-    df["Total Charges"] = (
-            df.Total_Day_charge
-            + df.Total_Eve_Charge
-            + df.Total_Night_Charge
-            + df.Total_Intl_Charge
-    )
-
-    df = df[
-        [
-            "Total_Day_charge",
-            "Total_Eve_Charge",
-            "Total_Night_Charge",
-            "Total_Intl_Charge",
-            config.id_column,
-            "Total Charges",
-        ]
-    ]
-
-    df.columns = [
-        "Day Charges",
-        "Evening Charges",
-        "Night Charges",
-        "Int'l Charges",
-        config.id_column,
-        "Total Charges",
-    ]
-
-    q.page["day_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Day Charges", config.boxes["day_stat"], config.color
-    )
-    q.page["eve_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Evening Charges", config.boxes["eve_stat"], config.color
-    )
-    q.page["night_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Night Charges", config.boxes["night_stat"], config.color
-    )
-    q.page["intl_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Int'l Charges", config.boxes["intl_stat"], config.color
-    )
-    q.page["total_stat"] = tall_stat_card_dollars(
-        df,
-        cust_phone_no,
-        "Total Charges",
-        config.boxes["total_stat"],
-        config.total_gauge_color,
-    )
-    q.page["customer"] = ui.small_stat_card(
-        box=config.boxes["customer"], title="Customer", value=str(cust_phone_no)
-    )
-
-    q.page["churn_rate"] = ui.small_stat_card(
-        box=config.boxes["churn_rate"],
-        title="Churn Rate",
-        value=str(
-            churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)
-        )
-              + " %",
-    )
-
-    labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
-    values = [
-        df[df[config.id_column] == cust_phone_no][labels[0]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[1]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[2]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[3]].values[0],
-    ]
-
-    html_plot = generate_figure_pie_of_target_percent(
-        "", labels, values, get_figure_layout()
-    )
-
-    q.page["stat_pie"] = ui.frame_card(
-        box=config.boxes["stat_pie"],
-        title="Total call charges breakdown",
-        content=convert_plot_to_html(config.figure_config, html_plot, "cdn", False),
     )
 
 
@@ -181,12 +110,13 @@ async def initialize_page(q: Q):
 
     if not q.client.app_initialized:
         # Initialize H2O-3 model and tests data set
-        # churn_predictor.build_model(config.training_data_url, config.default_model)
-        # churn_predictor.set_testing_data_frame(config.testing_data_url)
-        # churn_predictor.predict()
+        # predictor.build_model(config.training_data_url, config.default_model)
+        # predictor.set_testing_data_frame(config.testing_data_url)
+        # predictor.predict()
 
         (q.app.header_png,) = await q.site.upload([config.image_path])
         q.args.menu = "home"
+        q.app.customer_status = {}
         q.client.app_initialized = True
 
     q.page.drop()
@@ -199,16 +129,10 @@ async def initialize_page(q: Q):
         icon_color=config.color,
     )
 
-    q.page["nav_bar"] = ui.form_card(
+    q.page["navbar"] = ui.breadcrumbs_card(
         box=config.boxes["navbar"],
         items=[
-            ui.tabs(
-                name="menu",
-                value=q.args.menu,
-                items=[
-                    ui.tab(name="home", label="Home"),
-                ],
-            )
+            ui.breadcrumb(name='home', label='Home'),
         ],
     )
 
@@ -220,12 +144,17 @@ async def serve(q: Q):
     await initialize_page(q)
     content = q.page["content"]
 
-    if q.args.foo:
-        pass
+    if q.args.risk_table:
+        content.items = show_customer_page(q)
+    elif q.args.approve_btn:
+        customer_status = q.app.customer_status
+        customer_status[q.client.selected_customer] = 'BoxCheckmarkSolid'
+        load_home(q)
+    elif q.args.reject_btn:
+        customer_status = q.app.customer_status
+        customer_status[q.client.selected_customer] = 'BoxMultiplySolid'
+        load_home(q)
     else:
-        tab = q.args["menu"]
-
-        if tab == "home":
-            profile_selected_page(q)
+        load_home(q)
 
     await q.page.save()
