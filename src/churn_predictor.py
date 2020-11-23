@@ -19,7 +19,7 @@ class ChurnPredictor:
 
         h2o.init()
 
-    def build_model(self, training_data_path, model):
+    def build_model(self, training_data_path, model_id):
         train_df = h2o.import_file(
             path=training_data_path, destination_frame="telco_churn_train.csv"
         )
@@ -28,7 +28,7 @@ class ChurnPredictor:
         response = "Churn?"
         train, valid = train_df.split_frame([0.8])
 
-        self.model = H2OGradientBoostingEstimator(model_id=model, seed=1234)
+        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=1234)
         self.model.train(
             x=predictors, y=response, training_frame=train, validation_frame=valid
         )
