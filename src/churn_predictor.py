@@ -63,13 +63,19 @@ class ChurnPredictor:
         :param row_index: row index to select from H2OFrame for the explanation
         :return: matplotlib figure object
         """
-        column_index = self.contributions_df.idxmin(axis=1).as_data_frame()[
-            "which.min"
-        ][row_index]
+        # column_index = self.contributions_df.idxmin(axis=1).as_data_frame()[
+        #     "which.min"
+        # ][row_index]
+
+        # Using Pandas DataFrame.idxmin() until https://h2oai.atlassian.net/browse/PUBDEV-7906 is fixed
+        pdf = self.contributions_df.as_data_frame()
+        del pdf["BiasTerm"]  # Delete bias column added by predict_contributions()
+        min_column_name = pdf.idxmin(axis=1)[row_index]
+
         return self.model.pd_plot(
             frame=self.test_df,
             row_index=row_index,
-            column=self.test_df.col_names[column_index],
+            column=min_column_name,
         )
 
     def get_top_positive_pd_explanation(self, row_index):
