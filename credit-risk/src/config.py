@@ -60,6 +60,7 @@ class Configuration:
             "shap_plot": "1 4 -1 11",
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
+            "table": "1 2 -1 7",
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}

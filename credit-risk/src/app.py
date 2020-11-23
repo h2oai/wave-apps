@@ -1,7 +1,5 @@
-from test.e2e import walkthrough
-
 import pandas as pd
-from h2o_wave import app, main, Q, ui
+from h2o_wave import app, Q, ui, main
 from plotly import graph_objects as go
 
 from .churn_predictor import ChurnPredictor
@@ -13,7 +11,6 @@ from .plots import (
     tall_stat_card_dollars,
     wide_stat_card_dollars,
 )
-from .utils import python_code_content
 
 config = Configuration()
 churn_predictor = ChurnPredictor()
@@ -42,23 +39,14 @@ def profile_content():
 
 def profile_selected_page(q: Q):
     del q.page["content"]
-    df = pd.read_csv(config.training_data_url).head(20)
+    df = pd.read_csv(config.training_data_url).head(10)
 
-    columns = [
-        ui.table_column(name='text', label='Issue', sortable=True, searchable=True, max_width='300'),
-        ui.table_column(name='status', label='Status', filterable=True),
-        ui.table_column(name='notifications', label='Notifications', filterable=True),
-        ui.table_column(name='done', label='Done', cell_type=ui.icon_table_cell_type()),
-        ui.table_column(name='views', label='Views', sortable=True),
-        ui.table_column(name='progress', label='Progress', cell_type=ui.progress_table_cell_type()),
-    ]
-
-    q.page["table"] = ui.form_card(box=config.boxes["content"], items=[
+    q.page["table"] = ui.form_card(box=config.boxes["table"], items=[
         ui.table(
             name='issues',
             columns=[
                 ui.table_column(name=column, label=column, sortable=True, searchable=True, max_width='300')
-                     for column in df.columns
+                for column in df.columns
             ],
             rows=[
                 ui.table_row(
@@ -68,12 +56,9 @@ def profile_selected_page(q: Q):
                 for index, row in df.iterrows()
             ],
             groupable=True,
-            downloadable=True,
             resettable=True,
-            height='800px'
         )
     ])
-
 
 
 def populate_churn_plots(q):
@@ -108,10 +93,10 @@ def populate_churn_plots(q):
 
 def populate_customer_churn_stats(cust_phone_no, df, q):
     df["Total Charges"] = (
-        df.Total_Day_charge
-        + df.Total_Eve_Charge
-        + df.Total_Night_Charge
-        + df.Total_Intl_Charge
+            df.Total_Day_charge
+            + df.Total_Eve_Charge
+            + df.Total_Night_Charge
+            + df.Total_Intl_Charge
     )
 
     df = df[
@@ -163,7 +148,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
         value=str(
             churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)
         )
-        + " %",
+              + " %",
     )
 
     labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
