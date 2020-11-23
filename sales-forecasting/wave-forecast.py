@@ -38,12 +38,14 @@ class UserInputs:
     stores: Optional[List[int]] = field(default_factory=list)
     departments: Optional[List[int]] = field(default_factory=list)
     n_forecast_weeks: Optional[int] = 0
+    color_by: Optional[str] = 'data_type'
 
     # Default values for user inputs. Should be read from a config file
     def reset(self):
         self.stores = list(range(1, 7))
         self.departments = [3]
         self.n_forecast_weeks = 0
+        self.color_by = 'data_type'
 
     def update(self, q_args):
         if q_args.reset:
@@ -61,6 +63,8 @@ class UserInputs:
                 self.departments = self.departments[:20]
         if q_args.n_forecast_weeks:
             self.n_forecast_weeks = q_args.n_forecast_weeks
+        if q_args.color_by:
+            self.color_by = q_args.color_by
 
 
 class SalesData:
@@ -78,15 +82,19 @@ class SalesData:
         self.stores_unique = list(self.df_train['Store'].unique())
         self.departments_unique = list(self.df_train['Dept'].unique())
 
-    def get_plot_data(self, stores, departments, n_forecast_weeks):
+    def get_plot_data(self, stores, departments, n_forecast_weeks, **kwargs):
         dfp = self.df_predictions.loc[self.df_predictions['Date'].isin(self.prediction_dates[:n_forecast_weeks]), :]
+        p = ['', 0]
+        if len(dfp) > 1:
+            p[0] = dfp.iat[0, 2]
         df = pd.concat([self.df_train, dfp], ignore_index=True)
         subset = df[df['Store'].isin(stores) & df['Dept'].isin(departments)].reset_index(drop=True)
         s1 = subset.drop(
-            columns=['Store', 'Dept', 'Temperature', 'Fuel_Price', 'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4',
+            columns=['Temperature', 'Fuel_Price', 'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4',
                      'MarkDown5', 'CPI', 'Unemployment', 'IsHoliday', 'sample_weight', 'sample_weight',
                      'Weekly_Sales.lower', 'Weekly_Sales.upper'])
-        return s1.values.tolist()
+        p[1] = s1['Weekly_Sales'].max()
+        return s1.values.tolist(), tuple(p)
 
 
 def download_file_from_s3(s3_uri, file_path, overwrite=True):
@@ -137,7 +145,7 @@ def get_user_input_items(sales_data, user_inputs, progress=False):
             tooltip='Select the Products to include in the prediction',
             trigger=True,
         ),
-        ui.frame(content=' ', height="40px"),
+        ui.separator(),
         ui.text_l('**Generate Sales Forecast**'),
         ui.slider(
             name='n_forecast_weeks',
@@ -148,6 +156,18 @@ def get_user_input_items(sales_data, user_inputs, progress=False):
             value=user_inputs.n_forecast_weeks,
             trigger=True,
             tooltip='Select the number of weeks into the future to predict'
+        ),
+        ui.separator(),
+        ui.choice_group(
+            name='color_by',
+            label='Color By',
+            value='data_type',
+            choices=[
+                ui.choice(name='data_type', label='History / Predictions'),
+                ui.choice(name='Store', label='Store ID'),
+                ui.choice(name='Dept', label='Product ID'),
+            ],
+            trigger=True,
         ),
         ui.text_xs('⠀'),
         ui.button(
@@ -165,17 +185,38 @@ async def update_sidebar(q: Q, user_inputs, progress=False):
     q.page['sidebar'].items[1].dropdown.values = [str(x) for x in user_inputs.stores]
     q.page['sidebar'].items[3].dropdown.values = [str(x) for x in user_inputs.departments]
     q.page['sidebar'].items[6].slider.value = user_inputs.n_forecast_weeks
-    q.page['sidebar'].items[10].progress.visible = progress
+    q.page['sidebar'].items[8].choice_group.value = user_inputs.color_by
+    q.page['sidebar'].items[12].progress.visible = progress
     await q.page.save()
 
 
-async def draw_weekly_sales_plot(q: Q, plot_data):
+async def draw_weekly_sales_plot(q: Q, plot_data, prediction_start=('', 0), color_by='data_type'):
+    color_range = ' '.join([WaveColors.red, WaveColors.purple])
+    if color_by != 'data_type':
+        color_range = ' '.join([
+            WaveColors.red,
+            WaveColors.pink,
+            WaveColors.purple,
+            WaveColors.violet,
+            WaveColors.indigo,
+            WaveColors.blue,
+            WaveColors.azure,
+            WaveColors.cyan,
+            WaveColors.teal,
+            WaveColors.mint,
+            WaveColors.green,
+            WaveColors.lime,
+            WaveColors.yellow,
+            WaveColors.amber,
+            WaveColors.orange,
+            WaveColors.tangerine
+        ])
     v = q.page.add(
         'content',
         ui.plot_card(
             box='4 2 9 9',
             title='Walmart Weekly Sales Forecast',
-            data=data('Date Weekly_Sales data_type', 0),
+            data=data('Store Dept Date Weekly_Sales data_type', 0),
             plot=ui.plot([
                 ui.mark(
                     type='point',
@@ -185,12 +226,16 @@ async def draw_weekly_sales_plot(q: Q, plot_data):
                     y_min=0,
                     x_title='Date',
                     y_title='Weekly Sales (USD)',
-                    color='=data_type',
-                    color_range=' '.join([WaveColors.red, WaveColors.purple]),
-                    size=6,
+                    color=f'={color_by}',
+                    color_range=color_range,
+                    size='=data_type',
+                    size_range='6 8',
+                    shape='=data_type',
+                    shape_range='circle triangle',
                     fill_opacity=0.75,
-                    shape='circle'
-                )
+                ),
+                ui.mark(x=prediction_start[0], label=''),
+                ui.mark(x=prediction_start[0], y=prediction_start[1], label=' Predictions', stroke_opacity=0),
             ])
         ))
     v.data = plot_data
@@ -235,18 +280,20 @@ async def initialize_app(q: Q):
     q.app.user_inputs.reset()
     q.app.sales_data = SalesData(walmart_train, walmart_predictions)
 
-    plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
+    plot_data, prediction_start = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
 
     del q.page['loading']
     q.page['sidebar'] = ui.form_card(
         box='1 2 3 9',
         items=get_user_input_items(q.app.sales_data, q.app.user_inputs)
     )
-    await draw_weekly_sales_plot(q, plot_data)
+    await draw_weekly_sales_plot(q, plot_data, prediction_start, color_by=q.app.user_inputs.color_by)
 
 
 @app('/')
 async def serve(q: Q):
+    print(q.args)
+
     if not q.client.app_initialized:
         await initialize_app(q)
         q.client.app_initialized = True
@@ -254,7 +301,6 @@ async def serve(q: Q):
 
     q.app.user_inputs.update(q.args)
     await update_sidebar(q, q.app.user_inputs, progress=True)
-    plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
-    q.page['sidebar'].items[10].progress.visible = False
-    q.page['content'].data = plot_data
-    await q.page.save()
+    plot_data, prediction_start = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
+    q.page['sidebar'].items[12].progress.visible = False
+    await draw_weekly_sales_plot(q, plot_data, prediction_start, color_by=q.app.user_inputs.color_by)
