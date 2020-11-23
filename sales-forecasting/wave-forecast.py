@@ -45,11 +45,13 @@ class UserInputs:
         self.stores = list(range(1, 7))
         self.departments = [3]
         self.n_forecast_weeks = 0
-        self.color_by = 'data_type'
+        self.color_by = 'Store'
 
     def update(self, q_args):
         if q_args.reset:
             self.reset()
+            return
+        elif q_args.home:
             return
         if q_args.stores:
             self.stores = [int(x) for x in q_args.stores]
@@ -161,7 +163,7 @@ def get_user_input_items(sales_data, user_inputs, progress=False):
         ui.choice_group(
             name='color_by',
             label='Color By',
-            value='data_type',
+            value=user_inputs.color_by,
             choices=[
                 ui.choice(name='data_type', label='History / Predictions'),
                 ui.choice(name='Store', label='Store ID'),
@@ -170,11 +172,22 @@ def get_user_input_items(sales_data, user_inputs, progress=False):
             trigger=True,
         ),
         ui.text_xs('⠀'),
-        ui.button(
-            name='reset',
-            label='Reset',
-            primary=True,
-            tooltip='Click to reset all values to defaults'
+        ui.buttons(
+            items=[
+                ui.button(
+                    name='reset',
+                    label='Reset',
+                    primary=True,
+                    tooltip='Click to reset all values to defaults'
+                ),
+                ui.button(
+                    name='home',
+                    label='Reset View',
+                    primary=False,
+                    tooltip='Click to reset the view and keep the selections'
+                ),
+            ],
+            justify='start'
         ),
         ui.text_xs('⠀'),
         ui.progress(label='', caption='', visible=progress),
@@ -235,7 +248,8 @@ async def draw_weekly_sales_plot(q: Q, plot_data, prediction_start=('', 0), colo
                     fill_opacity=0.75,
                 ),
                 ui.mark(x=prediction_start[0], label=''),
-                ui.mark(x=prediction_start[0], y=prediction_start[1], label=' Predictions', stroke_opacity=0),
+                ui.mark(x=prediction_start[0], y=prediction_start[1], label=' Predictions', stroke_opacity=0,
+                        stroke_size=0, fill_opacity=0),
             ])
         ))
     v.data = plot_data
@@ -292,8 +306,6 @@ async def initialize_app(q: Q):
 
 @app('/')
 async def serve(q: Q):
-    print(q.args)
-
     if not q.client.app_initialized:
         await initialize_app(q)
         q.client.app_initialized = True
