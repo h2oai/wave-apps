@@ -29,7 +29,7 @@ def show_customer_page(q: Q):
     )
 
     q.page["buttons"] = ui.form_card(
-        box="1 12 -1 1",
+        box="1 13 -1 1",
         items=[
             ui.buttons([
                 ui.button(name='reject_btn', label='Reject'),
@@ -37,8 +37,6 @@ def show_customer_page(q: Q):
             ])
         ]
     )
-
-    # return items
 
 
 def get_column_headers_for_df(df):
@@ -146,13 +144,12 @@ async def initialize_page(q: Q):
         ],
     )
 
-    q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
+    # q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
 
 
 @app("/")
 async def serve(q: Q):
     await initialize_page(q)
-    content = q.page["content"]
 
     if q.args.risk_table:
         show_customer_page(q)
