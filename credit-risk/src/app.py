@@ -20,16 +20,25 @@ def show_customer_page(q: Q):
     selected_row = q.args.risk_table[0]
     q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
 
-    # predictor.get_shap_explanation(selected_row)
+    shap_plot = predictor.get_shap_explanation(selected_row)
+    q.page["shap_plot"] = ui.image_card(
+        box=config.boxes["shap_plot"],
+        title="",
+        type="png",
+        image=get_image_from_matplotlib(shap_plot),
+    )
 
-    items = [
-        ui.buttons([
-            ui.button(name='reject_btn', label='Reject'),
-            ui.button(name='approve_btn', label='Approve', primary=True),
-        ])
-    ]
+    q.page["buttons"] = ui.form_card(
+        box="1 12 -1 1",
+        items=[
+            ui.buttons([
+                ui.button(name='reject_btn', label='Reject'),
+                ui.button(name='approve_btn', label='Approve', primary=True),
+            ])
+        ]
+    )
 
-    return items
+    # return items
 
 
 def get_column_headers_for_df(df):
@@ -145,10 +154,8 @@ async def serve(q: Q):
     await initialize_page(q)
     content = q.page["content"]
 
-    print(q.app.customer_status)
-
     if q.args.risk_table:
-        content.items = show_customer_page(q)
+        show_customer_page(q)
     elif q.args.approve_btn:
         customer_status = q.app.customer_status
         customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'

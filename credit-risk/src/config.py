@@ -57,7 +57,7 @@ class Configuration:
             "customer": "1 2 2 1",
             "churn_rate": "1 3 2 1",
             "stat_pie": "8 2 -1 2",
-            "shap_plot": "1 4 -1 11",
+            "shap_plot": "1 2 -1 11",
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 7",
