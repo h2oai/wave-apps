@@ -40,4 +40,4 @@ class Configuration:
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
-        self.approval_threshold = 0.4
+        self.approval_threshold = 0.35
