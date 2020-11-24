@@ -230,11 +230,11 @@ async def serve(q: Q):
         show_customer_page(q)
     elif q.args.approve_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'Accepted'
+        customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
         load_home(q)
     elif q.args.reject_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'Rejected'
+        customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
         load_home(q)
     else:
         load_home(q)
