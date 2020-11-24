@@ -17,10 +17,10 @@ predictor = Predictor()
 
 
 def show_customer_page(q: Q):
-    # del q.page["content"]
-    # del q.page["risk_table"]
+    del q.page["content"]
     selected_row = q.args.risk_table[0]
     q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
+    score = predictor.predicted_df.as_data_frame().loc[[selected_row]].values[0][0]
     df = predictor.get_testing_data_as_pd_frame()
     df_selected = df.loc[[selected_row]]
 
@@ -48,8 +48,8 @@ def show_customer_page(q: Q):
         box=config.boxes["button_group"],
         items=[
             ui.buttons([
-                ui.button(name='reject_btn', label='Reject'),
-                ui.button(name='approve_btn', label='Approve', primary=True),
+                ui.button(name='reject_btn', label='Reject', primary=bool(score < config.approval_threshold)),
+                ui.button(name='approve_btn', label='Approve', primary=bool(score >= config.approval_threshold)),
             ])
         ]
     )
