@@ -19,6 +19,20 @@ predictor = Predictor()
 def show_customer_page(q: Q):
     selected_row = q.args.risk_table[0]
     q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
+    df = predictor.get_testing_data_as_pd_frame()
+    df_selected = df.loc[[selected_row]]
+
+    q.page["risk_table_row"] = ui.form_card(box=config.boxes["risk_table_selected"], items=[
+        ui.table(
+            name='risk_table_row',
+            columns=get_column_headers_for_df(df_selected, False),
+            rows=get_selected_row(q, df_selected),
+            groupable=False,
+            resettable=False,
+            multiple=False,
+        )
+    ])
+
 
     shap_plot = predictor.get_shap_explanation(selected_row)
     q.page["shap_plot"] = ui.image_card(
@@ -29,7 +43,7 @@ def show_customer_page(q: Q):
     )
 
     q.page["buttons"] = ui.form_card(
-        box="1 13 -1 1",
+        box=config.boxes["button_group"],
         items=[
             ui.buttons([
                 ui.button(name='reject_btn', label='Reject'),
@@ -38,10 +52,12 @@ def show_customer_page(q: Q):
         ]
     )
 
+    # return items
 
-def get_column_headers_for_df(df):
+
+def get_column_headers_for_df(df,searchable):
     columns = [
-        ui.table_column(name=column, label=column, sortable=True, searchable=True, max_width='300')
+        ui.table_column(name=column, label=column, sortable=True, searchable=searchable, max_width='300')
         for column in df.columns
     ]
     columns += [ui.table_column(name='approved', label='Approved', cell_type=ui.icon_table_cell_type())]
@@ -60,6 +76,16 @@ def get_rows(q: Q, df):
     ]
     return rows
 
+def get_selected_row(q: Q, df):
+    rows = [
+        ui.table_row(
+            name=index,
+            cells=[str(row[column]) for column in df.columns] + [q.app.customer_status.get(row["ID"]) or '']
+        )
+        for index, row in df.iterrows()
+    ]
+    return rows
+
 
 def load_home(q: Q):
     del q.page["content"]
@@ -68,7 +94,7 @@ def load_home(q: Q):
     q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
         ui.table(
             name='risk_table',
-            columns=get_column_headers_for_df(df),
+            columns=get_column_headers_for_df(df, True),
             rows=get_rows(q, df),
             groupable=True,
             resettable=True,
@@ -144,12 +170,13 @@ async def initialize_page(q: Q):
         ],
     )
 
-    # q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
+    q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
 
 
 @app("/")
 async def serve(q: Q):
     await initialize_page(q)
+    content = q.page["content"]
 
     if q.args.risk_table:
         show_customer_page(q)
