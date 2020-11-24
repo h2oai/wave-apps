@@ -34,8 +34,8 @@ class Configuration:
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 7",
-            "risk_table_selected": "1 2 2 12",
-            "button_group":"1 15 -1 1"
+            "risk_table_selected": "1 2 2 14",
+            "button_group":"1 16 -1 1"
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}

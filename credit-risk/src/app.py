@@ -36,6 +36,7 @@ def show_customer_page(q: Q):
             groupable=False,
             resettable=False,
             multiple=False,
+            height='100%'
         )
     ])
 
