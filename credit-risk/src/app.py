@@ -124,8 +124,18 @@ def get_transformed_df_rows(q: Q, df):
     ]
     rows += [ui.table_row(
         name='approved',
-        cells=['Approved'] + [q.app.customer_status.get(q.client.selected_customer_id) or 'Pending'])]
+        cells=['Status'] + [get_customer_status(q)])]
     return rows
+
+
+def get_customer_status(q):
+    status = "Pending"
+    customer_status = q.app.customer_status.get(q.client.selected_customer_id)
+    if customer_status == "BoxCheckmarkSolid":
+        status = "Accepted"
+    elif customer_status == "BoxCheckmarkSolid":
+        status = "Rejected"
+    return status
 
 
 def load_home(q: Q):
