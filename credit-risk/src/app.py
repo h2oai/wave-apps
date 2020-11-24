@@ -49,6 +49,15 @@ def show_customer_page(q: Q):
         image=get_image_from_matplotlib(shap_plot, figsize=(8, 6), dpi=85),
     )
 
+    q.page["risk_explanation"] = ui.form_card(
+        box=config.boxes["risk_explanation"],
+        items=[
+            ui.buttons([
+                ui.text(name='top_positive', content='foo'),
+            ])
+        ]
+    )
+
     q.page["buttons"] = ui.form_card(
         box=config.boxes["button_group"],
         items=[
