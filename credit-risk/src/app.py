@@ -27,8 +27,12 @@ def show_customer_page(q: Q):
     q.page["risk_table_row"] = ui.form_card(box=config.boxes["risk_table_selected"], items=[
         ui.table(
             name='risk_table_row',
-            columns=get_column_headers_for_df(df_selected, False),
-            rows=get_selected_row(q, df_selected),
+
+            columns=[
+                ui.table_column(name="Attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
+                ui.table_column(name="Value", label="Value", sortable=False, searchable=False, max_width='100')
+            ],
+            rows=get_transformed_df_rows(q, df_selected),
             groupable=False,
             resettable=False,
             multiple=False,
@@ -41,7 +45,7 @@ def show_customer_page(q: Q):
         box=config.boxes["shap_plot"],
         title="",
         type="png",
-        image=get_image_from_matplotlib(shap_plot),
+        image=get_image_from_matplotlib(shap_plot, figsize=(8, 6), dpi=85),
     )
 
     q.page["buttons"] = ui.form_card(
@@ -86,6 +90,22 @@ def get_selected_row(q: Q, df):
         )
         for index, row in df.iterrows()
     ]
+    return rows
+
+
+def get_transformed_df_rows(q: Q, df):
+    df_transformed = df.transpose()
+
+    rows = [
+        ui.table_row(
+            name=index,
+            cells=[str(index)] + [str(row[column]) for column in df_transformed.columns]
+        )
+        for index, row in df_transformed.iterrows()
+    ]
+    rows += [ui.table_row(
+        name='approved',
+        cells=['Approved'] + [q.app.customer_status.get(q.client.selected_customer_id) or 'Pending'])]
     return rows
 
 
@@ -178,17 +198,16 @@ async def initialize_page(q: Q):
 @app("/")
 async def serve(q: Q):
     await initialize_page(q)
-    content = q.page["content"]
 
     if q.args.risk_table:
         show_customer_page(q)
     elif q.args.approve_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
+        customer_status[q.client.selected_customer_id] = 'Accepted'
         load_home(q)
     elif q.args.reject_btn:
         customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
+        customer_status[q.client.selected_customer_id] = 'Rejected'
         load_home(q)
     else:
         load_home(q)

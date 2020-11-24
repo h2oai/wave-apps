@@ -55,8 +55,8 @@ def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
     return card
 
 
-def get_image_from_matplotlib(matplotlib_obj):
+def get_image_from_matplotlib(matplotlib_obj, figsize=(8, 6), dpi=90):
     buffer = io.BytesIO()
-    matplotlib_obj.savefig(buffer, format="png")
+    matplotlib_obj.savefig(buffer, format="png", figsize=figsize, dpi=dpi)
     buffer.seek(0)
     return base64.b64encode(buffer.read()).decode("utf-8")
