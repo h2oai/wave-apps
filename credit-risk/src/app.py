@@ -17,6 +17,8 @@ predictor = Predictor()
 
 
 def show_customer_page(q: Q):
+    # del q.page["content"]
+    # del q.page["risk_table"]
     selected_row = q.args.risk_table[0]
     q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
     df = predictor.get_testing_data_as_pd_frame()

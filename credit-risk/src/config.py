@@ -27,20 +27,15 @@ class Configuration:
             "content": "1 2 -1 -1",
             "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
-            "day_stat": "3 2 2 1",
-            "eve_stat": "5 2 2 1",
-            "night_stat": "3 3 2 1",
-            "intl_stat": "5 3 2 1",
-            "total_stat": "7 2 1 2",
             "customer": "1 2 2 1",
             "churn_rate": "1 3 2 1",
             "stat_pie": "8 2 -1 2",
-            "shap_plot": "1 4 -1 13",
+            "shap_plot": "1 4 -1 11",
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 7",
-            "risk_table_selected": "1 2 -1 3",
-            "button_group":"1 14 -1 1"
+            "risk_table_selected": "1 2 -1 2",
+            "button_group":"1 15 -1 1"
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
