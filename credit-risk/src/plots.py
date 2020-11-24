@@ -1,5 +1,9 @@
+from h2o_wave import Q
+
 import base64
 import io
+import uuid
+import os
 
 from h2o_wave import ui
 from plotly import graph_objects as go
@@ -60,3 +64,11 @@ def get_image_from_matplotlib(matplotlib_obj, figsize=(8, 6), dpi=90):
     matplotlib_obj.savefig(buffer, format="png", figsize=figsize, dpi=dpi)
     buffer.seek(0)
     return base64.b64encode(buffer.read()).decode("utf-8")
+
+
+async def get_image_url_from_matplotlib(q: Q, matplotlib_obj):
+    image_filename = f'{str(uuid.uuid4())}.png'
+    matplotlib_obj.savefig(image_filename)
+    image_path, = await q.site.upload([image_filename])
+    os.remove(image_filename)
+    return image_path
