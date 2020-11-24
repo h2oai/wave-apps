@@ -19,10 +19,15 @@ predictor = Predictor()
 def show_customer_page(q: Q):
     del q.page["content"]
     selected_row = q.args.risk_table[0]
-    q.client.selected_customer_id = predictor.get_testing_data_as_pd_frame()["ID"][selected_row]
-    score = predictor.predicted_df.as_data_frame().loc[[selected_row]].values[0][0]
-    df = predictor.get_testing_data_as_pd_frame()
-    df_selected = df.loc[[selected_row]]
+    training_df = predictor.get_testing_data_as_pd_frame()
+    predictions_df = predictor.predicted_df.as_data_frame()
+    contributions_df = predictor.contributions_df.as_data_frame()
+    del contributions_df['BiasTerm']
+
+    q.client.selected_customer_id = training_df.loc[selected_row]["ID"]
+    score = predictions_df.loc[selected_row]["predict"]
+
+    approve = bool(score >= config.approval_threshold)
 
     q.page["risk_table_row"] = ui.form_card(box=config.boxes["risk_table_selected"], items=[
         ui.table(
@@ -32,14 +37,13 @@ def show_customer_page(q: Q):
                 ui.table_column(name="Attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
                 ui.table_column(name="Value", label="Value", sortable=False, searchable=False, max_width='100')
             ],
-            rows=get_transformed_df_rows(q, df_selected),
+            rows=get_transformed_df_rows(q, training_df.loc[[selected_row]]),
             groupable=False,
             resettable=False,
             multiple=False,
             height='100%'
         )
     ])
-
 
     shap_plot = predictor.get_shap_explanation(selected_row)
     q.page["shap_plot"] = ui.image_card(
@@ -49,29 +53,41 @@ def show_customer_page(q: Q):
         image=get_image_from_matplotlib(shap_plot, figsize=(8, 6), dpi=85),
     )
 
-    q.page["risk_explanation"] = ui.form_card(
+    top_feature = \
+        contributions_df.idxmax(axis=1)[selected_row] if approve else contributions_df.idxmin(axis=1)[selected_row]
+
+    explanation_data = {
+        'will_or_will_not': 'will' if approve else 'will not',
+        'top_contributing_feature': top_feature,
+        'value_of_top_contributing_feature': str(training_df.loc[selected_row][top_feature]),
+        'accept_or_reject': 'accept' if approve else 'reject',
+    }
+
+    explanation = '''
+- This customer **{{will_or_will_not}}** most probably settle the next month credit card balance.
+- Having a {{top_contributing_feature}} of {{value_of_top_contributing_feature}} is the top reason for that.
+- It's a good idea to **{{accept_or_reject}}** this customer. 
+'''
+
+    q.page["risk_explanation"] = ui.markdown_card(
         box=config.boxes["risk_explanation"],
-        items=[
-            ui.buttons([
-                ui.text(name='top_positive', content='foo'),
-            ])
-        ]
+        title='Summary on Customer',
+        content='=' + explanation,
+        data=explanation_data,
     )
 
     q.page["buttons"] = ui.form_card(
         box=config.boxes["button_group"],
         items=[
             ui.buttons([
-                ui.button(name='reject_btn', label='Reject', primary=bool(score < config.approval_threshold)),
-                ui.button(name='approve_btn', label='Approve', primary=bool(score >= config.approval_threshold)),
+                ui.button(name='reject_btn', label='Reject', primary=not approve),
+                ui.button(name='approve_btn', label='Approve', primary=approve),
             ])
         ]
     )
 
-    # return items
 
-
-def get_column_headers_for_df(df,searchable):
+def get_column_headers_for_df(df, searchable):
     columns = [
         ui.table_column(name=column, label=column, sortable=True, searchable=searchable, max_width='300')
         for column in df.columns
@@ -91,6 +107,7 @@ def get_rows(q: Q, df):
         for index, row in df.iterrows()
     ]
     return rows
+
 
 def get_selected_row(q: Q, df):
     rows = [
