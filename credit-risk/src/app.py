@@ -17,7 +17,6 @@ predictor = Predictor()
 
 
 def show_customer_page(q: Q):
-    del q.page["content"]
     selected_row = q.args.risk_table[0]
     training_df = predictor.get_testing_data_as_pd_frame()
     predictions_df = predictor.predicted_df.as_data_frame()
@@ -137,7 +136,6 @@ def get_transformed_df_rows(q: Q, df):
 
 
 def load_home(q: Q):
-    del q.page["content"]
     df = predictor.get_testing_data_as_pd_frame()
 
     q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
@@ -189,8 +187,6 @@ def get_figure_layout():
 
 
 async def initialize_page(q: Q):
-    content = []
-
     if not q.client.app_initialized:
         # Initialize H2O-3 model and tests data set
         predictor.build_model(config.training_data_url, config.default_model)
@@ -218,8 +214,6 @@ async def initialize_page(q: Q):
             ui.breadcrumb(name='home', label='Home'),
         ],
     )
-
-    q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
 
 
 @app("/")
