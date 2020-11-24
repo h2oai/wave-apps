@@ -1,16 +1,9 @@
-import pandas as pd
 from h2o_wave import app, Q, ui, main
 from plotly import graph_objects as go
 
 from .predictor import Predictor
 from .config import Configuration
-from .plots import (
-    convert_plot_to_html,
-    generate_figure_pie_of_target_percent,
-    get_image_from_matplotlib,
-    tall_stat_card_dollars,
-    wide_stat_card_dollars,
-)
+from .plots import get_image_from_matplotlib
 
 config = Configuration()
 predictor = Predictor()
