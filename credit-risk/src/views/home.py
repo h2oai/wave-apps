@@ -1,6 +1,7 @@
 from h2o_wave import Q, ui
 
 from ..config import config, predictor
+from ..utils import add_column_to_df, drop_column_from_df
 
 
 def get_column_headers_for_df(df, searchable):
@@ -27,6 +28,9 @@ def get_rows(q: Q, df):
 
 def load_home(q: Q):
     df = predictor.get_testing_data_as_pd_frame()
+    predicted_df = predictor.get_predict_data_as_pd_frame()
+    drop_column_from_df(df, 'default.payment.next.month')
+    add_column_to_df(df, predicted_df, 'Default Prediction Rate', 'predict')
 
     q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
         ui.table(
