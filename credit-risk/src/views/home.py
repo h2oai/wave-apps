@@ -36,6 +36,6 @@ def load_home(q: Q):
             groupable=True,
             resettable=True,
             multiple=False,
-            tooltip='Double click a row to go to select it.'
+            height="100%"
         )
     ])
