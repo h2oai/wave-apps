@@ -30,6 +30,48 @@ def get_transformed_df_rows(q: Q, df):
     return rows
 
 
+def render_customer_details_table(q: Q, df, row):
+    q.page["risk_table_row"] = ui.form_card(box=config.boxes["risk_table_selected"], items=[
+        ui.table(
+            name='risk_table_row',
+            columns=[
+                ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
+                ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
+            ],
+            rows=get_transformed_df_rows(q, df.loc[[row]]),
+            groupable=False,
+            resettable=False,
+            multiple=False,
+            height='100%'
+        )
+    ])
+
+
+def render_customer_summary(q: Q, training_df, contributions_df, row, can_approve):
+    top_feature = \
+        contributions_df.idxmax(axis=1)[row] if can_approve else contributions_df.idxmin(axis=1)[row]
+
+    explanation_data = {
+        'will_or_will_not': 'will' if can_approve else 'will not',
+        'top_contributing_feature': top_feature,
+        'value_of_top_contributing_feature': str(training_df.loc[row][top_feature]),
+        'accept_or_reject': 'accept' if can_approve else 'reject',
+    }
+
+    explanation = '''
+- This customer **{{will_or_will_not}}** most probably settle the next month credit card balance.
+- Having a {{top_contributing_feature}} of {{value_of_top_contributing_feature}} is the top reason for that.
+- It's a good idea to **{{accept_or_reject}}** this customer. 
+'''
+
+    q.page["risk_explanation"] = ui.markdown_card(
+        box=config.boxes["risk_explanation"],
+        title='Summary on Customer',
+        content='=' + explanation,
+        data=explanation_data,
+    )
+
+
 def handle_approve_click(q: Q):
     customer_status = q.app.customer_status
     customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
@@ -49,24 +91,9 @@ def show_customer_page(q: Q):
 
     q.client.selected_customer_id = training_df.loc[selected_row]["ID"]
     score = predictions_df.loc[selected_row]["predict"]
-
     approve = bool(score >= config.approval_threshold)
 
-    q.page["risk_table_row"] = ui.form_card(box=config.boxes["risk_table_selected"], items=[
-        ui.table(
-            name='risk_table_row',
-
-            columns=[
-                ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
-                ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
-            ],
-            rows=get_transformed_df_rows(q, training_df.loc[[selected_row]]),
-            groupable=False,
-            resettable=False,
-            multiple=False,
-            height='100%'
-        )
-    ])
+    render_customer_details_table(q, training_df, selected_row)
 
     shap_plot = predictor.get_shap_explanation(selected_row)
     q.page["shap_plot"] = ui.image_card(
@@ -76,28 +103,7 @@ def show_customer_page(q: Q):
         image=get_image_from_matplotlib(shap_plot, fig_size=(8, 6), dpi=85),
     )
 
-    top_feature = \
-        contributions_df.idxmax(axis=1)[selected_row] if approve else contributions_df.idxmin(axis=1)[selected_row]
-
-    explanation_data = {
-        'will_or_will_not': 'will' if approve else 'will not',
-        'top_contributing_feature': top_feature,
-        'value_of_top_contributing_feature': str(training_df.loc[selected_row][top_feature]),
-        'accept_or_reject': 'accept' if approve else 'reject',
-    }
-
-    explanation = '''
-- This customer **{{will_or_will_not}}** most probably settle the next month credit card balance.
-- Having a {{top_contributing_feature}} of {{value_of_top_contributing_feature}} is the top reason for that.
-- It's a good idea to **{{accept_or_reject}}** this customer. 
-'''
-
-    q.page["risk_explanation"] = ui.markdown_card(
-        box=config.boxes["risk_explanation"],
-        title='Summary on Customer',
-        content='=' + explanation,
-        data=explanation_data,
-    )
+    render_customer_summary(q, training_df, contributions_df, selected_row, approve)
 
     q.page["buttons"] = ui.form_card(
         box=config.boxes["button_group"],
