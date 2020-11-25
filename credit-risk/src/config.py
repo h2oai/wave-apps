@@ -1,3 +1,6 @@
+from .predictor import Predictor
+
+
 class Configuration:
     """
     Configuration file for Credit Card Risk app
@@ -41,3 +44,7 @@ class Configuration:
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
         self.approval_threshold = 0.35
+
+
+config = Configuration()
+predictor = Predictor()
