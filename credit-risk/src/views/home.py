@@ -34,7 +34,6 @@ def load_home(q: Q):
             columns=get_column_headers_for_df(df, True),
             rows=get_rows(q, df),
             groupable=True,
-            resettable=True,
             multiple=False,
             tooltip='Double click a row to go to select it.'
         )
