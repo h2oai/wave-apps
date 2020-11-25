@@ -1,6 +1,8 @@
 import h2o
-from h2o.estimators.gbm import H2OGradientBoostingEstimator
 import pandas as pd
+
+from h2o.estimators.gbm import H2OGradientBoostingEstimator
+
 
 class Predictor:
     """
