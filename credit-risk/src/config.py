@@ -20,9 +20,7 @@ class Configuration:
         self.subtitle = "Prediction on customer ability to pay credit card bills"
         self.icon = "PaymentCard"
 
-        # self.training_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv'
         self.training_data_url = "./data/Kaggle/CreditCard-train.csv"
-        # self.testing_data_url = 'https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn_test.csv'
         self.testing_data_url = "./data/Kaggle/CreditCard-train.csv"
 
         self.boxes = {
