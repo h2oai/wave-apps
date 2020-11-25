@@ -31,13 +31,13 @@ class Configuration:
             "customer": "1 2 2 1",
             "churn_rate": "1 3 2 1",
             "stat_pie": "8 2 -1 2",
-            "shap_plot": "3 2 -1 9",
+            "shap_plot": "3 4 -1 11",
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 -1",
             "risk_table_selected": "1 2 2 14",
-            "button_group": "1 16 -1 1",
-            "risk_explanation": "3 11 -1 5",
+            "button_group": "3 15 -1 1",
+            "risk_explanation": "3 2 -1 2",
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
