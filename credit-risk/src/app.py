@@ -133,7 +133,7 @@ def get_customer_status(q):
     customer_status = q.app.customer_status.get(q.client.selected_customer_id)
     if customer_status == "BoxCheckmarkSolid":
         status = "Accepted"
-    elif customer_status == "BoxCheckmarkSolid":
+    elif customer_status == "BoxMultiplySolid":
         status = "Rejected"
     return status
 
