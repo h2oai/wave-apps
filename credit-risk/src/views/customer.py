@@ -57,8 +57,8 @@ def show_customer_page(q: Q):
             name='risk_table_row',
 
             columns=[
-                ui.table_column(name="Attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
-                ui.table_column(name="Value", label="Value", sortable=False, searchable=False, max_width='100')
+                ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
+                ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
             ],
             rows=get_transformed_df_rows(q, training_df.loc[[selected_row]]),
             groupable=False,
