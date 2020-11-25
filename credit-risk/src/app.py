@@ -6,10 +6,10 @@ from .views.customer import show_customer_page, handle_approve_click, handle_rej
 
 
 async def init(q: Q):
-    if not q.client.app_initialized:
+    if not q.app.initialized:
         (q.app.header_png,) = await q.site.upload([config.image_path])
         q.app.customer_status = {}
-        q.client.app_initialized = True
+        q.app.initialized = True
 
     q.page.drop()
 
