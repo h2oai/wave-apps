@@ -13,7 +13,6 @@ async def init(q: Q):
         predictor.predict()
 
         (q.app.header_png,) = await q.site.upload([config.image_path])
-        q.args.menu = "home"
         q.app.customer_status = {}
         q.client.app_initialized = True
 
