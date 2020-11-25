@@ -4,6 +4,42 @@ from ..config import config, predictor
 from ..plots import get_image_from_matplotlib
 
 
+def get_customer_status(q):
+    status = "Pending"
+    customer_status = q.app.customer_status.get(q.client.selected_customer_id)
+    if customer_status == "BoxCheckmarkSolid":
+        status = "Accepted"
+    elif customer_status == "BoxMultiplySolid":
+        status = "Rejected"
+    return status
+
+
+def get_transformed_df_rows(q: Q, df):
+    df_transformed = df.transpose()
+
+    rows = [
+        ui.table_row(
+            name=index,
+            cells=[str(index)] + [str(row[column]) for column in df_transformed.columns]
+        )
+        for index, row in df_transformed.iterrows()
+    ]
+    rows += [ui.table_row(
+        name='approved',
+        cells=['Status'] + [get_customer_status(q)])]
+    return rows
+
+
+def handle_approve_click(q: Q):
+    customer_status = q.app.customer_status
+    customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
+
+
+def handle_reject_click(q: Q):
+    customer_status = q.app.customer_status
+    customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
+
+
 def show_customer_page(q: Q):
     selected_row = q.args.risk_table[0]
     training_df = predictor.get_testing_data_as_pd_frame()
@@ -72,29 +108,3 @@ def show_customer_page(q: Q):
             ])
         ]
     )
-
-
-def get_transformed_df_rows(q: Q, df):
-    df_transformed = df.transpose()
-
-    rows = [
-        ui.table_row(
-            name=index,
-            cells=[str(index)] + [str(row[column]) for column in df_transformed.columns]
-        )
-        for index, row in df_transformed.iterrows()
-    ]
-    rows += [ui.table_row(
-        name='approved',
-        cells=['Status'] + [get_customer_status(q)])]
-    return rows
-
-
-def get_customer_status(q):
-    status = "Pending"
-    customer_status = q.app.customer_status.get(q.client.selected_customer_id)
-    if customer_status == "BoxCheckmarkSolid":
-        status = "Accepted"
-    elif customer_status == "BoxMultiplySolid":
-        status = "Rejected"
-    return status

@@ -2,7 +2,7 @@ from h2o_wave import app, Q, ui, main
 
 from .config import config, predictor
 from .views.home import load_home
-from .views.customer import show_customer_page
+from .views.customer import show_customer_page, handle_approve_click, handle_reject_click
 
 
 async def init(q: Q):
@@ -41,12 +41,10 @@ async def serve(q: Q):
     if q.args.risk_table:
         show_customer_page(q)
     elif q.args.approve_btn:
-        customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'BoxCheckmarkSolid'
+        handle_approve_click(q)
         load_home(q)
     elif q.args.reject_btn:
-        customer_status = q.app.customer_status
-        customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
+        handle_reject_click(q)
         load_home(q)
     else:
         load_home(q)
