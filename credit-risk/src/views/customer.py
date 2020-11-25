@@ -49,13 +49,13 @@ def render_customer_details_table(q: Q, df, row):
 
 def render_customer_summary(q: Q, training_df, contributions_df, row, can_approve):
     top_feature = \
-        contributions_df.idxmax(axis=1)[row] if can_approve else contributions_df.idxmin(axis=1)[row]
+        contributions_df.idxmin(axis=1)[row] if can_approve else contributions_df.idxmax(axis=1)[row]
 
     explanation_data = {
         'will_or_will_not': 'will' if can_approve else 'will not',
         'top_contributing_feature': top_feature,
         'value_of_top_contributing_feature': str(training_df.loc[row][top_feature]),
-        'accept_or_reject': 'accept' if can_approve else 'reject',
+        'accept_or_reject': 'approve' if can_approve else 'reject',
     }
 
     explanation = '''
@@ -91,7 +91,7 @@ def show_customer_page(q: Q):
 
     q.client.selected_customer_id = training_df.loc[selected_row]["ID"]
     score = predictions_df.loc[selected_row]["predict"]
-    approve = bool(score >= config.approval_threshold)
+    approve = bool(score < config.approval_threshold)
 
     render_customer_details_table(q, training_df, selected_row)
 
