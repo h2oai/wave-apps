@@ -29,6 +29,7 @@ def load_home(q: Q):
     df = predictor.get_testing_data_as_pd_frame()
 
     q.page["risk_table"] = ui.form_card(box=config.boxes["risk_table"], items=[
+        ui.message_bar(text='Double click to review a customer', type='info'),
         ui.table(
             name='risk_table',
             columns=get_column_headers_for_df(df, True),
