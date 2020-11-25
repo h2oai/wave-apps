@@ -6,12 +6,20 @@ all: ## Build wheel
         --exclude="*__pycache__/*" \
         $(shell basename $$PWD).qz .
 
-setup: ## Install dependencies
+setup: ## Create venv and install dependencies on it
 	python3 -m venv venv
-	./venv/bin/pip3 install -U pip
-	./venv/bin/pip3 install wheel
-	./venv/bin/pip3 install http://h2o-release.s3.amazonaws.com/h2o/rel-zermelo/1/Python/h2o-3.32.0.1-py2.py3-none-any.whl
-	cat requirements.txt | xargs -n 1 ./venv/bin/pip3 install
+	./venv/bin/pip install -U pip
+	./venv/bin/pip install wheel
+	./venv/bin/pip install -r requirements.txt
+      
+install: ## Install dependencies on active python environment
+	pip install -r requirements.txt
+
+test:
+	pytest test/unit
+
+test-cov:
+	pytest --cov=src --cov-report html --junit-xml=unit-test-report.xml --html=unit-test-report/index.html
 
 clean: ## Clean
 	rm -rf dist venv *.whl *.qz
