@@ -31,12 +31,12 @@ class Configuration:
             "customer": "1 2 2 1",
             "churn_rate": "1 3 2 1",
             "stat_pie": "8 2 -1 2",
-            "shap_plot": "3 4 -1 11",
+            "shap_plot": "3 4 -1 9",
             "top_negative_pd_plot": "1 15 -1 11",
             "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 -1",
-            "risk_table_selected": "1 2 2 14",
-            "button_group": "3 15 -1 1",
+            "risk_table_selected": "1 2 2 12",
+            "button_group": "3 13 -1 1",
             "risk_explanation": "3 2 -1 2",
         }
 

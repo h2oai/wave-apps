@@ -103,7 +103,7 @@ def show_customer_page(q: Q):
     shap_plot = predictor.get_shap_explanation(selected_row)
     q.page["shap_plot"] = ui.image_card(
         box=config.boxes["shap_plot"],
-        title="",
+        title="Effectiveness of each attribute on defaulting next payment",
         type="png",
         image=get_image_from_matplotlib(shap_plot, fig_size=(8, 6), dpi=85),
     )
