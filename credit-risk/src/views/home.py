@@ -9,7 +9,7 @@ def get_column_headers_for_df(df, searchable):
         ui.table_column(name=column, label=column, sortable=True, searchable=searchable, max_width='300')
         for column in df.columns
     ]
-    columns += [ui.table_column(name='approved', label='Approved', cell_type=ui.icon_table_cell_type())]
+    columns += [ui.table_column(name='status', label='Status', cell_type=ui.icon_table_cell_type())]
 
     return columns
 
