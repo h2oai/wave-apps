@@ -41,6 +41,6 @@ def load_home(q: Q):
             rows=get_rows(q, df),
             groupable=True,
             multiple=False,
-            height="100%"
+            height="90%"
         )
     ])
