@@ -1,0 +1,12 @@
+[App]
+Name = "ai.h2o.wave.churn-risk"
+Version = "0.1.0"
+Title = "Telcho Churn Risk"
+Description = "Application which predicts churn risk of telco customers and analyze top reasons for churning and retaining"
+Category = "Data Science"
+Keywords = ["Data Science", "Wave", "Open Source"]
+
+[Runtime]
+Module = "src.app"
+MemoryReservation = "4Gi"
+MemoryLimit = "6Gi"
