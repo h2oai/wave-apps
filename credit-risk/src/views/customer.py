@@ -2,7 +2,7 @@ from h2o_wave import Q, ui
 
 from ..config import config, predictor
 from ..plots import get_image_from_matplotlib
-from ..utils import add_column_to_df, drop_column_from_df
+from ..utils import add_column_to_df, drop_column_from_df, round_df_column
 
 
 def get_customer_status(q):
@@ -96,6 +96,7 @@ def show_customer_page(q: Q):
 
     drop_column_from_df(training_df, 'default.payment.next.month')
     add_column_to_df(training_df, predictions_df, 'Default Prediction Rate', 'predict')
+    training_df = round_df_column(training_df, 'Default Prediction Rate', 4)
 
     render_customer_details_table(q, training_df, selected_row)
 
