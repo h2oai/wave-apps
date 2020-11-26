@@ -25,19 +25,12 @@ class Configuration:
 
         self.boxes = {
             "banner": "1 1 3 1",
-            "content": "1 2 -1 -1",
-            "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
-            "customer": "1 2 2 1",
-            "churn_rate": "1 3 2 1",
-            "stat_pie": "8 2 -1 2",
-            "shap_plot": "3 4 -1 9",
-            "top_negative_pd_plot": "1 15 -1 11",
-            "top_positive_pd_plot": "1 26 -1 11",
             "risk_table": "1 2 -1 -1",
-            "risk_table_selected": "1 2 2 12",
-            "button_group": "3 13 -1 1",
             "risk_explanation": "3 2 -1 2",
+            "risk_table_selected": "1 2 2 11",
+            "shap_plot": "3 4 -1 8",
+            "button_group": "3 12 -1 1",
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
