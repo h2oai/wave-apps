@@ -31,7 +31,6 @@ def profile_content():
             label="Customer Phone Number",
             choices=choices,
             max_choices=1,
-            tooltip="Start typing to search for a customer",
         ),
         ui.button(name="select_customer_button", label="Submit", primary=True),
     ]
