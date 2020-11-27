@@ -1,5 +1,3 @@
-from test.e2e import walkthrough
-
 import pandas as pd
 from h2o_wave import app, main, Q, ui
 from plotly import graph_objects as go
@@ -92,10 +90,10 @@ def populate_churn_plots(q):
 
 def populate_customer_churn_stats(cust_phone_no, df, q):
     df["Total Charges"] = (
-        df.Total_Day_charge
-        + df.Total_Eve_Charge
-        + df.Total_Night_Charge
-        + df.Total_Intl_Charge
+            df.Total_Day_charge
+            + df.Total_Eve_Charge
+            + df.Total_Night_Charge
+            + df.Total_Intl_Charge
     )
 
     df = df[
@@ -146,8 +144,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
         title="Churn Rate",
         value=str(
             churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)
-        )
-        + " %",
+        ) + " %",
     )
 
     labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
@@ -176,21 +173,13 @@ def get_figure_layout():
 
 
 async def initialize_page(q: Q):
-    content = []
+    # Initialize H2O-3 model and tests data set
+    churn_predictor.build_model(config.training_data_url, config.default_model)
+    churn_predictor.set_testing_data_frame(config.testing_data_url)
+    churn_predictor.predict()
 
-    if not q.client.app_initialized:
-        # Initialize H2O-3 model and tests data set
-        churn_predictor.build_model(config.training_data_url, config.default_model)
-        churn_predictor.set_testing_data_frame(config.testing_data_url)
-        churn_predictor.predict()
-
-        (q.app.header_png,) = await q.site.upload([config.image_path])
-        (q.app.training_file_url,) = await q.site.upload([config.working_data])
-        content = profile_content()
-        q.client.app_initialized = True
-
-    q.page.drop()
-
+    (q.app.header_png) = await q.site.upload([config.image_path])
+    (q.app.training_file_url) = await q.site.upload([config.working_data])
     q.page["title"] = ui.header_card(
         box=config.boxes["banner"],
         title=config.title,
@@ -199,36 +188,25 @@ async def initialize_page(q: Q):
         icon_color=config.color,
     )
 
-    q.page["nav_bar"] = ui.form_card(
+    q.page["nav_bar"] = ui.tab_card(
         box=config.boxes["navbar"],
         items=[
-            ui.tabs(
-                name="menu",
-                value=q.args.menu,
-                items=[
-                    ui.tab(name="profile", label="Customer Profiles"),
-                    ui.tab(name="tour", label="Application Code"),
-                ],
-            )
+            ui.tab(name="profile", label="Customer Profiles"),
+            ui.tab(name="tour", label="Application Code"),
         ],
     )
-
-    q.page["content"] = ui.form_card(box=config.boxes["content"], items=content)
+    q.page["content"] = ui.form_card(box=config.boxes["content"], items=[])
+    q.client.app_initialized = True
 
 
 @app("/")
 async def serve(q: Q):
-    await initialize_page(q)
-    content = q.page["content"]
+    if not q.client.app_initialized:
+        await initialize_page(q)
 
     if q.args.select_customer_button:
         profile_selected_page(q)
     else:
-        tab = q.args["menu"]
-
-        if tab == "profile":
-            content.items = profile_content()
-        elif tab == "tour":
-            content.items = python_code_content("app.py")
+        q.page["content"].items = python_code_content("app.py") if q.args.tour else profile_content()
 
     await q.page.save()
