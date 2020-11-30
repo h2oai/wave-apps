@@ -50,8 +50,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-unit-test-report/
-*.xml
 
 # Translations
 *.mo
@@ -107,7 +105,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv*
+venv/
 ENV/
 env.bak/
 venv.bak/
@@ -129,8 +127,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-.idea
-*.iml
-*.wave
-*.state
