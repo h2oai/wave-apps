@@ -14,13 +14,10 @@ class Configuration:
         self.subtitle = "Searches twitter hashtags and sentiment analysis"
         self.icon = "UpgradeAnalysis"
 
-        self.consumer_key = 'c3QdMOOWQFHTsI28Yu3HGjwkO'
-        self.consumer_secret = 'V1FwzrxBzr7aYQNeqQf4s6D1oBapwpIVNtSkceJOXtnLKemAOS'
-
         self.boxes = {
             "banner": "1 1 3 1",
             "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
-            "search_click":"10 2 -1 1",
+            "search_click": "10 2 -1 1",
             "search_tab": "1 2 9 1"
         }

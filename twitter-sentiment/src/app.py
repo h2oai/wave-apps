@@ -4,10 +4,8 @@ import itertools
 from .config import Configuration
 from .tweet_analyser import TweetAnalyser
 
-access_token = '955862386388344832-7ZYvXCkpyFO6Pbhh93Od4O94E5ga1t4'
-access_token_secret = 'OfRg3O4SnrOinda7VeOTjfIBfWe9uzmRJd5IBEsQOdvvl'
 config = Configuration()
-tweet_analyser = TweetAnalyser(config.consumer_key, config.consumer_secret)
+tweet_analyser = None
 
 
 def texts(tag):
@@ -44,23 +42,26 @@ def home_content(q: Q):
                    value=q.args.text, multiline=False, trigger=False)]))
 
     q.page.add("search_click", ui.form_card(box=config.boxes["search_click"], items=[
-        # ui.Buttons(
         ui.button(name="search", label="search", primary=True)]))
 
 
 async def initialize_page(q: Q):
+    q.page['credentials'].dialog = None
     if not q.client.initalized:
         q.args.text = 'AI'
         q.args.search = True
         q.client.initalized = True
         (q.app.header_png,) = await q.site.upload([config.image_path])
-        tweet_analyser.set_auth_handler_access_token(access_token, access_token_secret)
+        global tweet_analyser
+        tweet_analyser = TweetAnalyser(q.args.consumer_key, q.args.consumer_secret)
+        tweet_analyser.set_auth_handler_access_token(q.args.access_token, q.args.access_token_secret)
         tweet_analyser.create_tweepy_api_instance()
-
         q.client.app_initialized = True
 
-    q.page.drop()
+    await list_tweets_for_hashtag(q)
 
+
+def capture_credentials(q: Q):
     q.page["title"] = ui.header_card(
         box=config.boxes["banner"],
         title=config.title,
@@ -74,10 +75,18 @@ async def initialize_page(q: Q):
         items=[],
     )
 
-    home_content(q)
+    q.page['credentials'] = ui.meta_card(box='-1 -1 -1 -1')
+    q.page['credentials'].dialog = ui.dialog(title='Twitter Credentials', items=[
+        ui.textbox(name='consumer_key', label='Consumer Key', required=True),
+        ui.textbox(name='consumer_secret', label='Consumer Secret', required=True),
+        ui.textbox(name='access_token', label='Access Token', required=True),
+        ui.textbox(name='access_token_secret', label='Access Token Secret', required=True),
+        ui.buttons([ui.button(name='submit', label='Configure', primary=True)])
+    ])
 
 
 async def list_tweets_for_hashtag(q):
+    home_content(q)
     q.user.text = q.args.text
     values, text = texts(q.user.text)
     cc = 0
@@ -111,8 +120,11 @@ async def list_tweets_for_hashtag(q):
 
 @app('/')
 async def serve(q: Q):
-    await initialize_page(q)
-    if q.args.search:
+    if q.args.submit:
+        await initialize_page(q)
+    elif q.args.search:
         await list_tweets_for_hashtag(q)
+    else:
+        capture_credentials(q)
 
     await q.page.save()
