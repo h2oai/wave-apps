@@ -20,23 +20,34 @@ churn_predictor = ChurnPredictor()
 def profile_content():
     df = pd.read_csv(config.testing_data_url).head(40)
     sanitize_dataframe(df)
+    
+df = pd.read_csv(config.testing_data_url).head(40)
+phone_choices = [ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]]
 
-    choices = [
-        ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]
-    ]
-    items = [
+
+def profile_selected_page(q: Q):
+    del q.page["content"]
+    q.page['search'] = ui.form_card(box=config.boxes['search'], items=[
         ui.text_xl("Customer Profiles from Model Predictions"),
         ui.picker(
             name="customers",
             label="Customer Phone Number",
-            choices=choices,
+            choices=phone_choices,
             max_choices=1,
-        ),
-        ui.button(name="select_customer_button", label="Submit", primary=True),
-    ]
+            values=q.args.customers,
+            trigger=True
+       )
+    ])
+    if not q.args.customers:
+      q.page["empty_profile_page"] = ui.form_card(box=config.boxes["empty_profile_page"], items=[
+        ui.text_xl("To see the analysis results, you need to choose a phone number first.")
+      ])
+    else: 
+        del q.page["empty_profile_page"]
+        df = pd.read_csv(config.testing_data_url)
 
-    return items
-
+        cust_phone_no = q.args.customers[0]
+        q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
 
 def sanitize_dataframe(df):
     df.fillna(config.def_column_values, inplace=True)
@@ -66,9 +77,7 @@ def populate_churn_plots(q):
         image=get_image_from_matplotlib(shap_plot),
     )
 
-    top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(
-        q.client.selected_customer_index
-    )
+    top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
     q.page["top_negative_pd_plot"] = ui.image_card(
         box=config.boxes["top_negative_pd_plot"],
         title="Feature Most Contributing to Retention",
@@ -76,9 +85,7 @@ def populate_churn_plots(q):
         image=get_image_from_matplotlib(top_negative_pd_plot),
     )
 
-    top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(
-        q.client.selected_customer_index
-    )
+    top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
     q.page["top_positive_pd_plot"] = ui.image_card(
         box=config.boxes["top_positive_pd_plot"],
         title="Feature Most Contributing to Churn",
@@ -88,12 +95,7 @@ def populate_churn_plots(q):
 
 
 def populate_customer_churn_stats(cust_phone_no, df, q):
-    df["Total Charges"] = (
-            df.Total_Day_charge
-            + df.Total_Eve_Charge
-            + df.Total_Night_Charge
-            + df.Total_Intl_Charge
-    )
+    df["Total Charges"] = (df.Total_Day_charge + df.Total_Eve_Charge + df.Total_Night_Charge + df.Total_Intl_Charge)
 
     df = df[
         [
@@ -106,14 +108,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
         ]
     ]
 
-    df.columns = [
-        "Day Charges",
-        "Evening Charges",
-        "Night Charges",
-        "Int'l Charges",
-        config.id_column,
-        "Total Charges",
-    ]
+    df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
 
     q.page["day_stat"] = wide_stat_card_dollars(
         df, cust_phone_no, "Day Charges", config.boxes["day_stat"], config.color
@@ -134,16 +129,12 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
         config.boxes["total_stat"],
         config.total_gauge_color,
     )
-    q.page["customer"] = ui.small_stat_card(
-        box=config.boxes["customer"], title="Customer", value=str(cust_phone_no)
-    )
+    q.page["customer"] = ui.small_stat_card(box=config.boxes["customer"], title="Customer", value=str(cust_phone_no))
 
     q.page["churn_rate"] = ui.small_stat_card(
         box=config.boxes["churn_rate"],
         title="Churn Rate",
-        value=str(
-            churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)
-        ) + " %",
+        value=f"{churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)}%",
     )
 
     labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
@@ -154,9 +145,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
         df[df[config.id_column] == cust_phone_no][labels[3]].values[0],
     ]
 
-    html_plot = generate_figure_pie_of_target_percent(
-        "", labels, values, get_figure_layout()
-    )
+    html_plot = generate_figure_pie_of_target_percent( "", labels, values, get_figure_layout())
 
     q.page["stat_pie"] = ui.frame_card(
         box=config.boxes["stat_pie"],
@@ -166,9 +155,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
 
 
 def get_figure_layout():
-    return go.Layout(
-        margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True)
-    )
+    return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True))
 
 
 async def initialize_page(q: Q):
@@ -177,8 +164,8 @@ async def initialize_page(q: Q):
     churn_predictor.set_testing_data_frame(config.testing_data_url)
     churn_predictor.predict()
 
-    (q.app.header_png) = await q.site.upload([config.image_path])
-    (q.app.training_file_url) = await q.site.upload([config.working_data])
+    q.app.header_png = await q.site.upload([config.image_path])
+    q.app.training_file_url = await q.site.upload([config.working_data])
     q.page["title"] = ui.header_card(
         box=config.boxes["banner"],
         title=config.title,
@@ -190,11 +177,10 @@ async def initialize_page(q: Q):
     q.page["nav_bar"] = ui.tab_card(
         box=config.boxes["navbar"],
         items=[
-            ui.tab(name="profile", label="Customer Profiles"),
-            ui.tab(name="tour", label="Application Code"),
+            ui.tab(name="#profile", label="Customer Profiles"),
+            ui.tab(name="#tour", label="Application Code"),
         ],
     )
-    q.page["content"] = ui.form_card(box=config.boxes["content"], items=[])
     q.client.app_initialized = True
 
 
@@ -203,9 +189,9 @@ async def serve(q: Q):
     if not q.client.app_initialized:
         await initialize_page(q)
 
-    if q.args.select_customer_button:
-        profile_selected_page(q)
+    if q.args['#'] == 'tour':
+        q.page["content"] = ui.form_card(box=config.boxes["content"], items=python_code_content("app.py"))
     else:
-        q.page["content"].items = python_code_content("app.py") if q.args.tour else profile_content()
+        profile_selected_page(q)
 
     await q.page.save()
