@@ -1,6 +1,6 @@
 class Configuration:
     """
-    Configuration file for Telco Customer Churn
+    Configuration file for Twitter Sentiment
     """
 
     def __init__(self):
