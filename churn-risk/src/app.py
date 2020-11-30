@@ -27,7 +27,7 @@ df = pd.read_csv(config.testing_data_url).head(40)
 phone_choices = [ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]]
 
 
-def profile_selected_page(q: Q):
+def show_profile(q: Q):
     del q.page["content"]
     q.page['search'] = ui.form_card(box=config.boxes['search'], items=[
         ui.text_xl("Customer Profiles from Model Predictions"),
@@ -160,7 +160,7 @@ def get_figure_layout():
     return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True))
 
 
-async def initialize_page(q: Q):
+async def initialize(q: Q):
     # Initialize H2O-3 model and tests data set
     churn_predictor.build_model(config.training_data_url, config.default_model)
     churn_predictor.set_testing_data_frame(config.testing_data_url)
@@ -191,11 +191,11 @@ async def initialize_page(q: Q):
 @app("/")
 async def serve(q: Q):
     if not q.client.app_initialized:
-        await initialize_page(q)
+        await initialize(q)
 
     if q.args['#'] == 'tour':
         q.page["content"] = ui.form_card(box=config.boxes["content"], items=python_code_content("app.py"))
     else:
-        profile_selected_page(q)
+        show_profile(q)
 
     await q.page.save()
