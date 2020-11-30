@@ -9,8 +9,8 @@ class Configuration:
         self.icon = "ShoppingCartSolid"
         self.icon_color = "$yellow"
 
-        self.training_data_url = "./data/instacart_market_basket_model.csv"
-        self.testing_data_url = "./data/instacart_products.csv"
+        self.rule_set = 'data/instacart_market_basket_model.csv'
+        self.product_mappings = 'data/instacart_products.csv'
 
         self.boxes = {
             'banner': '1 1 -1 1',

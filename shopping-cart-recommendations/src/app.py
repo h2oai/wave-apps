@@ -1,15 +1,12 @@
 import pandas as pd
 
-from h2o_wave import Q, app, copy_expando, main, ui
+from h2o_wave import Q, app, main, ui
 
 from .config import config
 
 
 def get_product_mapping() -> dict:
-    """
-    Mapping of product to department.
-    """
-    df = pd.read_csv('data/instacart_products.csv')
+    df = pd.read_csv(config.product_mappings)
     product_names = df.product_name.values
     department_names = df.department.values
     product_mapping = {}
@@ -22,15 +19,16 @@ def get_product_mapping() -> dict:
     return product_mapping
 
 
+def get_products_list():
+    df = pd.read_csv(config.product_mappings)
+    return df.product_name.values
+
+
 async def initialize_app(q: Q):
-    q.client.rulesets = pd.read_csv('data/instacart_market_basket_model.csv').sort_values('profitability',
-                                                                                          ascending=False)
-    q.client.rulesets.consequents = q.client.rulesets.consequents.apply(lambda x: list(eval(x))[0])
-    q.client.product_department = get_product_mapping()
-    q.client.product_choices = [ui.choice(name=str(x), label=str(x)) for x, _ in q.client.product_department.items()]
-    q.client.df = q.client.rulesets.copy(deep=True)
-    q.client.cart_products = ['Banana']
-    q.client.suggested_products = ['Organic Hass Avocado', 'Large Lemon', 'Biscoff Cookie']
+    q.client.cart_products = []
+    q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
+    q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
+    q.client.product_choices = [ui.choice(name=str(x), label=str(x)) for x in get_products_list()]
 
     q.page.add('header', ui.header_card(
         box=config.boxes['banner'],
@@ -40,9 +38,12 @@ async def initialize_app(q: Q):
         icon_color=config.icon_color,
     ))
 
+    render_cart(q)
+    render_suggestions(q)
+
 
 def get_suggestions(q: Q, cart_products, count=3):
-    df = q.client.df
+    df = q.client.rule_set
     results = pd.DataFrame(columns=df.columns)
 
     for product in cart_products:
@@ -62,30 +63,35 @@ def render_cart(q: Q):
             ui.picker(
                 name='cart_products',
                 choices=q.client.product_choices,
-                values=get_cart_products(q)
+                values=q.client.cart_products
             ),
-            ui.button(name='update_cart', label='Update', primary=True),
+            ui.button(name='update_cart_btn', label='Update', primary=True),
         ]
     )
 
 
-def get_cart_products(q: Q):
-    return q.args.cart_products or ['Banana']
-
-
 def render_suggestions(q: Q):
-    suggestions = get_suggestions(q, get_cart_products(q))
+    suggestions = get_suggestions(q, q.client.cart_products)
 
     q.page['suggestions'] = ui.form_card(
         box=config.boxes['suggestions'],
         items=[
             ui.separator(label='Suggestions'),
             *[
-                ui.button(name=suggestion, label=suggestion, caption='Add to cart', primary=False)
+                ui.button(name='suggestion_btn', label=suggestion, value=suggestion, caption='Add to cart')
                 for suggestion in suggestions
             ],
         ]
     )
+
+
+def handle_update_click(q: Q):
+    q.client.cart_products = q.args.cart_products
+    render_suggestions(q)
+
+
+def handle_suggestion_click(q: Q):
+    q.client.cart_products.append(q.args.suggestion_btn)
 
 
 @app('/')
@@ -94,8 +100,12 @@ async def serve(q: Q):
         await initialize_app(q)
         q.client.initialized = True
 
-    print(q.args.cart_products)
+    if q.args.update_cart_btn:
+        handle_update_click(q)
+
+    if q.args.suggestion_btn:
+        handle_suggestion_click(q)
+
     render_cart(q)
-    render_suggestions(q)
 
     await q.page.save()
