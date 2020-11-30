@@ -1,44 +1,30 @@
 from h2o_wave import Q, site, app, ui, main
 
-import tweepy
-import json
-import operator
 import itertools
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from .config import Configuration
+from .tweet_analyser import TweetAnalyser
 
+access_token = '955862386388344832-7ZYvXCkpyFO6Pbhh93Od4O94E5ga1t4'
+access_token_secret = 'OfRg3O4SnrOinda7VeOTjfIBfWe9uzmRJd5IBEsQOdvvl'
 config = Configuration()
+tweet_analyser = TweetAnalyser(config.consumer_key, config.consumer_secret)
 
-configuration = {
-    'access_token'  : '955862386388344832-7ZYvXCkpyFO6Pbhh93Od4O94E5ga1t4', 
-    'access_token_secret' : 'OfRg3O4SnrOinda7VeOTjfIBfWe9uzmRJd5IBEsQOdvvl', 
-    'api_key' : 'c3QdMOOWQFHTsI28Yu3HGjwkO', 
-    'api_secret_key' : 'V1FwzrxBzr7aYQNeqQf4s6D1oBapwpIVNtSkceJOXtnLKemAOS'}
-
-auth = tweepy.OAuthHandler(configuration['api_key'], configuration['api_secret_key'])
-auth.set_access_token(configuration['access_token'], configuration['access_token_secret'])
-
-analyser = SentimentIntensityAnalyzer()
-
-api = tweepy.API(auth)
-
-api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
 def texts(tag):
     tws = {}
     texts = []
     cc = 0
     # for tweet in api.search(q=tag, lang="en", rpp=100).items(MAX_TWEETS):
-    for tweet in tweepy.Cursor(api.search, q=tag, lang="en", rpp=100).items(16):
-        if (not tweet.retweeted) and cc < 25: # and ('RT @' not in tweet.text):
+    for tweet in tweet_analyser.search_tweets(q=tag, lang="en", rpp=100, items=16):
+        if (not tweet.retweeted) and cc < 25:  # and ('RT @' not in tweet.text):
             texts.append(tweet.text)
-            cc = cc+1
+            cc = cc + 1
         else:
             break
-    
+
     texts = list(set(texts))
     for t in texts:
-        score = analyser.polarity_scores(t)
+        score = tweet_analyser.analyser.polarity_scores(t)
         sc = score.copy()
         sc.pop('compound', None)
         if sc['pos'] < sc['neg']:
@@ -61,13 +47,16 @@ def home_content(q: Q):
         # ui.Buttons(
         ui.button(name="search", label="search", primary=True)]))
 
-async def initialize_page(q: Q):
 
+async def initialize_page(q: Q):
     if not q.client.initalized:
         q.args.text = 'AI'
         q.args.search = True
         q.client.initalized = True
         (q.app.header_png,) = await q.site.upload([config.image_path])
+        tweet_analyser.set_auth_handler_access_token(access_token, access_token_secret)
+        tweet_analyser.create_tweepy_api_instance()
+
         q.client.app_initialized = True
 
     q.page.drop()
@@ -122,7 +111,6 @@ async def list_tweets_for_hashtag(q):
 
 @app('/')
 async def serve(q: Q):
-
     await initialize_page(q)
     if q.args.search:
         await list_tweets_for_hashtag(q)
