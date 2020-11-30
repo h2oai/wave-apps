@@ -24,7 +24,7 @@ def texts(tag):
 
     texts = list(set(texts))
     for t in texts:
-        score = tweet_analyser.analyser.polarity_scores(t)
+        score = tweet_analyser.get_polarity_scores(t)
         sc = score.copy()
         sc.pop('compound', None)
         if sc['pos'] < sc['neg']:

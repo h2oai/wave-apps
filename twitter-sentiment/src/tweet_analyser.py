@@ -24,3 +24,6 @@ class TweetAnalyser:
 
     def search_tweets(self, q, lang="en", rpp=100, items = 16):
         return Cursor(self.api.search, q, lang, rpp).items(items)
+
+    def get_polarity_scores(self, t):
+        return self.analyser.polarity_scores(t)
