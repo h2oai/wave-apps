@@ -133,3 +133,4 @@ dmypy.json
 .idea
 *.iml
 *.wave
+*.state
