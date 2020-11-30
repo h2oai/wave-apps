@@ -7,9 +7,6 @@ Category = "Data Science"
 Keywords = ["Document"]
 
 [Runtime]
-Module = "hashtag_run"
-VolumeMount = "/data"
-VolumeSize = "1Gi"
-ResourceVolumeSize = "2Gi"
-MemoryLimit = "500Mi"
-MemoryReservation = "400Mi"
+Module = "src.app"
+MemoryReservation = "4Gi"
+MemoryLimit = "6Gi"

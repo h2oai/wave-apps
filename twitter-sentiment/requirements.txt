@@ -1,3 +1,9 @@
 tweepy==3.9.0
-h2o-wave==0.9.1
+h2o-wave==0.10.0
 vaderSentiment
+
+# Test dependencies
+pytest==6.1.2
+pytest-mock==3.3.1
+pytest-html==3.0.0
+pytest-cov==2.10.1
