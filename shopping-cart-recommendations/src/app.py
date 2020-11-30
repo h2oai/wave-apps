@@ -65,7 +65,8 @@ def get_diversity_color(diversity: float) -> str:
 
 
 async def initialize_app(q: Q):
-    q.client.rulesets = pd.read_csv('data/instacart_market_basket_model.csv').sort_values('profitability', ascending=False)
+    q.client.rulesets = pd.read_csv('data/instacart_market_basket_model.csv').sort_values('profitability',
+                                                                                          ascending=False)
     q.client.rulesets.consequents = q.client.rulesets.consequents.apply(lambda x: list(eval(x))[0])
     q.client.product_department = get_product_mapping()
     q.client.product_choices = [ui.choice(name=str(x), label=str(x)) for x, _ in q.client.product_department.items()]
@@ -81,37 +82,10 @@ async def initialize_app(q: Q):
         icon_color=config.icon_color,
     ))
 
-    q.page.add('cart', ui.form_card(
-        box=config.boxes['cart'],
-        items=[
-            ui.separator('Cart'),
-            ui.text('Add products to the cart below and simulate the top recommendations.'),
-            ui.picker(
-                name='cart_products',
-                choices=q.client.product_choices
-            ),
-            ui.button(name='simulate', label='Simulate', primary=True),
-        ]
-    ))
-
-    q.page.add('suggestions', ui.form_card(
-        box=config.boxes['suggestions'],
-        items=[
-            ui.separator(label='Suggestions'),
-            ui.button(name='suggested_product_1', caption='Add to cart', primary=False),
-            ui.button(name='suggested_product_2', caption='Add to cart', primary=False),
-            ui.button(name='suggested_product_3', caption='Add to cart', primary=False)
-        ]
-    ))
-
     await update_cart(q, add_product=False)
-    await q.page.save()
 
 
 async def update_cart(q: Q, add_product: bool = True):
-    """
-    Update cart.
-    """
     if add_product:
         if q.client.suggested_product_1:
             new_product = q.client.suggested_products[0]
@@ -149,6 +123,53 @@ async def update_cart(q: Q, add_product: bool = True):
     await q.page.save()
 
 
+def get_suggestions(q: Q, cart_products, count=3):
+    df = q.client.df
+    results = pd.DataFrame(columns=df.columns)
+
+    for product in cart_products:
+        f = df[df.antecedents.str.contains(product)]
+        results = results.append(f)
+
+    results.sort_values('profitability', ascending=False)
+    return results.consequents.values[:count]
+
+
+def render_cart(q: Q):
+    q.page['cart'] = ui.form_card(
+        box=config.boxes['cart'],
+        items=[
+            ui.separator('Cart'),
+            ui.text('Add products to the cart below and simulate the top recommendations.'),
+            ui.picker(
+                name='cart_products',
+                choices=q.client.product_choices,
+                values=get_cart_products(q)
+            ),
+            ui.button(name='update_cart', label='Update', primary=True),
+        ]
+    )
+
+
+def get_cart_products(q: Q):
+    return q.args.cart_products or ['Banana']
+
+
+def render_suggestions(q: Q):
+    suggestions = get_suggestions(q, get_cart_products(q))
+
+    q.page['suggestions'] = ui.form_card(
+        box=config.boxes['suggestions'],
+        items=[
+            ui.separator(label='Suggestions'),
+            *[
+                ui.button(name=suggestion, label=suggestion, caption='Add to cart', primary=False)
+                for suggestion in suggestions
+            ],
+        ]
+    )
+
+
 @app('/')
 async def serve(q: Q):
     """
@@ -157,10 +178,9 @@ async def serve(q: Q):
     if not q.client.initialized:
         await initialize_app(q)
         q.client.initialized = True
-    if q.args.suggested_product_1 or q.args.suggested_product_2 or q.args.suggested_product_3:
-        copy_expando(q.args, q.client)
-        await update_cart(q, add_product=True)
-    elif q.args.simulate:
-        copy_expando(q.args, q.client)
-        if len(q.client.cart_products) == 0:
-            q.client.cart_products = ['None']
+
+    print(q.args.cart_products)
+    render_cart(q)
+    render_suggestions(q)
+
+    await q.page.save()
