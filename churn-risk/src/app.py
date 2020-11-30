@@ -184,6 +184,7 @@ async def initialize_page(q: Q):
             ui.tab(name="#tour", label="Application Code"),
         ],
     )
+    q.page['meta'] = ui.meta_card(box='', title='Telcom Churn Analytics')
     q.client.app_initialized = True
 
 
