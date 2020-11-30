@@ -1,6 +1,8 @@
 import pandas as pd
 
-from h2o_wave import Q, app, copy_expando, main, site, ui
+from h2o_wave import Q, app, copy_expando, main, ui
+
+from .config import config
 
 
 def get_product_mapping() -> dict:
@@ -63,9 +65,6 @@ def get_diversity_color(diversity: float) -> str:
 
 
 async def initialize_app(q: Q):
-    """
-    Initialize app.
-    """
     q.client.rulesets = pd.read_csv('data/instacart_market_basket_model.csv').sort_values('profitability', ascending=False)
     q.client.rulesets.consequents = q.client.rulesets.consequents.apply(lambda x: list(eval(x))[0])
     q.client.product_department = get_product_mapping()
@@ -75,15 +74,15 @@ async def initialize_app(q: Q):
     q.client.suggested_products = ['Organic Hass Avocado', 'Large Lemon', 'Biscoff Cookie']
 
     q.page.add('header', ui.header_card(
-        box='1 1 9 1',
-        title='Shopping Cart Recommendations',
-        subtitle='Simulating a recommendation engine',
-        icon='ShoppingCartSolid',
-        icon_color='$yellow'
+        box=config.boxes['banner'],
+        title=config.title,
+        subtitle=config.subtitle,
+        icon=config.icon,
+        icon_color=config.icon_color,
     ))
 
     q.page.add('cart', ui.form_card(
-        box='1 2 2 6',
+        box=config.boxes['cart'],
         items=[
             ui.separator('Cart'),
             ui.text('Add products to the cart below and simulate the top recommendations.'),
@@ -92,6 +91,12 @@ async def initialize_app(q: Q):
                 choices=q.client.product_choices
             ),
             ui.button(name='simulate', label='Simulate', primary=True),
+        ]
+    ))
+
+    q.page.add('suggestions', ui.form_card(
+        box=config.boxes['suggestions'],
+        items=[
             ui.separator(label='Suggestions'),
             ui.button(name='suggested_product_1', caption='Add to cart', primary=False),
             ui.button(name='suggested_product_2', caption='Add to cart', primary=False),
@@ -125,21 +130,21 @@ async def update_cart(q: Q, add_product: bool = True):
 
     q.page['cart'].items[2].picker.values = q.client.cart_products
 
-    q.page['cart'].items[5].button.visible = False
-    q.page['cart'].items[6].button.visible = False
-    q.page['cart'].items[7].button.visible = False
+    q.page['suggestions'].items[1].button.visible = False
+    q.page['suggestions'].items[2].button.visible = False
+    q.page['suggestions'].items[3].button.visible = False
 
     if len(q.client.suggested_products) > 0:
-        q.page['cart'].items[5].button.visible = True
-        q.page['cart'].items[5].button.label = q.client.suggested_products[0]
+        q.page['suggestions'].items[1].button.visible = True
+        q.page['suggestions'].items[1].button.label = q.client.suggested_products[0]
 
     if len(q.client.suggested_products) > 1:
-        q.page['cart'].items[6].button.visible = True
-        q.page['cart'].items[6].button.label = q.client.suggested_products[1]
+        q.page['suggestions'].items[2].button.visible = True
+        q.page['suggestions'].items[2].button.label = q.client.suggested_products[1]
 
     if len(q.client.suggested_products) > 2:
-        q.page['cart'].items[7].button.visible = True
-        q.page['cart'].items[7].button.label = q.client.suggested_products[2]
+        q.page['suggestions'].items[3].button.visible = True
+        q.page['suggestions'].items[3].button.label = q.client.suggested_products[2]
 
     await q.page.save()
 
