@@ -176,6 +176,7 @@ async def initialize_page(q: Q):
 
     q.page["nav_bar"] = ui.tab_card(
         box=config.boxes["navbar"],
+        value=f'#{q.args["#"]}',
         items=[
             ui.tab(name="#profile", label="Customer Profiles"),
             ui.tab(name="#tour", label="Application Code"),
