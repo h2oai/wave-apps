@@ -81,7 +81,7 @@ class Configuration:
             "Total_Eve_Charge": 0,
             "Total_Night_Minutes": 0.00,
             "Total_Night_Calls": 0,
-            "Total_Night_Charge": 8.42,
+            "Total_Night_Charge": 0.00,
             "Total_Intl_Minutes": 0.00,
             "Total_Intl_Calls": 0,
             "Total_Intl_Charge": 0.00,
