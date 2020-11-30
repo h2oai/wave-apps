@@ -1,3 +1,5 @@
+from test.e2e import walkthrough
+
 import pandas as pd
 from h2o_wave import app, main, Q, ui
 from plotly import graph_objects as go
