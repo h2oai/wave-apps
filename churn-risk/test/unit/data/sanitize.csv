@@ -1,0 +1,4 @@
+State,Account_Length,Area_Code,Phone_No,International_Plan,Voice_Mail_Plan,No_Vmail_Messages,Total_Day_minutes,Total_Day_Calls,Total_Day_charge,Total_Eve_Minutes,Total_Eve_Calls,Total_Eve_Charge,Total_Night_Minutes,Total_Night_Calls,Total_Night_Charge,Total_Intl_Minutes,Total_Intl_Calls,Total_Intl_Charge,No_CS_Calls
+HI,,510,3548815, no, no,0,70.9,123,12.05,211.9,73,18.01,236,73,10.62,10.6,3,2.86,3
+MT,137,510,3817211,, no,0,223.6,86,38.01,244.8,139,20.81,94.2,81,4.24,9.5,7,2.57,6
+NJ,91,415,3653009, no, no,0,93.5,110,15.9,213.3,79,18.13,171.7,83,7.73,8.9,4,2.4,

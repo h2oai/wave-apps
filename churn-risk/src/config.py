@@ -68,3 +68,24 @@ class Configuration:
         }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
+
+        self.def_column_values = {
+            "International_Plan": "no",
+            "Voice_Mail_Plan": "no",
+            "No_Vmail_Messages": 0,
+            "Total_Day_minutes": 0.00,
+            "Total_Day_Calls": 0,
+            "Total_Day_charge": 0.00,
+            "Total_Eve_Minutes": 0.00,
+            "Total_Eve_Calls": 0,
+            "Total_Eve_Charge": 0,
+            "Total_Night_Minutes": 0.00,
+            "Total_Night_Calls": 0,
+            "Total_Night_Charge": 8.42,
+            "Total_Intl_Minutes": 0.00,
+            "Total_Intl_Calls": 0,
+            "Total_Intl_Charge": 0.00,
+            "No_CS_Calls": 0
+        }
+
+        self.mandatory_columns = ["State","Account_Length","Area_Code","Phone_No"]
