@@ -1,6 +1,6 @@
 # Wave Twitter Sentiment Application
 
-This application allow you to search for twitter hashtags and do sentiment analysis.
+This application allows you to search for Twitter hashtags and do sentiment analysis
 
 ## Developer Guide 
 
