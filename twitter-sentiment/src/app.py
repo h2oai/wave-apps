@@ -1,40 +1,45 @@
-from h2o_wave import Q, site, app, ui, main
+from h2o_wave import Q, app, ui, main
 
 import itertools
 from .config import Configuration
+from .plots import (
+    convert_plot_to_html,
+    generate_figure_pie_of_target_percent
+)
 from .tweet_analyser import TweetAnalyser
+from .utils import derive_sentiment_status, derive_sentiment_message_type, check_credentials_empty
 
 config = Configuration()
-tweet_analyser = None
 
 
-def texts(tag):
-    tws = {}
+def search_tweets(q: Q):
+    tweets = {}
     texts = []
-    cc = 0
+    tweet_count = 0
     # for tweet in api.search(q=tag, lang="en", rpp=100).items(MAX_TWEETS):
-    for tweet in tweet_analyser.search_tweets(q=tag, lang="en", rpp=100, items=16):
-        if (not tweet.retweeted) and cc < 25:  # and ('RT @' not in tweet.text):
+    for tweet in q.client.tweet_analyser.search_tweets(q=q.args.text, lang="en", rpp=100, items=config.max_tweet_count):
+        if not tweet.retweeted:  # and ('RT @' not in tweet.text):
             texts.append(tweet.text)
-            cc = cc + 1
+            tweet_count = tweet_count + 1
         else:
             break
 
     texts = list(set(texts))
     for t in texts:
-        score = tweet_analyser.get_polarity_scores(t)
-        sc = score.copy()
-        sc.pop('compound', None)
-        if sc['pos'] < sc['neg']:
-            m = 'neg'
-        else:
-            m = 'pos'
-        mm = {'neu': 'Neutral', 'pos': 'Postive', 'neg': 'Negative'}
-        tws[t] = (mm[m], sc)
-    return (tws, texts)
+        tweets[t] = q.client.tweet_analyser.get_polarity_scores(t)
+
+    return tweets, texts
 
 
 def home_content(q: Q):
+    q.page["title"] = ui.header_card(
+        box=config.boxes["banner"],
+        title=config.title,
+        subtitle=config.subtitle,
+        icon=config.icon,
+        icon_color=config.color,
+    )
+
     q.page.add("search_tab", ui.form_card(box=config.boxes["search_tab"], items=[
         ui.textbox(name='text',
                    label='',
@@ -47,81 +52,62 @@ def home_content(q: Q):
 
 async def initialize_page(q: Q):
     q.page['credentials'].dialog = None
-    if not q.client.initalized:
-        q.args.text = 'AI'
+    if not q.client.initialized:
+        q.args.text = config.default_search_text
         q.args.search = True
-        q.client.initalized = True
         (q.app.header_png,) = await q.site.upload([config.image_path])
-        global tweet_analyser
-        tweet_analyser = TweetAnalyser(q.args.consumer_key, q.args.consumer_secret)
-        tweet_analyser.set_auth_handler_access_token(q.args.access_token, q.args.access_token_secret)
-        tweet_analyser.create_tweepy_api_instance()
+        q.client.tweet_analyser = TweetAnalyser(q.args.consumer_key, q.args.consumer_secret)
+        q.client.tweet_analyser.create_auth_handler(q.args.consumer_key, q.args.consumer_secret)
+        q.client.tweet_analyser.set_auth_handler_access_token(q.args.access_token, q.args.access_token_secret)
+        q.client.tweet_analyser.create_tweepy_api_instance()
+        q.client.initialized = True
         q.client.app_initialized = True
 
     await list_tweets_for_hashtag(q)
 
 
 def capture_credentials(q: Q):
-    q.page["title"] = ui.header_card(
-        box=config.boxes["banner"],
-        title=config.title,
-        subtitle=config.subtitle,
-        icon=config.icon,
-        icon_color=config.color,
-    )
-
-    q.page["nav_bar"] = ui.form_card(
-        box=config.boxes["navbar"],
-        items=[],
-    )
-
-    q.page['credentials'] = ui.meta_card(box='-1 -1 -1 -1')
+    home_content(q)
+    q.page['credentials'] = ui.meta_card(box=config.boxes['credentials'])
     q.page['credentials'].dialog = ui.dialog(title='Twitter Credentials', items=[
-        ui.textbox(name='consumer_key', label='Consumer Key', required=True),
-        ui.textbox(name='consumer_secret', label='Consumer Secret', required=True),
-        ui.textbox(name='access_token', label='Access Token', required=True),
-        ui.textbox(name='access_token_secret', label='Access Token Secret', required=True),
+        ui.textbox(name='consumer_key', label='Consumer Key', required=True, password=True),
+        ui.textbox(name='consumer_secret', label='Consumer Secret', required=True, password=True),
+        ui.textbox(name='access_token', label='Access Token', required=True, password=True),
+        ui.textbox(name='access_token_secret', label='Access Token Secret', required=True, password=True),
         ui.buttons([ui.button(name='submit', label='Configure', primary=True)])
     ])
 
 
 async def list_tweets_for_hashtag(q):
     home_content(q)
-    q.user.text = q.args.text
-    values, text = texts(q.user.text)
-    cc = 0
-    boxes = [' '.join(i) for i in list(itertools.product(['3', '5', '7', '9', '11'], ['1', '4', '7', '10']))]
-    for t in text:
-        print(t)
-        val = values[t]
-        if val[0] == 'Negative':
-            color = '$red'
-        elif val[0] == 'Positive':
-            color = '$blue'
-        else:
-            color = '$green'
+    values, text = search_tweets(q)
+    tweet_count = 0
+    boxes = [' '.join(i) for i in list(itertools.product(config.tweet_row_indexes, config.tweet_column_indexes))]
+    for tweet in text:
+        popularity_score = values[tweet]
+        row, column = boxes[tweet_count].split(' ')
+        plot_row = int(row) + 2
+        q.page.add(f'wrapper_{column}_{row}', ui.form_card(box=f'{column} {row} 3 6', items=[
+            ui.message_bar(type=f"{derive_sentiment_message_type(popularity_score['compound'])}",
+                           text=f"Sentiment - {derive_sentiment_status(popularity_score['compound'])}"),
+            ui.text(content=tweet)
+        ]))
 
-        j, i = boxes[cc].split(' ')
-        width = 3 if not i == '10' else '-1'
-        q.page.add(f'example_{i}_{j}', ui.large_bar_stat_card(
-            box=f'{i} {j} {width} 2',
-            title=f'Sentiment - {val[0]}',
-            value='={{intl foo minimum_fraction_digits=2 maximum_fraction_digits=2}}',
-            value_caption='Negative',
-            aux_value='={{intl bar minimum_fraction_digits=2 maximum_fraction_digits=2}}',
-            aux_value_caption='Positive',
-            plot_color=color,
-            progress=1,
-            data=dict(foo=val[1]['neg'], bar=val[1]['pos']),
-            caption=t,
+        q.page.add(f'plot_{column}_{row}', ui.frame_card(
+            box=f'{column} {plot_row} 3 4',
+            title="",
+            content=convert_plot_to_html(generate_figure_pie_of_target_percent(popularity_score), "cdn", False),
         ))
-        cc = cc + 1
+        tweet_count = tweet_count + 1
 
 
 @app('/')
 async def serve(q: Q):
     if q.args.submit:
-        await initialize_page(q)
+        if check_credentials_empty(q):
+            capture_credentials(q)
+        else:
+            await initialize_page(q)
     elif q.args.search:
         await list_tweets_for_hashtag(q)
     else:

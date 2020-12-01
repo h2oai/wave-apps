@@ -15,9 +15,15 @@ class Configuration:
         self.icon = "UpgradeAnalysis"
 
         self.boxes = {
-            "banner": "1 1 3 1",
+            "banner": "1 1 12 1",
             "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
-            "search_click": "10 2 -1 1",
-            "search_tab": "1 2 9 1"
+            "search_click": "11 2 2 1",
+            "search_tab": "1 2 10 1",
+            "credentials": "-1 -1 -1 -1"
         }
+
+        self.tweet_row_indexes = ['3', '9', '15', '21', '27']
+        self.tweet_column_indexes = ['1', '4', '7', '10']
+        self.max_tweet_count = 12
+        self.default_search_text = 'AI'

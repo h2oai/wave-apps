@@ -1,6 +1,7 @@
 tweepy==3.9.0
 h2o-wave==0.10.0
 vaderSentiment
+plotly==4.10.0
 
 # Test dependencies
 pytest==6.1.2
