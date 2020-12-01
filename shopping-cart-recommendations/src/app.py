@@ -44,12 +44,11 @@ async def initialize_app(q: Q):
 
 def get_suggestions(q: Q, cart_products, count=3):
     df = q.client.rule_set
-    print(df)
     results = pd.DataFrame(columns=df.columns)
 
     for product in cart_products:
-        f = df[df.antecedents.str.contains(product)]
-        results = results.append(f)
+        filtered_df = df[df.antecedents.str.contains(product)]
+        results = results.append(filtered_df)
 
     results.sort_values('popularity', ascending=False)
     return results.consequents.values[:count]
