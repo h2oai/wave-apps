@@ -170,6 +170,7 @@ def test_tall_stat_card_for_dollars():
 def assert_stat_card(
     cust_phone_no, day_charges, day_stat_box, df, plot_color, wide_stat_card
 ):
+    df = df.copy()
     rank = df["rank"] = df[day_charges].rank(pct=True)
     assert wide_stat_card.title == day_charges
     assert wide_stat_card.box == day_stat_box

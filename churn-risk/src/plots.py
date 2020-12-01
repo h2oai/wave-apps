@@ -1,4 +1,5 @@
 import base64
+import copy
 import io
 
 from h2o_wave import ui
@@ -23,6 +24,7 @@ def convert_plot_to_html(config, fig, include_plotlyjs, validate):
 
 def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
 
+    df = df.copy()
     df["rank"] = df[x_variable].rank(pct=True)
     cust = df[df["Phone_No"] == cust_id]
 
@@ -40,6 +42,7 @@ def tall_stat_card_dollars(df, cust_id, x_variable, box, company_color):
 
 def wide_stat_card_dollars(df, cust_id, x_variable, box, company_color):
 
+    df = df.copy()
     df["rank"] = df[x_variable].rank(pct=True)
     cust = df[df["Phone_No"] == cust_id]
 
