@@ -1,6 +1,6 @@
 class Configuration:
     """
-    Configuration file for Credit Card Risk app
+    App Configurations
     """
 
     def __init__(self):
