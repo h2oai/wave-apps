@@ -3,32 +3,15 @@ import pandas as pd
 from h2o_wave import Q, app, main, ui
 
 from .config import config
-
-
-def get_product_mapping() -> dict:
-    df = pd.read_csv(config.product_mappings)
-    product_names = df.product_name.values
-    department_names = df.department.values
-    product_mapping = {}
-
-    for i in range(df.shape[0]):
-        product_mapping[product_names[i]] = department_names[i]
-
-    product_mapping['No recommendations available'] = 'Please change products in cart'
-
-    return product_mapping
-
-
-def get_products_list():
-    df = pd.read_csv(config.product_mappings)
-    return df.product_name.values
+from .utils import get_products_list, get_suggestions, get_trending_products
 
 
 async def initialize_app(q: Q):
-    q.client.cart_products = []
+    q.client.cart_products = []  # Products in the initial cart
+
     q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
+    q.client.rule_set.antecedents = q.client.rule_set.antecedents.apply(lambda x: list(eval(x))[0])
     q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
-    q.client.product_choices = [ui.choice(name=str(x), label=str(x)) for x in get_products_list()]
 
     q.page.add('header', ui.header_card(
         box=config.boxes['banner'],
@@ -37,33 +20,6 @@ async def initialize_app(q: Q):
         icon=config.icon,
         icon_color=config.icon_color,
     ))
-
-    render_cart(q)
-    render_suggestions(q)
-
-
-def is_not_in_cart(cart_products, suggestions):
-    return [suggestion not in cart_products for suggestion in suggestions]
-
-
-def get_suggestions(q: Q, cart_products, count=3):
-    df = q.client.rule_set
-    suggestions = pd.DataFrame(columns=df.columns)
-
-    for product in cart_products:
-        filtered_df = df[df.antecedents.str.contains(product) & is_not_in_cart(cart_products, df.consequents)]
-        suggestions = suggestions.append(filtered_df)
-
-    suggestions.sort_values('popularity', ascending=False)
-    return suggestions.consequents.values[:count]
-
-
-def get_trending_products(q: Q, cart_products, count=5):
-    # TODO: Add a proper logic to get trending products
-    df = q.client.rule_set
-    df = df[is_not_in_cart(cart_products, df.consequents)]
-    df.sort_values('profitability', ascending=False)
-    return df.consequents.values[:count]
 
 
 def render_cart(q: Q):
@@ -74,7 +30,7 @@ def render_cart(q: Q):
             ui.text('Search and add products to the cart'),
             ui.picker(
                 name='cart_products_picker',
-                choices=q.client.product_choices,
+                choices=[ui.choice(name=str(x), label=str(x)) for x in get_products_list()],
                 values=q.client.cart_products,
                 trigger=True,
             ),
@@ -83,7 +39,7 @@ def render_cart(q: Q):
 
 
 def render_suggestions(q: Q):
-    suggestions = get_suggestions(q, q.client.cart_products)
+    suggestions = get_suggestions(q.client.rule_set, q.client.cart_products)
 
     q.page['suggestions'] = ui.form_card(
         box=config.boxes['suggestions'],
@@ -98,7 +54,7 @@ def render_suggestions(q: Q):
 
 
 def render_trending(q: Q):
-    trending_products = get_trending_products(q, q.client.cart_products)
+    trending_products = get_trending_products(q.client.rule_set, q.client.cart_products)
 
     q.page['trending'] = ui.form_card(
         box=config.boxes['trending'],
