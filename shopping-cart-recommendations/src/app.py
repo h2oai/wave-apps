@@ -44,14 +44,22 @@ async def initialize_app(q: Q):
 
 def get_suggestions(q: Q, cart_products, count=3):
     df = q.client.rule_set
+    print(df)
     results = pd.DataFrame(columns=df.columns)
 
     for product in cart_products:
         f = df[df.antecedents.str.contains(product)]
         results = results.append(f)
 
-    results.sort_values('profitability', ascending=False)
+    results.sort_values('popularity', ascending=False)
     return results.consequents.values[:count]
+
+
+def get_trending_products(q: Q, count=5):
+    # TODO: Add a proper logic to get trending products
+    df = q.client.rule_set
+    df.sort_values('profitability', ascending=False)
+    return df.consequents.values[:count]
 
 
 def render_cart(q: Q):
@@ -59,7 +67,7 @@ def render_cart(q: Q):
         box=config.boxes['cart'],
         items=[
             ui.separator('Cart'),
-            ui.text('Add products to the cart below and simulate the top recommendations.'),
+            ui.text('Search and add products to the cart'),
             ui.picker(
                 name='cart_products_picker',
                 choices=q.client.product_choices,
@@ -76,7 +84,7 @@ def render_suggestions(q: Q):
     q.page['suggestions'] = ui.form_card(
         box=config.boxes['suggestions'],
         items=[
-            ui.separator(label='Suggestions'),
+            ui.separator(label='People also bought'),
             *[
                 ui.button(name='suggestion_btn', label=suggestion, value=suggestion, caption='Add to cart')
                 for suggestion in suggestions
@@ -85,14 +93,31 @@ def render_suggestions(q: Q):
     )
 
 
+def render_trending(q: Q):
+    trending_products = get_trending_products(q)
+
+    q.page['trending'] = ui.form_card(
+        box=config.boxes['trending'],
+        items=[
+            ui.separator(label='Trending Now'),
+            *[
+                ui.button(name='trending_btn', label=product, value=product, caption='Add to cart')
+                for product in trending_products
+            ],
+        ]
+    )
+
+
 def handle_cart_products_change(q: Q):
     q.client.cart_products = q.args.cart_products_picker
-    render_suggestions(q)
 
 
 def handle_suggestion_click(q: Q):
     q.client.cart_products.append(q.args.suggestion_btn)
-    render_suggestions(q)
+
+
+def handle_trending_click(q: Q):
+    q.client.cart_products.append(q.args.trending_btn)
 
 
 @app('/')
@@ -107,6 +132,11 @@ async def serve(q: Q):
     if q.args.suggestion_btn:
         handle_suggestion_click(q)
 
+    if q.args.trending_btn:
+        handle_trending_click(q)
+
     render_cart(q)
+    render_suggestions(q)
+    render_trending(q)
 
     await q.page.save()
