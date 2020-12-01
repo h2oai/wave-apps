@@ -130,7 +130,7 @@ async def serve(q: Q):
         await initialize_app(q)
         q.client.initialized = True
 
-    if q.args.cart_products_picker:
+    if q.args.cart_products_picker is not None:
         handle_cart_products_change(q)
 
     if q.args.suggestion_btn:
