@@ -5,7 +5,7 @@ This application allows credit card issuers to review and approve credit card ap
 ## Developer Guide 
 
 ### Prerequisite 
-1. Python 3.8+
+1. Python 3.7+
 2. pip3
 3. JRE 11+
 
