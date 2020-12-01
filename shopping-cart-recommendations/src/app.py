@@ -42,21 +42,26 @@ async def initialize_app(q: Q):
     render_suggestions(q)
 
 
+def is_not_in_cart(cart_products, suggestions):
+    return [suggestion not in cart_products for suggestion in suggestions]
+
+
 def get_suggestions(q: Q, cart_products, count=3):
     df = q.client.rule_set
-    results = pd.DataFrame(columns=df.columns)
+    suggestions = pd.DataFrame(columns=df.columns)
 
     for product in cart_products:
-        filtered_df = df[df.antecedents.str.contains(product)]
-        results = results.append(filtered_df)
+        filtered_df = df[df.antecedents.str.contains(product) & is_not_in_cart(cart_products, df.consequents)]
+        suggestions = suggestions.append(filtered_df)
 
-    results.sort_values('popularity', ascending=False)
-    return results.consequents.values[:count]
+    suggestions.sort_values('popularity', ascending=False)
+    return suggestions.consequents.values[:count]
 
 
-def get_trending_products(q: Q, count=5):
+def get_trending_products(q: Q, cart_products, count=5):
     # TODO: Add a proper logic to get trending products
     df = q.client.rule_set
+    df = df[is_not_in_cart(cart_products, df.consequents)]
     df.sort_values('profitability', ascending=False)
     return df.consequents.values[:count]
 
@@ -93,7 +98,7 @@ def render_suggestions(q: Q):
 
 
 def render_trending(q: Q):
-    trending_products = get_trending_products(q)
+    trending_products = get_trending_products(q, q.client.cart_products)
 
     q.page['trending'] = ui.form_card(
         box=config.boxes['trending'],
