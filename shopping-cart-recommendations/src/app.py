@@ -61,11 +61,11 @@ def render_cart(q: Q):
             ui.separator('Cart'),
             ui.text('Add products to the cart below and simulate the top recommendations.'),
             ui.picker(
-                name='cart_products',
+                name='cart_products_picker',
                 choices=q.client.product_choices,
-                values=q.client.cart_products
+                values=q.client.cart_products,
+                trigger=True,
             ),
-            ui.button(name='update_cart_btn', label='Update', primary=True),
         ]
     )
 
@@ -85,13 +85,14 @@ def render_suggestions(q: Q):
     )
 
 
-def handle_update_click(q: Q):
-    q.client.cart_products = q.args.cart_products
+def handle_cart_products_change(q: Q):
+    q.client.cart_products = q.args.cart_products_picker
     render_suggestions(q)
 
 
 def handle_suggestion_click(q: Q):
     q.client.cart_products.append(q.args.suggestion_btn)
+    render_suggestions(q)
 
 
 @app('/')
@@ -100,8 +101,8 @@ async def serve(q: Q):
         await initialize_app(q)
         q.client.initialized = True
 
-    if q.args.update_cart_btn:
-        handle_update_click(q)
+    if q.args.cart_products_picker:
+        handle_cart_products_change(q)
 
     if q.args.suggestion_btn:
         handle_suggestion_click(q)
