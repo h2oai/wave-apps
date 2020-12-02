@@ -44,7 +44,7 @@ def render_suggestions(q: Q):
     q.page['suggestions'] = ui.form_card(
         box=config.boxes['suggestions'],
         items=[
-            ui.separator(label='People also bought'),
+            ui.separator(label='Recommended for You'),
             *[
                 ui.button(name='suggestion_btn', label=suggestion, value=suggestion, caption='Add to cart')
                 for suggestion in suggestions
