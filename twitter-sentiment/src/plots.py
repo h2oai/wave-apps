@@ -11,13 +11,13 @@ def generate_figure_pie_of_target_percent(scores):
     :return: plotly figure object
     """
     colors = ['#37536D', ] * 4
-    traces = [go.Pie(title="", labels=list(scores.keys()), values=list(scores.values()), hole=0.8),
-              go.Bar(name="score", marker_color=colors, x=list(scores.keys()), y=list(scores.values()))]
+    traces = [go.Pie(title="", labels=list(scores.keys()), values=list(scores.values()), hole=0.5)]
 
     fig = go.Figure(data=traces, layout=go.Layout(
         margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True),
-        xaxis=go.layout.XAxis(domain=[0.33, 0.67]),
-        yaxis=go.layout.YAxis(domain=[0.33, 0.67])
+        xaxis=go.layout.XAxis(domain=[0.4, 0.67]),
+        yaxis=go.layout.YAxis(domain=[0.4, 0.67]),
+        annotations=[dict(text='sentiment <br>strengths', x=0.5, y=0.5, font_size=14, showarrow=False)]
 
     ))
     return fig

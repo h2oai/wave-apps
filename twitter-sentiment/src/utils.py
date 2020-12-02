@@ -1,4 +1,7 @@
 from h2o_wave import Q
+from .config import Configuration
+
+config = Configuration()
 
 
 def derive_sentiment_status(compound):
@@ -42,3 +45,14 @@ def check_credentials_empty(q: Q):
     :return: True if credential not empty else false
     """
     return "" in [q.args.consumer_key, q.args.consumer_secret, q.args.access_token, q.args.access_token_secret]
+
+def map_popularity_score_keys(popularity):
+    """
+    Maps popularity score keys to be more meaningful
+
+    :param popularity: popularity scores of the analysis
+
+    :return: Mapped dictionary of the scores
+    """
+
+    return dict((config.popularity_terms[key], value) for (key, value) in popularity.items())

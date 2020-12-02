@@ -7,7 +7,7 @@ from .plots import (
     generate_figure_pie_of_target_percent
 )
 from .tweet_analyser import TweetAnalyser
-from .utils import derive_sentiment_status, derive_sentiment_message_type, check_credentials_empty
+from .utils import derive_sentiment_status, derive_sentiment_message_type, check_credentials_empty, map_popularity_score_keys
 
 config = Configuration()
 
@@ -69,12 +69,13 @@ async def initialize_page(q: Q):
 def capture_credentials(q: Q):
     home_content(q)
     q.page['credentials'] = ui.meta_card(box=config.boxes['credentials'])
-    q.page['credentials'].dialog = ui.dialog(title='Twitter Credentials', items=[
+    q.page['credentials'].dialog = ui.dialog(title='Twitter Credentials', primary=True, items=[
+        ui.markup(name="request_access", visible=True, content=config.ask_for_access_text),
         ui.textbox(name='consumer_key', label='Consumer Key', required=True, password=True),
         ui.textbox(name='consumer_secret', label='Consumer Secret', required=True, password=True),
         ui.textbox(name='access_token', label='Access Token', required=True, password=True),
         ui.textbox(name='access_token_secret', label='Access Token Secret', required=True, password=True),
-        ui.buttons([ui.button(name='submit', label='Configure', primary=True)])
+        ui.buttons([ui.button(name='submit', label='Configure', primary=True, tooltip="")])
     ])
 
 
@@ -85,6 +86,7 @@ async def list_tweets_for_hashtag(q):
     boxes = [' '.join(i) for i in list(itertools.product(config.tweet_row_indexes, config.tweet_column_indexes))]
     for tweet in text:
         popularity_score = values[tweet]
+        print(values[tweet])
         row, column = boxes[tweet_count].split(' ')
         plot_row = int(row) + 2
         q.page.add(f'wrapper_{column}_{row}', ui.form_card(box=f'{column} {row} 3 6', items=[
@@ -96,7 +98,7 @@ async def list_tweets_for_hashtag(q):
         q.page.add(f'plot_{column}_{row}', ui.frame_card(
             box=f'{column} {plot_row} 3 4',
             title="",
-            content=convert_plot_to_html(generate_figure_pie_of_target_percent(popularity_score), "cdn", False),
+            content=convert_plot_to_html(generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
         ))
         tweet_count = tweet_count + 1
 

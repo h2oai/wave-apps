@@ -27,3 +27,6 @@ class Configuration:
         self.tweet_column_indexes = ['1', '4', '7', '10']
         self.max_tweet_count = 12
         self.default_search_text = 'AI'
+        self.ask_for_access_text = "Apply for access : <a href=\"https://developer.twitter.com/en/apply-for-access\" " \
+                                   "target='_blank'\">Visit developer.twitter.com!</a>"
+        self.popularity_terms = {'neg': 'Negative', 'neu': 'Neutral', 'pos': 'Positive', 'compound': 'Compound'}
