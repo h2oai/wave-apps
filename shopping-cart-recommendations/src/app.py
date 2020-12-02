@@ -10,7 +10,6 @@ async def initialize_app(q: Q):
     q.client.cart_products = []  # Products in the initial cart
 
     q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
-    q.client.rule_set.antecedents = q.client.rule_set.antecedents.apply(lambda x: list(eval(x))[0])
     q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
 
     q.page.add('header', ui.header_card(

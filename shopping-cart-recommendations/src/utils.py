@@ -24,7 +24,7 @@ def get_suggestions(df, cart_products, count=3):
         suggestions = suggestions.append(filtered_df)
 
     suggestions.sort_values('popularity', ascending=False)
-    return suggestions.consequents.values[:count]
+    return list(set(suggestions.consequents.values))[:count]
 
 
 def get_trending_products(df, cart_products, count=5):
@@ -37,9 +37,9 @@ def get_trending_products(df, cart_products, count=5):
     :return: list of strings of trending product names
     """
     # TODO: Add a proper logic to get trending products
-    df = df[is_not_in_cart(cart_products, df.antecedents)]
+    df = df[is_not_in_cart(cart_products, df.consequents)]
     df.sort_values('profitability', ascending=False)
-    return df.antecedents.values[:count]
+    return df.consequents.values[:count]
 
 
 def is_not_in_cart(cart_products, suggestions):
