@@ -19,11 +19,9 @@ config = Configuration()
 churn_predictor = ChurnPredictor()
 
 
-def profile_content():
-    df = pd.read_csv(config.testing_data_url).head(40)
-    sanitize_dataframe(df)
-    
 df = pd.read_csv(config.testing_data_url).head(40)
+df.fillna(config.def_column_values, inplace=True)
+df.dropna(subset=config.mandatory_columns, inplace=True)
 phone_choices = [ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]]
 
 
@@ -47,27 +45,10 @@ def show_profile(q: Q):
     else: 
         del q.page["empty_profile_page"]
         df = pd.read_csv(config.testing_data_url)
-
         cust_phone_no = q.args.customers[0]
         q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
-
-def sanitize_dataframe(df):
-    df.fillna(config.def_column_values, inplace=True)
-    df.dropna(subset=config.mandatory_columns, inplace=True)
-
-
-def profile_selected_page(q: Q):
-    del q.page["content"]
-    df = pd.read_csv(config.testing_data_url)
-    sanitize_dataframe(df)
-
-    cust_phone_no = q.args.customers[0]
-    q.client.selected_customer_index = int(
-        df[df[config.id_column] == cust_phone_no].index[0]
-    )
-
-    populate_customer_churn_stats(cust_phone_no, df, q)
-    populate_churn_plots(q)
+        populate_churn_plots(q)
+        populate_customer_churn_stats(cust_phone_no,df,q)
 
 
 def populate_churn_plots(q):
