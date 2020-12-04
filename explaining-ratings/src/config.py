@@ -10,7 +10,7 @@ class Configuration:
         self.subtitle = "Explains the hotel reviews"
         self.icon = "ReviewSolid"
 
-        self.training_path = "data/Datafiniti_Hotel_Reviews.csv"
+        self.training_path = "data/Hotel_Reviews.csv"
         self.default_model = "explain_rating_model"
 
         self.boxes = {
