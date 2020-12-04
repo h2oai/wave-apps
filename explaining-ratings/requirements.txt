@@ -2,5 +2,9 @@ numpy==1.19.1
 pandas==1.1.0
 plotly==4.10.0
 h2o-wave==0.10.0
-wordcloud==1.8.1
+pillow==8.0.1
 matplotlib
+pyparsing
+kiwisolver
+cycler
+wordcloud
