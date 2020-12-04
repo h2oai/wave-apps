@@ -10,14 +10,10 @@ setup: ## Create venv and install dependencies on it
 	python3 -m venv venv
 	./venv/bin/pip install -U pip
 	./venv/bin/pip install wheel
-	./venv/bin/pip install -r requirements.txt
-	./venv/bin/pip install -r requirements.test.txt
-	./venv/bin/pip install -r requirements.dev.txt
+	ARCHFLAGS="-arch x86_64" ./venv/bin/pip install -r requirements.txt
 
 install: ## Install dependencies on active python environment
-	pip install -r requirements.txt
-	pip install -r requirements.test.txt
-	pip install -r requirements.dev.txt
+	ARCHFLAGS="-arch x86_64" pip install -r requirements.txt
 
 test:
 	pytest test/unit
