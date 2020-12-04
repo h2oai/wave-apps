@@ -24,4 +24,4 @@ def python_code_content(file_to_display):
     html_formatter = HtmlFormatter(full=True, style="xcode")
     code = highlight(contents, py_lexer, html_formatter)
 
-    return [ui.text_xl("Application Code"), ui.frame(content=code, height="100%")]
+    return [ui.text_xl("Application Code"), ui.frame(content=code, height="90%")]
