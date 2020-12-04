@@ -1,13 +1,14 @@
-import pandas as pd
-from h2o_wave import app, main, Q, ui
+from h2o_wave import main, app, Q, ui
 
 from .config import Configuration
+from .visualizer import plot_word_cloud
+from .utils import merge_to_single_text
 
 config = Configuration()
 
 
 def home_content(q: Q):
-    df = pd.read_csv(config.training_path).head(40)
+    df = config.get_dataset()
 
     choices = [
         ui.choice(name=column, label=column) for column in df.columns
@@ -28,8 +29,6 @@ def home_content(q: Q):
 
 
 async def init(q: Q):
-    print("init 1")
-
     if not q.client.app_initialized:
         (q.app.header_png,) = await q.site.upload([config.image_path])
         (q.app.training_file_url,) = await q.site.upload([config.training_path])
@@ -50,4 +49,21 @@ async def init(q: Q):
 async def serve(q: Q):
     await init(q)
     home_content(q)
+
+    image = plot_word_cloud(merge_to_single_text(config.get_dataset()['reviews.text']))
+
+    q.page['all'] = ui.image_card(
+        box=config.boxes['middle_panel'],
+        title='All',
+        type='png',
+        image=image,
+    )
+
+    q.page['compare'] = ui.image_card(
+        box=config.boxes['right_panel'],
+        title='Compare',
+        type='png',
+        image=image,
+    )
+
     await q.page.save()
