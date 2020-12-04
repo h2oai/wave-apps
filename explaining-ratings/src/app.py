@@ -10,16 +10,16 @@ def home_content(q: Q):
     df = pd.read_csv(config.training_path).head(40)
 
     choices = [
-        ui.choice(name=column, label=column) for column in df.columns
+        ui.choice(name=column, label=column) for column in df[config.review_column_list]
     ]
     items = [
         ui.text_xl("Choose a category"),
-        ui.picker(
+        ui.dropdown(
             name="reviews",
             label="Hotel Reviews",
+            placeholder="please select a review type",
             choices=choices,
-            max_choices=1,
-            tooltip="Start typing to search for a customer",
+            tooltip="Please select the rating option to analyse",
             trigger=True,
         ),
     ]
@@ -27,9 +27,83 @@ def home_content(q: Q):
     q.page["left_panel"] = ui.form_card(box=config.boxes['left_panel'], items=items)
 
 
-async def init(q: Q):
-    print("init 1")
+def populate_dropdown_list(q: Q, filter_choices):
+    print(q.client.filters)
+    items = [
+        ui.text_l("Select a sub category"),
+    ]
 
+    if not q.client.filters:
+        items.append(ui.dropdown(
+            name="filter",
+            label="Select filter",
+            placeholder="Please select a category to filter",
+            choices=filter_choices,
+            tooltip="Please select a category to filter",
+        ), )
+    else:
+        for filter in q.client.filters:
+            items.append(ui.dropdown(
+                name="filter",
+                label="Select filter",
+                placeholder=filter,
+                choices=filter_choices,
+                tooltip="Please select a category to filter",
+            ), )
+        items.append(ui.dropdown(
+            name="filter",
+            label="Select filter",
+            placeholder="Please select a category to filter",
+            choices=filter_choices,
+            tooltip="Please select a category to filter",
+        ), )
+
+    items.append(ui.button(name="compare_review_button", label="Compare Reviews", primary=True))
+
+    return items
+
+
+def add_filters(q):
+    df = pd.read_csv(config.training_path).head(40)
+
+    choices = [
+        ui.choice(name=column, label=column) for column in df[config.review_column_list]
+    ]
+    items = [
+        ui.text_l("Choose a category"),
+        ui.dropdown(
+            name="reviews",
+            label="Hotel Reviews",
+            placeholder=q.client.review,
+            choices=choices,
+            tooltip="Please select the rating option to analyse",
+            trigger=True,
+        ),
+    ]
+
+    q.page["left_panel"] = ui.form_card(box=config.boxes['left_panel'], items=items)
+    q.page.add("filters", ui.toolbar_card(
+        box=config.boxes["new_filter"],
+        items=[
+            ui.command(
+                name='add_filter',
+                label='New filter',
+                caption='Create a new filter',
+                icon='Add',
+            )
+        ]
+    ))
+
+    filter_choices = [
+        ui.choice(name=column, label=column) for column in df.columns
+    ]
+
+    filter_dropdown = populate_dropdown_list(q, filter_choices)
+
+    q.page["filters_one"] = ui.form_card(box=config.boxes['filters'], items=filter_dropdown)
+
+
+async def init(q: Q):
     if not q.client.app_initialized:
         (q.app.header_png,) = await q.site.upload([config.image_path])
         (q.app.training_file_url,) = await q.site.upload([config.training_path])
@@ -48,6 +122,18 @@ async def init(q: Q):
 
 @app("/")
 async def serve(q: Q):
+    print(q.args)
     await init(q)
-    home_content(q)
+    if q.args.reviews:
+        q.client.review = q.args.reviews
+        q.client.filters = set()
+        add_filters(q)
+    elif q.args.add_filter:
+        if not q.client.filters:
+            q.client.filters = set()
+        if q.args.filter:
+            q.client.filters.add(q.args.filter)
+        add_filters(q)
+    else:
+        home_content(q)
     await q.page.save()
