@@ -39,7 +39,7 @@ def populate_dropdown_list(q: Q):
             tooltip="Please select a category to filter",
         ), )
 
-    if not q.args.filter or q.args.add_filter or q.args.reviews or q.args.reset_filter:
+    if (not q.args.filter) or q.args.add_filter or q.args.reviews or q.args.reset_filter:
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",

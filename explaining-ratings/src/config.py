@@ -21,9 +21,9 @@ class Configuration:
         self.boxes = {
             "banner": "1 1 12 1",
             "content": "1 2 -1 -1",
-            "left_panel": "1 2 3 3",
-            "new_filter": "1 5 3 1",
-            "filters": "1 6 3 -1",
+            "left_panel": "1 2 3 2",
+            "new_filter": "1 4 3 1",
+            "filters": "1 5 3 -1",
             "middle_panel": "4 2 4 9",
             "right_panel": "8 2 5 9",
         }
