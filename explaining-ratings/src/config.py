@@ -19,7 +19,7 @@ class Configuration:
         self.dataset = None
 
         self.boxes = {
-            "banner": "1 1 -1 1",
+            "banner": "1 1 12 1",
             "content": "1 2 -1 -1",
             "left_panel": "1 2 3 3",
             "new_filter": "1 5 3 1",
@@ -28,10 +28,8 @@ class Configuration:
             "right_panel": "8 2 5 9",
         }
 
-    def get_dataset(self, refresh=False):
+    def init_dataset(self, refresh=False):
         if refresh or self.dataset is None:
             df = pd.read_csv(self.training_path).head(40)
             df['reviews.rating'] = df['reviews.rating'].astype(int)
             self.dataset = df
-
-        return self.dataset
