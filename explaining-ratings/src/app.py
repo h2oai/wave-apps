@@ -166,8 +166,7 @@ async def serve(q: Q):
         q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
         render_filter_toolbar(q)
     elif q.args.filter:
-        if q.args.filter:
-            q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
+        q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
         render_filter_toolbar(q)
     elif q.args.reset_filters:
         q.client.count = 0
