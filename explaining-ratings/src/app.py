@@ -7,7 +7,7 @@ from .utils.data_utils import filter_data_frame
 config = Configuration()
 
 
-def home_content(q: Q):
+def render_home(q: Q):
     q.page["left_panel"] = ui.form_card(box=config.boxes['left_panel'], items=[
         ui.text_xl("Hotel Reviews"),
         ui.dropdown(
@@ -70,8 +70,8 @@ def populate_dropdown_list(q: Q):
     return items
 
 
-def add_filters(q):
-    home_content(q)
+def render_filter_toolbar(q):
+    render_home(q)
 
     q.page["filter_toolbar"] = ui.toolbar_card(
         box=config.boxes["new_filter"],
@@ -154,30 +154,30 @@ async def serve(q: Q):
         q.client.count = 0
         q.client.review = q.args.reviews
         q.client.filters = {}
-        add_filters(q)
+        render_filter_toolbar(q)
     elif q.args.add_filter:
         q.client.count = q.client.count + 1
         if not q.client.filters:
             q.client.filters = {}
         if q.args.filter:
             q.client.filters[q.args.filter] = None
-        add_filters(q)
+        render_filter_toolbar(q)
     elif q.args.filter_value:
         q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
-        add_filters(q)
+        render_filter_toolbar(q)
     elif q.args.filter:
         if q.args.filter:
             q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
-        add_filters(q)
+        render_filter_toolbar(q)
     elif q.args.reset_filters:
         q.client.count = 0
         q.client.filters = {}
-        add_filters(q)
+        render_filter_toolbar(q)
     elif q.args.compare_review_button:
-        add_filters(q)
+        render_filter_toolbar(q)
 
         render_all_text_word_cloud(q)
         render_compare_word_cloud(q)
     else:
-        home_content(q)
+        render_home(q)
     await q.page.save()
