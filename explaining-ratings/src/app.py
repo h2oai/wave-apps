@@ -13,8 +13,11 @@ def home_content(q: Q):
         ui.dropdown(
             name="reviews",
             label="Hotel Reviews",
-            placeholder=q.client.review if q.client.review else "please select a review type",
-            choices=[ui.choice(name=column, label=column) for column in config.dataset[config.review_column_list]],
+            placeholder=config.column_mapping[q.client.review] if q.client.review else "please select a review type",
+            choices=[
+                ui.choice(name=column, label=config.column_mapping[column])
+                for column in config.dataset[config.review_column_list]
+            ],
             tooltip="Please select the rating option to analyse",
             trigger=True,
         ),
