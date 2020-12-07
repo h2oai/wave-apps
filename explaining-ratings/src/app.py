@@ -2,6 +2,7 @@ from h2o_wave import main, app, Q, ui
 
 from .config import Configuration
 from .utils.word_cloud import plot_word_cloud, merge_to_single_text
+from .utils.data_utils import filter_data_frame
 
 config = Configuration()
 
@@ -88,6 +89,38 @@ def add_filters(q):
     q.page["filters"] = ui.form_card(box=config.boxes['filters'], items=filter_dropdown)
 
 
+def render_all_text_word_cloud(q: Q):
+    image = plot_word_cloud(merge_to_single_text(config.dataset[q.client.review]))
+
+    q.page['all'] = ui.image_card(
+        box=config.boxes['middle_panel'],
+        title='All',
+        type='png',
+        image=image,
+    )
+
+
+def render_compare_word_cloud(q: Q):
+    df = filter_data_frame(config.dataset, q.client.filters)
+
+    if len(df):
+        image = plot_word_cloud(merge_to_single_text(df[q.client.review]))
+
+        q.page['compare'] = ui.image_card(
+            box=config.boxes['right_panel'],
+            title='Compare',
+            type='png',
+            image=image,
+        )
+    else:
+        q.page['compare'] = ui.form_card(
+            box=config.boxes['right_panel'],
+            items=[
+                ui.message_bar(type='warning', text='No reviews matching filter criteria!')
+            ]
+        )
+
+
 async def init(q: Q):
     if not q.client.app_initialized:
         (q.app.header_png,) = await q.site.upload([config.image_path])
@@ -133,21 +166,8 @@ async def serve(q: Q):
     elif q.args.compare_review_button:
         add_filters(q)
 
-        image = plot_word_cloud(merge_to_single_text(config.dataset['reviews.text']))
-
-        q.page['all'] = ui.image_card(
-            box=config.boxes['middle_panel'],
-            title='All',
-            type='png',
-            image=image,
-        )
-
-        q.page['compare'] = ui.image_card(
-            box=config.boxes['right_panel'],
-            title='Compare',
-            type='png',
-            image=image,
-        )
+        render_all_text_word_cloud(q)
+        render_compare_word_cloud(q)
     else:
         home_content(q)
     await q.page.save()
