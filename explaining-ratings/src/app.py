@@ -39,8 +39,8 @@ def populate_dropdown_list(q: Q):
                 name="filter",
                 label="Select filter",
                 placeholder=attr,
-                choices={ui.choice(name={'id': key, 'attr': column, 'attr_val': None}, label=column) for column in
-                         config.dataset.columns},
+                choices=[ui.choice(name={'id': key, 'attr': column, 'attr_val': None}, label=column) for column in
+                         config.dataset.columns],
                 tooltip="Please select a category to filter",
                 trigger=True,
             ), )
@@ -48,15 +48,14 @@ def populate_dropdown_list(q: Q):
                 name="filter_value",
                 label="Select a value",
                 placeholder=attr_val,
-                choices={ui.choice(name={'id': key, 'attr': attr, 'attr_val': column}, label=column) for column in
-                         config.dataset[attr].drop_duplicates()},
+                choices=[ui.choice(name={'id': key, 'attr': attr, 'attr_val': column}, label=column) for column in
+                         config.dataset[attr].drop_duplicates()],
                 tooltip="Please select a value to filter",
                 trigger=True,
             ), )
             items.append(ui.separator())
 
     if (q.args.add_filter and all(q.client.filters.values())) or q.args.reviews or q.args.reset_filters:
-        # q.client.count = q.client.count + 1
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",
