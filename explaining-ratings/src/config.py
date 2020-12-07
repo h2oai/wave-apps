@@ -17,6 +17,20 @@ class Configuration:
         self.default_model = "explain_rating_model"
 
         self.dataset = None
+        self.filterable_columns = ['categories', 'city', 'country', 'postalCode', 'province',
+                                   'reviews.rating', 'reviews.userCity', 'reviews.userProvince']
+        self.column_mapping = {
+            'reviews.title': 'Title',
+            'reviews.text': 'Body',
+            'categories': 'Categories',
+            'city': 'City',
+            'country': 'Country',
+            'postalCode': 'Postal Code',
+            'province': 'Province',
+            'reviews.rating': 'Rating',
+            'reviews.userCity': 'Reviewer City',
+            'reviews.userProvince': 'Reviewer Province',
+        }
 
         self.boxes = {
             "banner": "1 1 12 1",
