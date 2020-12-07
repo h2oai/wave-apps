@@ -26,32 +26,37 @@ def home_content(q: Q):
 
 def populate_dropdown_list(q: Q):
     filter_choices = [
-        ui.choice(name=column, label=column) for column in config.dataset.columns
+        ui.choice(name={"id": q.client.count + 1, "attr": column, "attr_val": None}, label=column) for column in
+        config.dataset.columns
     ]
     items = [
         ui.text_l("Select a sub category"),
     ]
 
     for key, value in q.client.filters.items():
-        items.append(ui.dropdown(
-            name="filter",
-            label="Select filter",
-            placeholder=key,
-            choices=filter_choices,
-            tooltip="Please select a category to filter",
-            trigger=True,
-        ), )
-        items.append(ui.dropdown(
-            name="filter_value",
-            label="Select a value",
-            placeholder=value,
-            choices={ui.choice(name={key: column}, label=column) for column in config.dataset[key].drop_duplicates()},
-            tooltip="Please select a value to filter",
-            trigger=True,
-        ), )
-        items.append(ui.separator())
+        for attr, attr_val in value.items():
+            items.append(ui.dropdown(
+                name="filter",
+                label="Select filter",
+                placeholder=attr,
+                choices={ui.choice(name={'id': key, 'attr': column, 'attr_val': None}, label=column) for column in
+                         config.dataset.columns},
+                tooltip="Please select a category to filter",
+                trigger=True,
+            ), )
+            items.append(ui.dropdown(
+                name="filter_value",
+                label="Select a value",
+                placeholder=attr_val,
+                choices={ui.choice(name={'id': key, 'attr': attr, 'attr_val': column}, label=column) for column in
+                         config.dataset[attr].drop_duplicates()},
+                tooltip="Please select a value to filter",
+                trigger=True,
+            ), )
+            items.append(ui.separator())
 
     if (q.args.add_filter and all(q.client.filters.values())) or q.args.reviews or q.args.reset_filters:
+        # q.client.count = q.client.count + 1
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",
@@ -146,24 +151,27 @@ async def init(q: Q):
 async def serve(q: Q):
     await init(q)
     if q.args.reviews:
+        global count
+        q.client.count = 0
         q.client.review = q.args.reviews
         q.client.filters = {}
         add_filters(q)
     elif q.args.add_filter:
+        q.client.count = q.client.count + 1
         if not q.client.filters:
             q.client.filters = {}
         if q.args.filter:
             q.client.filters[q.args.filter] = None
         add_filters(q)
     elif q.args.filter_value:
-        for key, value in q.args.filter_value.items():
-            q.client.filters[key] = value
+        q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
         add_filters(q)
     elif q.args.filter:
         if q.args.filter:
-            q.client.filters[q.args.filter] = None
+            q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
         add_filters(q)
     elif q.args.reset_filters:
+        q.client.count = 0
         q.client.filters = {}
         add_filters(q)
     elif q.args.compare_review_button:
