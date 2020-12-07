@@ -36,7 +36,7 @@ def populate_dropdown_list(q: Q):
             placeholder=key,
             choices=filter_choices,
             tooltip="Please select a category to filter",
-            trigger=True
+            trigger=True,
         ), )
         items.append(ui.dropdown(
             name="filter_value",
@@ -44,10 +44,11 @@ def populate_dropdown_list(q: Q):
             placeholder=value,
             choices={ui.choice(name={key: column}, label=column) for column in config.dataset[key].drop_duplicates()},
             tooltip="Please select a value to filter",
+            trigger=True,
         ), )
         items.append(ui.separator())
 
-    if q.args.add_filter or q.args.reviews or q.args.reset_filters:
+    if (q.args.add_filter and all(q.client.filters.values())) or q.args.reviews or q.args.reset_filters:
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",
@@ -113,15 +114,15 @@ async def serve(q: Q):
         q.client.review = q.args.reviews
         q.client.filters = {}
         add_filters(q)
-    elif q.args.add_filter and q.args.filter_value:
-        for key, value in q.args.filter_value.items():
-            q.client.filters[key] = value
-        add_filters(q)
     elif q.args.add_filter:
         if not q.client.filters:
             q.client.filters = {}
         if q.args.filter:
             q.client.filters[q.args.filter] = None
+        add_filters(q)
+    elif q.args.filter_value:
+        for key, value in q.args.filter_value.items():
+            q.client.filters[key] = value
         add_filters(q)
     elif q.args.filter:
         if q.args.filter:
@@ -131,8 +132,6 @@ async def serve(q: Q):
         q.client.filters = {}
         add_filters(q)
     elif q.args.compare_review_button:
-        for key, value in q.args.filter_value.items():
-            q.client.filters[key] = value
         add_filters(q)
 
         image = plot_word_cloud(merge_to_single_text(config.dataset['reviews.text']))
