@@ -29,14 +29,23 @@ def populate_dropdown_list(q: Q):
         ui.text_l("Select a sub category"),
     ]
 
-    for filter in q.client.filters:
+    for key, value in q.client.filters.items():
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",
-            placeholder=filter,
+            placeholder=key,
             choices=filter_choices,
             tooltip="Please select a category to filter",
+            trigger=True
         ), )
+        items.append(ui.dropdown(
+            name="filter_value",
+            label="Select a value",
+            placeholder=value,
+            choices={ui.choice(name={key: column}, label=column) for column in config.dataset[key].drop_duplicates()},
+            tooltip="Please select a value to filter",
+        ), )
+        items.append(ui.separator())
 
     if q.args.add_filter or q.args.reviews or q.args.reset_filters:
         items.append(ui.dropdown(
@@ -45,6 +54,7 @@ def populate_dropdown_list(q: Q):
             placeholder="Please select a category to filter",
             choices=filter_choices,
             tooltip="Please select a category to filter",
+            trigger=True
         ), )
 
     items.append(ui.button(name="compare_review_button", label="Compare Reviews", primary=True))
@@ -101,20 +111,28 @@ async def serve(q: Q):
     await init(q)
     if q.args.reviews:
         q.client.review = q.args.reviews
-        q.client.filters = set()
+        q.client.filters = {}
+        add_filters(q)
+    elif q.args.add_filter and q.args.filter_value:
+        for key, value in q.args.filter_value.items():
+            q.client.filters[key] = value
         add_filters(q)
     elif q.args.add_filter:
         if not q.client.filters:
-            q.client.filters = set()
+            q.client.filters = {}
         if q.args.filter:
-            q.client.filters.add(q.args.filter)
+            q.client.filters[q.args.filter] = None
+        add_filters(q)
+    elif q.args.filter:
+        if q.args.filter:
+            q.client.filters[q.args.filter] = None
         add_filters(q)
     elif q.args.reset_filters:
-        q.client.filters = set()
+        q.client.filters = {}
         add_filters(q)
     elif q.args.compare_review_button:
-        if q.args.filter:
-            q.client.filters.add(q.args.filter)
+        for key, value in q.args.filter_value.items():
+            q.client.filters[key] = value
         add_filters(q)
 
         image = plot_word_cloud(merge_to_single_text(config.dataset['reviews.text']))
