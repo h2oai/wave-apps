@@ -22,7 +22,6 @@ def home_content(q: Q):
 
 
 def populate_dropdown_list(q: Q):
-    print(q.args)
     filter_choices = [
         ui.choice(name=column, label=column) for column in config.dataset.columns
     ]
