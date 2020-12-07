@@ -9,10 +9,10 @@ config = Configuration()
 
 def home_content(q: Q):
     q.page["left_panel"] = ui.form_card(box=config.boxes['left_panel'], items=[
-        ui.text_xl("Choose a category"),
+        ui.text_xl("Hotel Reviews"),
         ui.dropdown(
             name="reviews",
-            label="Hotel Reviews",
+            label="Select field",
             placeholder=config.column_mapping[q.client.review] if q.client.review else "please select a review type",
             choices=[
                 ui.choice(name=column, label=config.column_mapping[column])
@@ -30,7 +30,7 @@ def populate_dropdown_list(q: Q):
         config.dataset.columns
     ]
     items = [
-        ui.text_l("Select a sub category"),
+        ui.text_l("Filter reviews"),
     ]
 
     for key, value in q.client.filters.items():
