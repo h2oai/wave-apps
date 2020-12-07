@@ -117,7 +117,7 @@ async def serve(q: Q):
     elif q.args.compare_review_button:
         if q.args.filter:
             q.client.filters.add(q.args.filter)
-            add_filters(q)
+        add_filters(q)
 
         image = plot_word_cloud(merge_to_single_text(config.dataset['reviews.text']))
 
