@@ -1,4 +1,5 @@
 from h2o_wave import main, app, Q, ui
+import json
 
 from .config import Configuration
 from .utils.word_cloud import plot_word_cloud, merge_to_single_text
@@ -26,8 +27,8 @@ def render_home(q: Q):
 
 def populate_dropdown_list(q: Q):
     filter_choices = [
-        ui.choice(name={"id": q.client.count + 1, "attr": column, "attr_val": None}, label=column) for column in
-        config.dataset.columns
+        ui.choice(name=json.dumps({"id": q.client.count + 1, "attr": column, "attr_val": None}), label=column) for
+        column in config.dataset.columns
     ]
     items = [
         ui.text_l("Filter reviews"),
@@ -39,8 +40,8 @@ def populate_dropdown_list(q: Q):
                 name="filter",
                 label="Select filter",
                 placeholder=attr,
-                choices=[ui.choice(name={'id': key, 'attr': column, 'attr_val': None}, label=column) for column in
-                         config.dataset.columns],
+                choices=[ui.choice(name=json.dumps({'id': key, 'attr': column, 'attr_val': None}), label=column) for
+                         column in config.dataset.columns],
                 tooltip="Please select a category to filter",
                 trigger=True,
             ), )
@@ -48,8 +49,8 @@ def populate_dropdown_list(q: Q):
                 name="filter_value",
                 label="Select a value",
                 placeholder=attr_val,
-                choices=[ui.choice(name={'id': key, 'attr': attr, 'attr_val': column}, label=column) for column in
-                         config.dataset[attr].drop_duplicates()],
+                choices=[ui.choice(name=json.dumps({'id': key, 'attr': attr, 'attr_val': column}), label=column) for
+                         column in config.dataset[attr].drop_duplicates()],
                 tooltip="Please select a value to filter",
                 trigger=True,
             ), )
@@ -150,7 +151,6 @@ async def init(q: Q):
 async def serve(q: Q):
     await init(q)
     if q.args.reviews:
-        global count
         q.client.count = 0
         q.client.review = q.args.reviews
         q.client.filters = {}
@@ -163,9 +163,11 @@ async def serve(q: Q):
             q.client.filters[q.args.filter] = None
         render_filter_toolbar(q)
     elif q.args.filter_value:
+        q.args.filter_value = json.loads(q.args.filter_value)
         q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
         render_filter_toolbar(q)
     elif q.args.filter:
+        q.args.filter = json.loads(q.args.filter)
         q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
         render_filter_toolbar(q)
     elif q.args.reset_filters:
