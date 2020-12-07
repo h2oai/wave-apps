@@ -1,8 +1,7 @@
 from h2o_wave import main, app, Q, ui
 
 from .config import Configuration
-from .visualizer import plot_word_cloud
-from .utils import merge_to_single_text
+from .utils.word_cloud import plot_word_cloud, merge_to_single_text
 
 config = Configuration()
 

@@ -23,3 +23,12 @@ def get_image_from_matplotlib(matplotlib_obj):
     matplotlib_obj.savefig(buffer, format="png")
     buffer.seek(0)
     return base64.b64encode(buffer.read()).decode("utf-8")
+
+
+def merge_to_single_text(all_texts):
+    text = ''
+
+    for t in all_texts:
+        text += str(t).lower() + ' '
+
+    return text
