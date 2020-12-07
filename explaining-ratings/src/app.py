@@ -38,7 +38,7 @@ def populate_dropdown_list(q: Q):
             tooltip="Please select a category to filter",
         ), )
 
-    if (not q.args.filter) or q.args.add_filter or q.args.reviews or q.args.reset_filter:
+    if q.args.add_filter or q.args.reviews or q.args.reset_filters:
         items.append(ui.dropdown(
             name="filter",
             label="Select filter",
@@ -55,7 +55,7 @@ def populate_dropdown_list(q: Q):
 def add_filters(q):
     home_content(q)
 
-    q.page.add("filter_toolbar", ui.toolbar_card(
+    q.page["filter_toolbar"] = ui.toolbar_card(
         box=config.boxes["new_filter"],
         items=[
             ui.command(
@@ -71,7 +71,7 @@ def add_filters(q):
                 icon='Delete',
             )
         ]
-    ))
+    )
 
     filter_dropdown = populate_dropdown_list(q)
 
@@ -98,7 +98,6 @@ async def init(q: Q):
 
 @app("/")
 async def serve(q: Q):
-    print(q.args)
     await init(q)
     if q.args.reviews:
         q.client.review = q.args.reviews
