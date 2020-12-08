@@ -1,13 +1,13 @@
 from h2o_wave import Q, app, ui, main
 
-import itertools
 from .config import Configuration
 from .plots import (
     convert_plot_to_html,
     generate_figure_pie_of_target_percent
 )
 from .tweet_analyser import TweetAnalyser
-from .utils import derive_sentiment_status, derive_sentiment_message_type, check_credentials_empty, map_popularity_score_keys
+from .utils import derive_sentiment_status, derive_sentiment_message_type, check_credentials_empty, \
+    map_popularity_score_keys
 
 config = Configuration()
 
@@ -32,26 +32,119 @@ def search_tweets(q: Q):
 
 
 def home_content(q: Q):
-    q.page["title"] = ui.header_card(
-        box=config.boxes["banner"],
+    # The meta card's 'zones' attribute defines placeholder zones to lay out cards for different viewport sizes.
+    # We define four layout schemes here.
+    q.page.drop()
+    q.page['twitter_app'] = ui.meta_card(box='', layouts=[
+        ui.layout(
+            # If the viewport width >= 0:
+            breakpoint='xs',
+            width='400px',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                    # 400px wide search_text_area
+                    ui.zone('search_text_area', size='400px', direction=ui.ZoneDirection.ROW),
+                ]),
+                ui.zone('search_button_area', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                    # 400px wide search_button
+                    ui.zone('search_button', size='400px', direction=ui.ZoneDirection.ROW),
+                ]),
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='450px', zones=[
+                    ui.zone('content_' + str(i), direction=ui.ZoneDirection.ROW, size='400px') for i in
+                    range(1, config.max_tweet_count + 1)
+                ]),
+            ]
+        ),
+        ui.layout(
+            # If the viewport width >= 768:
+            breakpoint='m',
+            width='768px',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                    # 600px wide search_text_area
+                    ui.zone('search_text_area', size='600px', direction=ui.ZoneDirection.ROW),
+                    # 160px wide search_button
+                    ui.zone('search_button', size='200px', direction=ui.ZoneDirection.ROW),
+                ]),
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='800px', zones=[
+                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
+                        ui.zone('content_' + str((row * 2) + column), direction=ui.ZoneDirection.ROW, size='400px') for
+                        column in range(1, 3)
+                    ]) for row in range(0, 6)])
+            ]
+        ),
+        ui.layout(
+            # If the viewport width >= 1200:
+            breakpoint='xl',
+            width='1200px',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                    # 1000px wide search_text_area
+                    ui.zone('search_text_area', size='1000px', direction=ui.ZoneDirection.ROW),
+                    # 215px wide search_button
+                    ui.zone('search_button', size='215px', direction=ui.ZoneDirection.ROW),
+                ]),
+
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1200px', zones=[
+                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
+                        ui.zone('content_' + str((row * 3) + column), direction=ui.ZoneDirection.ROW, size='400px') for
+                        column in range(1, 4)
+                    ]) for row in range(0, 4)])
+            ]
+        ),
+        ui.layout(
+            # If the viewport width >= 1600:
+            breakpoint='1600px',
+            width='1600px',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                    # 1400px wide search_text_area
+                    ui.zone('search_text_area', size='1400px', direction=ui.ZoneDirection.ROW),
+                    # 230px wide search_button
+                    ui.zone('search_button', size='230px', direction=ui.ZoneDirection.ROW),
+                ]),
+
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1600px', zones=[
+                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
+                        ui.zone('content_' + str((row * 4) + column), direction=ui.ZoneDirection.ROW, size='400px') for
+                        column in range(1, 5)
+                    ]) for row in range(0, 3)])
+
+            ]
+        )
+    ])
+    q.page['header'] = ui.header_card(
+        box='header',
         title=config.title,
         subtitle=config.subtitle,
         icon=config.icon,
         icon_color=config.color,
     )
 
-    q.page.add("search_tab", ui.form_card(box=config.boxes["search_tab"], items=[
+    q.page["search_text_area"] = ui.form_card(box=ui.boxes('search_text_area'), items=[
         ui.textbox(name='text',
                    label='',
                    placeholder='#h2oai',
-                   value=q.args.text, multiline=False, trigger=False)]))
+                   value=q.args.text, multiline=False, trigger=False)])
 
-    q.page.add("search_click", ui.form_card(box=config.boxes["search_click"], items=[
-        ui.button(name="search", label="search", primary=True)]))
+    q.page["search_button"] = ui.form_card(box=ui.boxes('search_button'), items=[
+        ui.button(name="search", label="search", primary=True)])
 
 
 async def initialize_page(q: Q):
-    q.page['credentials'].dialog = None
+    q.page['twitter_app'].dialog = None
     if not q.client.initialized:
         q.args.text = config.default_search_text
         q.args.search = True
@@ -68,8 +161,8 @@ async def initialize_page(q: Q):
 
 def capture_credentials(q: Q):
     home_content(q)
-    q.page['credentials'] = ui.meta_card(box=config.boxes['credentials'])
-    q.page['credentials'].dialog = ui.dialog(title='Twitter Credentials', primary=True, items=[
+    q.page['twitter_app'] = ui.meta_card(box='')
+    q.page['twitter_app'].dialog = ui.dialog(title='Twitter Credentials', primary=True, items=[
         ui.markup(name="request_access", visible=True, content=config.ask_for_access_text),
         ui.textbox(name='consumer_key', label='Consumer Key', required=True, password=True),
         ui.textbox(name='consumer_secret', label='Consumer Secret', required=True, password=True),
@@ -82,24 +175,18 @@ def capture_credentials(q: Q):
 async def list_tweets_for_hashtag(q):
     home_content(q)
     values, text = search_tweets(q)
-    tweet_count = 0
-    boxes = [' '.join(i) for i in list(itertools.product(config.tweet_row_indexes, config.tweet_column_indexes))]
+    tweet_count = 1
+
     for tweet in text:
         popularity_score = values[tweet]
-        print(values[tweet])
-        row, column = boxes[tweet_count].split(' ')
-        plot_row = int(row) + 2
-        q.page.add(f'wrapper_{column}_{row}', ui.form_card(box=f'{column} {row} 3 6', items=[
+        q.page[f'wrapper_{tweet_count}'] = ui.form_card(box=f'content_{tweet_count}', items=[
             ui.message_bar(type=f"{derive_sentiment_message_type(popularity_score['compound'])}",
                            text=f"Sentiment - {derive_sentiment_status(popularity_score['compound'])}"),
-            ui.text(content=tweet)
-        ]))
-
-        q.page.add(f'plot_{column}_{row}', ui.frame_card(
-            box=f'{column} {plot_row} 3 4',
-            title="",
-            content=convert_plot_to_html(generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
-        ))
+            ui.text(content=tweet[:200]),
+            ui.frame(content=convert_plot_to_html(
+                generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
+                width='280px', height='280px')
+        ])
         tweet_count = tweet_count + 1
 
 
