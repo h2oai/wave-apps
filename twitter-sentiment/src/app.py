@@ -52,10 +52,7 @@ def home_content(q: Q):
                     ui.zone('search_button', size='400px', direction=ui.ZoneDirection.ROW),
                 ]),
                 # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='450px', zones=[
-                    ui.zone('content_' + str(i), direction=ui.ZoneDirection.ROW, size='400px') for i in
-                    range(1, config.max_tweet_count + 1)
-                ]),
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='450px', zones=create_twitter_card_slots(12, 1)),
             ]
         ),
         ui.layout(
@@ -72,11 +69,7 @@ def home_content(q: Q):
                     ui.zone('search_button', size='200px', direction=ui.ZoneDirection.ROW),
                 ]),
                 # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='800px', zones=[
-                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
-                        ui.zone('content_' + str((row * 2) + column), direction=ui.ZoneDirection.ROW, size='400px') for
-                        column in range(1, 3)
-                    ]) for row in range(0, 6)])
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='800px', zones=create_twitter_card_slots(6, 2))
             ]
         ),
         ui.layout(
@@ -92,13 +85,8 @@ def home_content(q: Q):
                     # 215px wide search_button
                     ui.zone('search_button', size='215px', direction=ui.ZoneDirection.ROW),
                 ]),
-
                 # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1200px', zones=[
-                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
-                        ui.zone('content_' + str((row * 3) + column), direction=ui.ZoneDirection.ROW, size='400px') for
-                        column in range(1, 4)
-                    ]) for row in range(0, 4)])
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1200px', zones=create_twitter_card_slots(4, 3))
             ]
         ),
         ui.layout(
@@ -114,14 +102,8 @@ def home_content(q: Q):
                     # 230px wide search_button
                     ui.zone('search_button', size='230px', direction=ui.ZoneDirection.ROW),
                 ]),
-
                 # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1600px', zones=[
-                    ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
-                        ui.zone('content_' + str((row * 4) + column), direction=ui.ZoneDirection.ROW, size='400px') for
-                        column in range(1, 5)
-                    ]) for row in range(0, 3)])
-
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='1600px', zones=create_twitter_card_slots(3, 4))
             ]
         )
     ])
@@ -141,6 +123,14 @@ def home_content(q: Q):
 
     q.page["search_button"] = ui.form_card(box=ui.boxes('search_button'), items=[
         ui.button(name="search", label="search", primary=True)])
+
+
+def create_twitter_card_slots(row_count, column_count):
+    return [
+        ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
+            ui.zone('content_' + str((row * column_count) + column), direction=ui.ZoneDirection.ROW, size='400px') for
+            column in range(1, column_count + 1)
+        ]) for row in range(0, row_count)]
 
 
 async def initialize_page(q: Q):
