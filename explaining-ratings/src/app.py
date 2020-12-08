@@ -27,8 +27,10 @@ def render_home(q: Q):
 
 def populate_dropdown_list(q: Q):
     filter_choices = [
-        ui.choice(name=json.dumps({"id": q.client.count + 1, "attr": column, "attr_val": None}), label=column) for
-        column in config.filterable_columns
+        ui.choice(
+            name=json.dumps({"id": q.client.count + 1, "attr": column, "attr_val": None}),
+            label=config.column_mapping[column]
+        ) for column in config.filterable_columns
     ]
     items = [
         ui.text_l("Filter reviews"),
@@ -40,8 +42,12 @@ def populate_dropdown_list(q: Q):
                 name="filter",
                 label="Select filter",
                 placeholder=attr,
-                choices=[ui.choice(name=json.dumps({'id': key, 'attr': column, 'attr_val': None}), label=column) for
-                         column in config.filterable_columns],
+                choices=[
+                    ui.choice(
+                        name=json.dumps({'id': key, 'attr': column, 'attr_val': None}),
+                        label=config.column_mapping[column]
+                    ) for column in config.filterable_columns
+                ],
                 tooltip="Please select a category to filter",
                 trigger=True,
             ), )
