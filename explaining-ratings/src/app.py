@@ -2,7 +2,7 @@ from h2o_wave import main, app, Q, ui
 import json
 
 from .config import Configuration
-from .utils.word_cloud import plot_word_cloud, merge_to_single_text
+from .utils.word_cloud_utils import plot_word_cloud, merge_to_single_text
 from .utils.data_utils import filter_data_frame
 
 config = Configuration()
