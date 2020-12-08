@@ -103,6 +103,19 @@ def render_filter_toolbar(q):
     q.page["filters"] = ui.form_card(box=config.boxes['filters'], items=filter_dropdown)
 
 
+def get_text_word_cloud_plot(q: Q):
+    return plot_word_cloud(merge_to_single_text(config.dataset[q.client.review]))
+
+
+def render_text_word_cloud_image(q: Q, image):
+    q.page['all'] = ui.image_card(
+        box=config.boxes['middle_panel'],
+        title='All',
+        type='png',
+        image=image,
+    )
+
+
 def render_all_text_word_cloud(q: Q):
     image = plot_word_cloud(merge_to_single_text(config.dataset[q.client.review]))
 
@@ -161,7 +174,8 @@ async def serve(q: Q):
         q.client.review = q.args.reviews
         q.client.filters = {}
         render_filter_toolbar(q)
-        render_all_text_word_cloud(q)
+        q.client.all_text_word_cloud = get_text_word_cloud_plot(q)
+        render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.add_filter:
         q.client.count = q.client.count + 1
         if not q.client.filters:
@@ -169,17 +183,17 @@ async def serve(q: Q):
         if q.args.filter:
             q.client.filters[q.args.filter] = None
         render_filter_toolbar(q)
-        render_all_text_word_cloud(q)
+        render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.filter_value:
         q.args.filter_value = json.loads(q.args.filter_value)
         q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
         render_filter_toolbar(q)
-        render_all_text_word_cloud(q)
+        render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.filter:
         q.args.filter = json.loads(q.args.filter)
         q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
         render_filter_toolbar(q)
-        render_all_text_word_cloud(q)
+        render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.reset_filters:
         q.client.count = 0
         q.client.filters = {}
@@ -188,7 +202,7 @@ async def serve(q: Q):
     elif q.args.compare_review_button:
         render_filter_toolbar(q)
 
-        render_all_text_word_cloud(q)
+        render_text_word_cloud_image(q, q.client.all_text_word_cloud)
         render_compare_word_cloud(q)
     else:
         render_home(q)
