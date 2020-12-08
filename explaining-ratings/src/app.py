@@ -155,6 +155,7 @@ async def serve(q: Q):
         q.client.review = q.args.reviews
         q.client.filters = {}
         render_filter_toolbar(q)
+        render_all_text_word_cloud(q)
     elif q.args.add_filter:
         q.client.count = q.client.count + 1
         if not q.client.filters:
@@ -162,18 +163,22 @@ async def serve(q: Q):
         if q.args.filter:
             q.client.filters[q.args.filter] = None
         render_filter_toolbar(q)
+        render_all_text_word_cloud(q)
     elif q.args.filter_value:
         q.args.filter_value = json.loads(q.args.filter_value)
         q.client.filters[q.args.filter_value['id']] = {q.args.filter_value['attr']: q.args.filter_value['attr_val']}
         render_filter_toolbar(q)
+        render_all_text_word_cloud(q)
     elif q.args.filter:
         q.args.filter = json.loads(q.args.filter)
         q.client.filters[q.args.filter['id']] = {q.args.filter['attr']: q.args.filter['attr_val']}
         render_filter_toolbar(q)
+        render_all_text_word_cloud(q)
     elif q.args.reset_filters:
         q.client.count = 0
         q.client.filters = {}
         render_filter_toolbar(q)
+        render_all_text_word_cloud(q)
     elif q.args.compare_review_button:
         render_filter_toolbar(q)
 
