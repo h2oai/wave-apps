@@ -7,13 +7,64 @@ from .utils import get_products_list, get_suggestions, get_trending_products
 
 
 async def initialize_app(q: Q):
+    q.page['meta'] = ui.meta_card(box='', layouts=[
+        ui.layout(
+            # If the viewport width >= 0:
+            breakpoint='xs',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                # Use remaining space for content
+                ui.zone('cart', size='250px'),
+                ui.zone('trending'),
+                ui.zone('suggestions'),
+            ]
+        ),
+        ui.layout(
+            # If the viewport width >= 768:
+            breakpoint='m',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
+                    # 250px wide sidebar
+                    ui.zone('cart', size='250px'),
+                    # Use remaining space for content
+                    ui.zone('right-pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                        # 250px wide sidebar
+                        ui.zone('trending'),
+                        ui.zone('suggestions'),
+                    ]),
+                ]),
+            ]
+        ),
+        ui.layout(
+            # If the viewport width >= 1200:
+            breakpoint='xl',
+            width='1600px',
+            zones=[
+                # 80px high header
+                ui.zone('header', size='80px'),
+                # Use remaining space for body
+                ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
+                    # 300px wide sidebar
+                    ui.zone('cart', size='300px'),
+                    # Use remaining space for other widgets
+                    ui.zone('trending'),
+                    ui.zone('suggestions'),
+                ])
+            ]
+        )
+    ])
+
     q.client.cart_products = []  # Products in the initial cart
 
     q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
     q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
 
     q.page.add('header', ui.header_card(
-        box=config.boxes['banner'],
+        box='header',
         title=config.title,
         subtitle=config.subtitle,
         icon=config.icon,
@@ -23,7 +74,7 @@ async def initialize_app(q: Q):
 
 def render_cart(q: Q):
     q.page['cart'] = ui.form_card(
-        box=config.boxes['cart'],
+        box='cart',
         items=[
             ui.separator('Cart'),
             ui.text('Search and add products to the cart'),
@@ -41,7 +92,7 @@ def render_suggestions(q: Q):
     suggestions = get_suggestions(q.client.rule_set, q.client.cart_products)
 
     q.page['suggestions'] = ui.form_card(
-        box=config.boxes['suggestions'],
+        box='suggestions',
         items=[
             ui.separator(label='Recommended for You'),
             *[
@@ -56,7 +107,7 @@ def render_trending(q: Q):
     trending_products = get_trending_products(q.client.rule_set, q.client.cart_products)
 
     q.page['trending'] = ui.form_card(
-        box=config.boxes['trending'],
+        box='trending',
         items=[
             ui.separator(label='Trending Now'),
             *[

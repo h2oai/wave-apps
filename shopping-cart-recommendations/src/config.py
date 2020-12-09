@@ -13,7 +13,7 @@ class Configuration:
         self.product_mappings = 'data/instacart_products.csv'
 
         self.boxes = {
-            'banner': '1 1 12 1',
+            'header': '1 1 12 1',
             'cart': '1 2 6 5',
             'suggestions': '1 7 6 4',
             'trending': '7 2 6 9',
