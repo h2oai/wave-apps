@@ -130,7 +130,7 @@ def home_content(q: Q):
 
 def create_twitter_card_slots(row_count, column_count):
     return [
-        ui.zone(f'row_' + str(row), direction=ui.ZoneDirection.ROW, size='450px', zones=[
+        ui.zone(f'row_{row}', direction=ui.ZoneDirection.ROW, size='450px', zones=[
             ui.zone('content_' + str((row * column_count) + column), direction=ui.ZoneDirection.ROW, size='400px') for
             column in range(1, column_count + 1)
         ]) for row in range(0, row_count)]
