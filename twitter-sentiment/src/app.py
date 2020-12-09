@@ -34,7 +34,6 @@ def search_tweets(q: Q):
 def home_content(q: Q):
     # The meta card's 'zones' attribute defines placeholder zones to lay out cards for different viewport sizes.
     # We define four layout schemes here.
-    q.page.drop()
     q.page['twitter_app'] = ui.meta_card(box='', layouts=[
         ui.layout(
             # If the viewport width >= 0:
@@ -52,7 +51,8 @@ def home_content(q: Q):
                     ui.zone('search_button', size='400px', direction=ui.ZoneDirection.ROW),
                 ]),
                 # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='450px', zones=create_twitter_card_slots(12, 1)),
+                ui.zone('body', direction=ui.ZoneDirection.COLUMN, size='450px',
+                        zones=create_twitter_card_slots(12, 1)),
             ]
         ),
         ui.layout(
@@ -124,6 +124,9 @@ def home_content(q: Q):
     q.page["search_button"] = ui.form_card(box=ui.boxes('search_button'), items=[
         ui.button(name="search", label="search", primary=True)])
 
+    for tweet_count in range(1, config.max_tweet_count + 1):
+        q.page[f'twitter_card_{tweet_count}'] = ui.form_card(box=f'content_{tweet_count}', items=[])
+
 
 def create_twitter_card_slots(row_count, column_count):
     return [
@@ -143,6 +146,7 @@ async def initialize_page(q: Q):
         q.client.tweet_analyser.create_auth_handler(q.args.consumer_key, q.args.consumer_secret)
         q.client.tweet_analyser.set_auth_handler_access_token(q.args.access_token, q.args.access_token_secret)
         q.client.tweet_analyser.create_tweepy_api_instance()
+        home_content(q)
         q.client.initialized = True
         q.client.app_initialized = True
 
@@ -150,7 +154,6 @@ async def initialize_page(q: Q):
 
 
 def capture_credentials(q: Q):
-    home_content(q)
     q.page['twitter_app'] = ui.meta_card(box='')
     q.page['twitter_app'].dialog = ui.dialog(title='Twitter Credentials', primary=True, items=[
         ui.markup(name="request_access", visible=True, content=config.ask_for_access_text),
@@ -163,20 +166,19 @@ def capture_credentials(q: Q):
 
 
 async def list_tweets_for_hashtag(q):
-    home_content(q)
     values, text = search_tweets(q)
     tweet_count = 1
 
     for tweet in text:
         popularity_score = values[tweet]
-        q.page[f'wrapper_{tweet_count}'] = ui.form_card(box=f'content_{tweet_count}', items=[
+        q.page[f'twitter_card_{tweet_count}'].items = [
             ui.message_bar(type=f"{derive_sentiment_message_type(popularity_score['compound'])}",
                            text=f"Sentiment - {derive_sentiment_status(popularity_score['compound'])}"),
             ui.text(content=tweet[:200]),
             ui.frame(content=convert_plot_to_html(
                 generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
                 width='100%', height='60%')
-        ])
+        ]
         tweet_count = tweet_count + 1
 
 
