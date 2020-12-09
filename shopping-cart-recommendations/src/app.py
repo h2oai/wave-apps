@@ -113,6 +113,7 @@ async def serve(q: Q):
 
     if q.args.cart_products is not None:
         q.client.cart_products = q.args.cart_products
+
     if q.args.suggestion_btn:
         q.client.cart_products.append(q.args.suggestion_btn)
 
