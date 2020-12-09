@@ -10,48 +10,34 @@ def init_ui(q: Q):
     q.page.drop()
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
-            # If the viewport width >= 0:
             breakpoint='xs',
             zones=[
-                # 80px high header
                 ui.zone('header', size='80px'),
-                # Use remaining space for content
                 ui.zone('cart', size='250px'),
                 ui.zone('trending'),
                 ui.zone('suggestions'),
             ]
         ),
         ui.layout(
-            # If the viewport width >= 768:
             breakpoint='m',
             zones=[
-                # 80px high header
                 ui.zone('header', size='80px'),
-                # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
-                    # 250px wide sidebar
-                    ui.zone('cart', size='250px'),
-                    # Use remaining space for content
+                ui.zone('body', size='1000px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('cart', size='300px'),
                     ui.zone('right-pane', direction=ui.ZoneDirection.COLUMN, zones=[
-                        # 250px wide sidebar
-                        ui.zone('trending'),
+                        ui.zone('trending', size='600px'),
                         ui.zone('suggestions'),
                     ]),
                 ]),
             ]
         ),
         ui.layout(
-            # If the viewport width >= 1200:
             breakpoint='xl',
             width='1600px',
             zones=[
-                # 80px high header
                 ui.zone('header', size='80px'),
-                # Use remaining space for body
-                ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
-                    # 300px wide sidebar
+                ui.zone('body', size='750px', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('cart', size='300px'),
-                    # Use remaining space for other widgets
                     ui.zone('trending'),
                     ui.zone('suggestions'),
                 ])
@@ -76,7 +62,6 @@ def init_data(q: Q):
 
 
 def render_cart(q: Q):
-    # del q.page['cart']
     q.page['cart'] = ui.form_card(
         box='cart',
         items=[
@@ -90,20 +75,6 @@ def render_cart(q: Q):
             ),
         ]
     )
-
-    # q.page.add('cart', ui.form_card(
-    #     box='cart',
-    #     items=[
-    #         ui.separator('Cart'),
-    #         ui.text('Search and add products to the cart'),
-    #         ui.picker(
-    #             name='cart_products_picker',
-    #             choices=[ui.choice(name=str(x), label=str(x)) for x in get_products_list()],
-    #             values=q.client.cart_products,
-    #             trigger=True,
-    #         ),
-    #     ]
-    # ))
 
 
 def render_suggestions(q: Q):
