@@ -6,7 +6,8 @@ from .config import config
 from .utils import get_products_list, get_suggestions, get_trending_products
 
 
-async def initialize_app(q: Q):
+def init_ui(q: Q):
+    q.page.drop()
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
             # If the viewport width >= 0:
@@ -58,11 +59,6 @@ async def initialize_app(q: Q):
         )
     ])
 
-    q.client.cart_products = []  # Products in the initial cart
-
-    q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
-    q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
-
     q.page.add('header', ui.header_card(
         box='header',
         title=config.title,
@@ -72,7 +68,15 @@ async def initialize_app(q: Q):
     ))
 
 
+def init_data(q: Q):
+    q.client.cart_products = []  # Products in the initial cart
+
+    q.client.rule_set = pd.read_csv(config.rule_set).sort_values('profitability', ascending=False)
+    q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
+
+
 def render_cart(q: Q):
+    # del q.page['cart']
     q.page['cart'] = ui.form_card(
         box='cart',
         items=[
@@ -86,6 +90,20 @@ def render_cart(q: Q):
             ),
         ]
     )
+
+    # q.page.add('cart', ui.form_card(
+    #     box='cart',
+    #     items=[
+    #         ui.separator('Cart'),
+    #         ui.text('Search and add products to the cart'),
+    #         ui.picker(
+    #             name='cart_products_picker',
+    #             choices=[ui.choice(name=str(x), label=str(x)) for x in get_products_list()],
+    #             values=q.client.cart_products,
+    #             trigger=True,
+    #         ),
+    #     ]
+    # ))
 
 
 def render_suggestions(q: Q):
@@ -132,8 +150,9 @@ def handle_trending_click(q: Q):
 
 @app('/')
 async def serve(q: Q):
+    q.page.drop()
     if not q.client.initialized:
-        await initialize_app(q)
+        init_data(q)
         q.client.initialized = True
 
     if q.args.cart_products_picker is not None:
@@ -145,6 +164,7 @@ async def serve(q: Q):
     if q.args.trending_btn:
         handle_trending_click(q)
 
+    init_ui(q)
     render_cart(q)
     render_suggestions(q)
     render_trending(q)
