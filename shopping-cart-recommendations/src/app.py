@@ -123,4 +123,5 @@ async def serve(q: Q):
     update_cart(q)
     render_suggestions(q)
     render_trending(q)
+
     await q.page.save()
