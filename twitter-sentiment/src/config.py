@@ -15,7 +15,7 @@ class Configuration:
         self.icon = "UpgradeAnalysis"
 
         self.boxes = {
-            "banner": "1 1 12 1",
+            "banner": "1 1 -1 1",
             "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
             "search_click": "11 2 2 1",
