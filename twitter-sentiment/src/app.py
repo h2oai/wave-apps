@@ -175,7 +175,7 @@ async def list_tweets_for_hashtag(q):
             ui.text(content=tweet[:200]),
             ui.frame(content=convert_plot_to_html(
                 generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
-                width='280px', height='280px')
+                width='100%', height='60%')
         ])
         tweet_count = tweet_count + 1
 
