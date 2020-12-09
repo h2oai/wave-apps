@@ -121,7 +121,6 @@ def handle_trending_click(q: Q):
 
 @app('/')
 async def serve(q: Q):
-    q.page.drop()
     if not q.client.initialized:
         init_data(q)
         q.client.initialized = True
