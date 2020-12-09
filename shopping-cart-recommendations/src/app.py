@@ -62,7 +62,7 @@ def init_ui(q: Q):
             ui.picker(
                 name='cart_products',
                 choices=[ui.choice(name=str(x), label=str(x)) for x in get_products_list()],
-                values=q.args.cart_products,
+                values=q.client.cart_products,
                 trigger=True,
             ),
         ]
@@ -76,13 +76,8 @@ def init_data(q: Q):
     q.client.rule_set.consequents = q.client.rule_set.consequents.apply(lambda x: list(eval(x))[0])
 
 
-def render_cart(q: Q):
-    q.page['cart'].items[2] = ui.picker(
-        name='cart_products',
-        choices=[ui.choice(name=str(x), label=str(x)) for x in get_products_list()],
-        values=q.args.cart_products,
-        trigger=True,
-    )
+def update_cart(q: Q):
+    q.page['cart'].items[2].picker.values = q.client.cart_products
 
 
 def render_suggestions(q: Q):
@@ -124,7 +119,7 @@ async def serve(q: Q):
     if q.args.trending_btn:
         q.client.cart_products.append(q.args.trending_btn)
 
-    render_cart(q)
+    update_cart(q)
     render_suggestions(q)
     render_trending(q)
     await q.page.save()
