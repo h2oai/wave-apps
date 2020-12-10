@@ -33,23 +33,6 @@ def get_transformed_df_rows(q: Q, df):
 
 
 def render_customer_details_table(q: Q, df, row):
-    # q.page["risk_table_row"] = ui.form_card(
-    #     box='risk_table_selected',
-    #     items=[
-    #     ui.table(
-    #         name='risk_table_row',
-    #         columns=[
-    #             ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
-    #             ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
-    #         ],
-    #         rows=get_transformed_df_rows(q, df.loc[[row]]),
-    #         groupable=False,
-    #         resettable=False,
-    #         multiple=False,
-    #         height='100%'
-    #     )
-    # ])
-
     q.page.add('risk_table_row', ui.form_card(
         box='risk_table_selected',
         items=[
@@ -106,28 +89,6 @@ def handle_reject_click(q: Q):
 
 def show_customer_page(q: Q):
     q.page.drop()
-    # page = q.page['meta']
-    # page.layouts = [
-    #     ui.layout(
-    #         breakpoint='xl',
-    #         width='1600px',
-    #         zones=[
-    #             ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
-    #                 ui.zone('title', size='400px'),
-    #                 ui.zone('menu'),
-    #             ]),
-    #             ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
-    #                 ui.zone('risk_table_selected', size='200px'),
-    #                 ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
-    #                     ui.zone('risk_explanation', size='100px'),
-    #                     ui.zone('shap_plot'),
-    #                     ui.zone('button_group'),
-    #                 ])
-    #             ]),
-    #         ]
-    #     )
-    # ]
-
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
             breakpoint='xl',
@@ -141,7 +102,7 @@ def show_customer_page(q: Q):
                 ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('risk_table_selected', size='400px'),
                     ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
-                        ui.zone('risk_explanation', size='200px'),
+                        ui.zone('risk_explanation', size='150px'),
                         ui.zone('shap_plot'),
                     ])
                 ]),

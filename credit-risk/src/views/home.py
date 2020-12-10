@@ -29,21 +29,6 @@ def get_rows(q: Q, df):
 
 def load_home(q: Q):
     q.page.drop()
-    # page = q.page['meta']
-    # page.layouts = [
-    #     ui.layout(
-    #         breakpoint='xl',
-    #         width='1600px',
-    #         zones=[
-    #             ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
-    #                 ui.zone('title', size='400px'),
-    #                 ui.zone('menu'),
-    #             ]),
-    #             ui.zone('risk_table'),
-    #         ]
-    #     )
-    # ]
-
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
             breakpoint='xl',

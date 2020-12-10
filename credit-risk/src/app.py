@@ -16,12 +16,7 @@ async def serve(q: Q):
         q.app.initialized = True
 
     if q.args.risk_table:
-        # TODO: This is a temporary solution until spinner component available.
-        #  https://github.com/h2oai/wave/issues/323
-        # q.page["loading_predictions"] = ui.form_card(box="1 2 -1 -1", items=[ui.progress(label="Loading predictions")])
-        # await q.page.save()
         show_customer_page(q)
-        # del q.page["loading_predictions"]
     elif q.args.approve_btn:
         handle_approve_click(q)
         load_home(q)
