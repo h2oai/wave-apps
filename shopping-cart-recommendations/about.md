@@ -1,11 +1,11 @@
 ### App Goal
-Provide product suggestions to user based on the products already in the cart. 
+Show how a recommendation model could be used for an online shopping cart.
 
-### Target Audience:
-Application Developers
+### Target Audience
+Application Developers & Marketing
 
 ### Industry
-Retail Industry 
+Retail 
 
 ### GitHub
 https://github.com/h2oai/wave-apps/tree/main/shopping-cart-recommendations
