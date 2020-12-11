@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
 from typing import Dict, List
 
@@ -10,7 +10,6 @@ from h2o_wave import Q, app, main, ui  # noqa
 @dataclass
 class WaveColors:
     # Colors from Wave default Theme.
-    # https://github.com/h2oai/wave/blob/4ec0f6a6a2b8f43f11cdb557ba35a540ad23c13c/ui/src/theme.ts#L86
     red: str = '#F44336'
     pink: str = '#E91E63'
     purple: str = '#9C27B0'
@@ -32,22 +31,6 @@ class WaveColors:
 
 
 @dataclass
-class WhiteSpace:
-    # https://qwerty.dev/whitespace/
-    zero_width: str = '​'
-    hair: str = ' '
-    six_per_em: str = ' '
-    thin: str = ' '
-    punctuation: str = ' '
-    four_per_em: str = ' '
-    three_per_em: str = ' '
-    figure: str = ' '
-    en: str = ' '
-    em: str = ' '
-    braille: str = '⠀'
-
-
-@dataclass
 class Game:
     player_id: str
     is_public: bool = field(default=False)
@@ -57,6 +40,7 @@ class Game:
     start_time: datetime = field(init=False)
     end_time: datetime = field(init=False)
     guesses: List[int] = field(init=False, default_factory=list)
+    guess_times: List[timedelta] = field(init=False, default_factory=list)
 
     def __post_init__(self):
         self.game_id = str(uuid.uuid4())
@@ -67,10 +51,11 @@ class Game:
 
     def guess(self, value: int) -> str:
         self.guesses.append(value)
+        self.guess_times.append(datetime.now() - self.start_time)
         if value < self.number:
-            return 'Go Higher'
+            return 'Go Higher 👍'
         elif value > self.number:
-            return 'Go Lower'
+            return 'Go Lower 👎'
         self.end_time = datetime.now()
         self.status = 'done'
         return 'You Got It!'
@@ -92,7 +77,9 @@ class Game:
         return time_str
 
     def time_seconds(self):
-        duration = self.end_time - self.start_time
+        if not self.guess_times:
+            return 0
+        duration = self.guess_times[-1]
         return round(duration.seconds + duration.microseconds / 1e6, 4)
 
 
@@ -121,14 +108,13 @@ class Player:
 
 
 async def start_new_game(q: Q):
-    q.client.game = Game(q.client.player.player_id)
+    q.client.game = Game(q.user.player.player_id)
     q.user.player.games[q.client.game.game_id] = q.client.game
 
     q.page['starting_game'] = ui.form_card(
         box='4 4 3 3',
         items=[
             ui.text_l('I am thinking of a number between 1 and 100'),
-            ui.text_xs('⠀'),
             ui.text_m('can you guess what it is?'),
             ui.text_xs('⠀'),
             ui.slider(
@@ -136,8 +122,13 @@ async def start_new_game(q: Q):
                 label='your guess',
                 min=1,
                 max=100,
-                value=randint(1, 100),
+                value=100,
                 trigger=True,
+            ),
+            ui.text_xs('⠀'),
+            ui.buttons(
+                items=[ui.button(name='quit_game', label='Quit', primary=True)],
+                justify='center',
             ),
         ],
     )
@@ -157,10 +148,10 @@ async def make_base_ui(q):
 
 
 async def make_welcome_card(q):
-    q.page['start'] = ui.form_card(
+    q.page['hello'] = ui.form_card(
         box='4 4 3 3',
         items=[
-            ui.text_l(f'Hello {q.client.player.first.title()},'),
+            ui.text_l(f'Hello {q.user.player.first.title()},'),
             ui.text_xs('⠀'),
             ui.text_m('Do you want to play a guessing game?'),
             ui.text_xs('⠀'),
@@ -180,7 +171,7 @@ async def make_player_card(q: Q):
     q.page['player'] = ui.small_stat_card(
         box='4 1 6 1',
         title='Player Name',
-        value=f'{q.client.player.first} {q.client.player.last}'.title(),
+        value=f'{q.user.player.first} {q.user.player.last}'.title(),
     )
     await q.page.save()
 
@@ -194,6 +185,7 @@ async def show_leaderboard(q: Q):
             searchable=False,
             max_width='230',
             data_type='string',
+            link=False,
         ),
         ui.table_column(
             name='number',
@@ -244,10 +236,99 @@ async def show_leaderboard(q: Q):
         items=[
             ui.label('Scores'),
             leaderboard,
+            ui.text_xs('⠀'),
             ui.buttons(
                 items=[
                     ui.button(name='start_game', label='Play', primary=True),
                     ui.button(name='leaderboard', label='Refresh', primary=True),
+                    ui.button(
+                        name='private_leaderboard',
+                        label='Show my games only',
+                        primary=True,
+                    ),
+                ],
+                justify='center',
+            ),
+        ],
+    )
+    await q.page.save()
+
+
+async def show_private_leaderboard(q: Q):
+    columns = [
+        ui.table_column(
+            name='game_id',
+            label='Game #',
+            sortable=False,
+            searchable=False,
+            max_width='150',
+            data_type='string',
+            link=False,
+        ),
+        ui.table_column(
+            name='number',
+            label='Number',
+            sortable=True,
+            max_width='90',
+            data_type='number',
+        ),
+        ui.table_column(
+            name='num_of_guesses',
+            label='# of Guesses',
+            sortable=True,
+            max_width='120',
+            data_type='number',
+        ),
+        ui.table_column(
+            name='status',
+            label='Status',
+            sortable=False,
+            filterable=True,
+            max_width='90',
+            data_type='string',
+            cell_type=ui.icon_table_cell_type(),
+        ),
+        ui.table_column(
+            name='game_time',
+            label='Time (s)',
+            sortable=True,
+            max_width='150',
+            data_type='number',
+        ),
+    ]
+    scores = [
+        ui.table_row(
+            name=game.game_id,
+            cells=[
+                str(idx),
+                str(game.number),
+                str(len(game.guesses)),
+                'MedalSolid' if game.status == 'done' else 'Running',
+                str(game.time_seconds()),
+            ],
+        )
+        for idx, game in enumerate(q.user.player.games.values(), 1)
+    ]
+    leaderboard = ui.table(
+        name='leaderboard',
+        columns=columns,
+        rows=scores,
+        groupable=False,
+        downloadable=False,
+        resettable=False,
+        height='600px',
+    )
+    del q.page['starting_game']
+    q.page['leaderboard'] = ui.form_card(
+        box='3 2 5 9',
+        items=[
+            ui.label('Scores from your games'),
+            leaderboard,
+            ui.text_xs('⠀'),
+            ui.buttons(
+                items=[
+                    ui.button(name='start_game', label='Play', primary=True),
+                    ui.button(name='leaderboard', label='Show all games', primary=True),
                 ],
                 justify='center',
             ),
@@ -272,7 +353,6 @@ def user_initialize(q: Q):
 
 async def client_initialize(q: Q):
     if not q.client.initialized:
-        q.client.player = q.user.player
         await make_base_ui(q)
         await make_player_card(q)
         await make_welcome_card(q)
@@ -285,13 +365,18 @@ async def run_app(q: Q):
             q.client.game.is_public = True
             q.app.games[q.client.game.game_id] = q.client.game
         del q.page['leaderboard']
+        del q.page['hello']
         await start_new_game(q)
+    elif q.args.quit_game:
+        del q.page['starting_game']
+        await make_welcome_card(q)
     elif q.args.guess:
         message = q.client.game.guess(q.args.guess)
-        print('message')
         if message == 'You Got It!':
             q.page['starting_game'].items = [
-                ui.text_l(f'You Got It!  The number is **{q.client.game.number}**'),
+                ui.text_l(
+                    f'🏅 🎉 🎂 You Got It, The number is **{q.client.game.number}**'
+                ),
                 ui.text_m(
                     f'You made **{len(q.client.game.guesses)}** guesses in'  # noqa
                 ),
@@ -326,7 +411,6 @@ async def run_app(q: Q):
             guesses_str = ", ".join(previous_guesses)
             q.page['starting_game'].items = [
                 ui.text_l(message),
-                ui.text_xs('⠀'),
                 ui.text_m(guesses_str),
                 ui.text_xs('⠀'),
                 ui.slider(
@@ -337,12 +421,20 @@ async def run_app(q: Q):
                     value=q.args.guess,
                     trigger=True,
                 ),
+                ui.text_xs('⠀'),
+                ui.buttons(
+                    items=[ui.button(name='quit_game', label='Quit', primary=True)],
+                    justify='center',
+                ),
             ]
     elif q.args.leaderboard:
         if q.args.submit_game:
             q.client.game.is_public = True
             q.app.games[q.client.game.game_id] = q.client.game
+        del q.page['starting_game']
         await show_leaderboard(q)
+    elif q.args.private_leaderboard:
+        await show_private_leaderboard(q)
 
     await q.page.save()
 

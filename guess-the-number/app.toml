@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.h2o-guess-the-number"
-Version = "0.1.0"
+Version = "0.2.0"
 Title = "Guess The Number"
 Description = "A simple game to learn the difference between q.app, q.user, and q.client in Wave"
 LongDescription = "about.md"
