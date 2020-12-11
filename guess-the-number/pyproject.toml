@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "guess-the-number"
+version = "0.2.0"
+license = "Proprietary"
+description = "A simple game to learn the difference between q.app, q.user, and q.client in Wave"
+authors = ["srini-x <srini-x@users.noreply.github.com>"]
+readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: Other/Proprietary License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+h2o-wave = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+pytest = { version = "^6.1.2", allow-prereleases = true }
+pylint = { version = "^2.6.0", allow-prereleases = true }
+flake8 = { version = "^3.8.4", allow-prereleases = true }
+black = { version = "^20.8b1", allow-prereleases = true }
+isort = { version = "^5.6.4", allow-prereleases = true }
+darker = { version = "^1.2.0", allow-prereleases = true }
+dephell = { version = "^0.8.3", allow-prereleases = true }
+jupyterlab = { version = "^2.2.9", allow-prereleases = true }
+
+[tool.black]
+line-length = 88
+skip-string-normalization = true
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | notebooks
+)
+'''
+
+[tool.isort]
+line_length = 88
+multi_line_output = 3
+
+[tool.dephell.main]
+from = { format = "poetry", path = "pyproject.toml" }
+to = { format = "setuppy", path = "setup.py" }
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

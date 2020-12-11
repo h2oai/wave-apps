@@ -1,0 +1,46 @@
+{
+  "python.languageServer": "Pylance",
+
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.memory.keepLibraryAst": true,
+
+  "vsintellicode.python.completionsEnabled": true,
+  "vsintellicode.features.python.deepLearning": "enabled",
+
+  "python.autoComplete.showAdvancedMembers": true,
+
+  "python.workspaceSymbols.enabled": true,
+  "python.workspaceSymbols.rebuildOnFileSave": true,
+
+  "python.linting.enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintPath": "pylint",
+  "python.linting.pylintUseMinimalCheckers": false,
+  "python.linting.flake8Enabled": true,
+
+  "python.testing.unittestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestPath": "pytest",
+  "python.testing.pytestArgs": ["tests"],
+
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "black",
+  "python.formatting.blackArgs": ["--line-length", "88"],
+
+  "jupyter.searchForJupyter": false,
+
+  "editor.formatOnSave": true,
+  "editor.rulers": [88],
+  "editor.maxTokenizationLineLength": 1000000,
+  "cSpell.words": ["asdict", "expando", "noqa"],
+
+  "files.watcherExclude": {
+    "**/local": true,
+    "**/notebooks": true
+  },
+  "restructuredtext.confPath": "",
+  "workbench.colorTheme": "Gruvbox Material Dark"
+}
