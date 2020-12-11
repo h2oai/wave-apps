@@ -1,8 +1,35 @@
 from h2o_wave import Q, ui
 
 from .header import render_header
-from ..config import config, predictor
+from ..config import predictor
 from ..utils import add_column_to_df, drop_column_from_df, round_df_column
+
+
+def init(q: Q):
+    q.page.drop()
+    q.page['meta'] = ui.meta_card(box='', layouts=[
+        ui.layout(
+            breakpoint='xs',
+            zones=[
+                ui.zone('title', size='80px'),
+                ui.zone('menu', size='80px'),
+                ui.zone('risk_table'),
+            ]
+        ),
+        ui.layout(
+            breakpoint='m',
+            width='1920px',
+            zones=[
+                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('title', size='400px'),
+                    ui.zone('menu'),
+                ]),
+                ui.zone('risk_table'),
+            ]
+        )
+    ])
+
+    render_header(q)
 
 
 def get_column_headers_for_df(df, searchable):
@@ -28,30 +55,7 @@ def get_rows(q: Q, df):
 
 
 def load_home(q: Q):
-    q.page.drop()
-    q.page['meta'] = ui.meta_card(box='', layouts=[
-        ui.layout(
-            breakpoint='xs',
-            zones=[
-                ui.zone('title', size='80px'),
-                ui.zone('menu', size='80px'),
-                ui.zone('risk_table'),
-            ]
-        ),
-        ui.layout(
-            breakpoint='m',
-            width='1920px',
-            zones=[
-                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('title', size='400px'),
-                    ui.zone('menu'),
-                ]),
-                ui.zone('risk_table'),
-            ]
-        )
-    ])
-
-    render_header(q)
+    init(q)
 
     df = predictor.get_testing_data_as_pd_frame()
     predicted_df = predictor.get_predict_data_as_pd_frame()

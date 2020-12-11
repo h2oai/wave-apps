@@ -1,6 +1,5 @@
 from h2o_wave import app, Q, ui, main
 
-from .config import config
 from .views.home import load_home
 from .views.customer import show_customer_page, handle_approve_click, handle_reject_click
 

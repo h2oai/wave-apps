@@ -7,31 +7,18 @@ class Configuration:
     """
 
     def __init__(self):
-        self.color = "Maroon"
-        self.total_gauge_color = "#FF0102"
-        self.image_path = "static/icon.png"
+        self.title = "Credit Card Risk"
+        self.subtitle = "Prediction on customer ability to pay credit card bills"
+        self.icon = "PaymentCard"
+        self.icon_color = "Maroon"
 
         self.default_model = "credit_risk_model"
 
         self.id_column = "ID"
         self.y_col = "default.payment.next.month"
 
-        self.title = "Credit Card Risk"
-        self.subtitle = "Prediction on customer ability to pay credit card bills"
-        self.icon = "PaymentCard"
-
         self.training_data_url = "./data/Kaggle/CreditCard-train.csv"
         self.testing_data_url = "./data/Kaggle/CreditCard-train.csv"
-
-        self.boxes = {
-            "banner": "1 1 3 1",
-            "navbar": "4 1 -1 1",
-            "risk_table": "1 2 -1 -1",
-            "risk_explanation": "3 2 -1 2",
-            "risk_table_selected": "1 2 2 11",
-            "shap_plot": "3 4 -1 8",
-            "button_group": "3 12 -1 1",
-        }
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
         self.approval_threshold = 0.35

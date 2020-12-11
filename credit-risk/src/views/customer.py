@@ -6,6 +6,61 @@ from ..plots import get_image_from_matplotlib
 from ..utils import add_column_to_df, drop_column_from_df, round_df_column
 
 
+def init(q: Q):
+    q.page.drop()
+    q.page['meta'] = ui.meta_card(box='', layouts=[
+        ui.layout(
+            breakpoint='xs',
+            zones=[
+                ui.zone('title', size='80px'),
+                ui.zone('menu', size='80px'),
+                ui.zone('risk_table_selected', size='400px'),
+                ui.zone('risk_explanation', size='150px'),
+                ui.zone('shap_plot', size='600px'),
+                ui.zone('button_group', size='80px'),
+            ]
+        ),
+        ui.layout(
+            breakpoint='m',
+            width='1920px',
+            zones=[
+                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('title', size='400px'),
+                    ui.zone('menu'),
+                    ui.zone('button_group', size='200px'),
+                ]),
+                ui.zone('body', size='900px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('risk_table_selected', size='400px'),
+                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                        ui.zone('risk_explanation', size='150px'),
+                        ui.zone('shap_plot'),
+                    ])
+                ]),
+            ]
+        ),
+        ui.layout(
+            breakpoint='xl',
+            width='1920px',
+            zones=[
+                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('title', size='400px'),
+                    ui.zone('menu'),
+                    ui.zone('button_group', size='200px'),
+                ]),
+                ui.zone('body', size='1200px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('risk_table_selected', size='400px'),
+                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                        ui.zone('risk_explanation', size='150px'),
+                        ui.zone('shap_plot'),
+                    ])
+                ]),
+            ]
+        )
+    ])
+
+    render_header(q)
+
+
 def get_customer_status(q):
     status = "Pending"
     customer_status = q.app.customer_status.get(q.client.selected_customer_id)
@@ -88,58 +143,7 @@ def handle_reject_click(q: Q):
 
 
 def show_customer_page(q: Q):
-    q.page.drop()
-    q.page['meta'] = ui.meta_card(box='', layouts=[
-        ui.layout(
-            breakpoint='xs',
-            zones=[
-                ui.zone('title', size='80px'),
-                ui.zone('menu', size='80px'),
-                ui.zone('risk_table_selected', size='400px'),
-                ui.zone('risk_explanation', size='150px'),
-                ui.zone('shap_plot', size='600px'),
-                ui.zone('button_group', size='80px'),
-            ]
-        ),
-        ui.layout(
-            breakpoint='m',
-            width='1920px',
-            zones=[
-                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('title', size='400px'),
-                    ui.zone('menu'),
-                    ui.zone('button_group', size='200px'),
-                ]),
-                ui.zone('body', size='900px', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('risk_table_selected', size='400px'),
-                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
-                        ui.zone('risk_explanation', size='150px'),
-                        ui.zone('shap_plot'),
-                    ])
-                ]),
-            ]
-        ),
-        ui.layout(
-            breakpoint='xl',
-            width='1920px',
-            zones=[
-                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('title', size='400px'),
-                    ui.zone('menu'),
-                    ui.zone('button_group', size='200px'),
-                ]),
-                ui.zone('body', size='1200px', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('risk_table_selected', size='400px'),
-                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
-                        ui.zone('risk_explanation', size='150px'),
-                        ui.zone('shap_plot'),
-                    ])
-                ]),
-            ]
-        )
-    ])
-
-    render_header(q)
+    init(q)
 
     selected_row = q.args.risk_table[0]
     training_df = predictor.get_testing_data_as_pd_frame()

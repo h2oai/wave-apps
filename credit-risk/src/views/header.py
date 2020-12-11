@@ -9,7 +9,7 @@ def render_header(q: Q):
         title=config.title,
         subtitle=config.subtitle,
         icon=config.icon,
-        icon_color=config.color,
+        icon_color=config.icon_color,
     )
 
     q.page["menu"] = ui.breadcrumbs_card(
