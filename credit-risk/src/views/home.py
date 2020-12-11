@@ -31,7 +31,15 @@ def load_home(q: Q):
     q.page.drop()
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
-            breakpoint='xl',
+            breakpoint='xs',
+            zones=[
+                ui.zone('title', size='80px'),
+                ui.zone('menu', size='80px'),
+                ui.zone('risk_table'),
+            ]
+        ),
+        ui.layout(
+            breakpoint='m',
             width='1920px',
             zones=[
                 ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[

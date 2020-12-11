@@ -91,6 +91,35 @@ def show_customer_page(q: Q):
     q.page.drop()
     q.page['meta'] = ui.meta_card(box='', layouts=[
         ui.layout(
+            breakpoint='xs',
+            zones=[
+                ui.zone('title', size='80px'),
+                ui.zone('menu', size='80px'),
+                ui.zone('risk_table_selected', size='400px'),
+                ui.zone('risk_explanation', size='150px'),
+                ui.zone('shap_plot', size='600px'),
+                ui.zone('button_group', size='80px'),
+            ]
+        ),
+        ui.layout(
+            breakpoint='m',
+            width='1920px',
+            zones=[
+                ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('title', size='400px'),
+                    ui.zone('menu'),
+                    ui.zone('button_group', size='200px'),
+                ]),
+                ui.zone('body', size='900px', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('risk_table_selected', size='400px'),
+                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                        ui.zone('risk_explanation', size='150px'),
+                        ui.zone('shap_plot'),
+                    ])
+                ]),
+            ]
+        ),
+        ui.layout(
             breakpoint='xl',
             width='1920px',
             zones=[
@@ -99,7 +128,7 @@ def show_customer_page(q: Q):
                     ui.zone('menu'),
                     ui.zone('button_group', size='200px'),
                 ]),
-                ui.zone('body', direction=ui.ZoneDirection.ROW, zones=[
+                ui.zone('body', size='1200px', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('risk_table_selected', size='400px'),
                     ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
                         ui.zone('risk_explanation', size='150px'),
