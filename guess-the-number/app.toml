@@ -1,0 +1,11 @@
+[App]
+Name = "ai.h2o.wave.h2o-guess-the-number"
+Version = "0.1.0"
+Title = "Guess The Number"
+Description = "A simple game to learn the difference between `q.app`, `q.user`, and `q.client` in Wave"
+LongDescription = "about.md"
+Category = "Other"
+Keywords = ["wave", "wave apps"]
+
+[Runtime]
+Module = "guess_the_number.guess"
