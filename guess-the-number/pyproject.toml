@@ -2,7 +2,7 @@
 name = "guess-the-number"
 version = "0.1.0"
 license = "Proprietary"
-description = "A simple game to learn the difference between `q.app`, `q.user`, and `q.client` in Wave"
+description = "A simple game to learn the difference between q.app, q.user, and q.client in Wave"
 authors = ["srini-x <srini-x@users.noreply.github.com>"]
 readme = "README.md"
 classifiers = [
