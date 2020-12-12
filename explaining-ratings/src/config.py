@@ -20,8 +20,8 @@ class Configuration:
         self.filterable_columns = ['categories', 'city', 'country', 'postalCode', 'province',
                                    'reviews.rating', 'reviews.userCity', 'reviews.userProvince']
         self.column_mapping = {
-            'reviews.title': 'Title',
-            'reviews.text': 'Body',
+            'reviews.title': 'Review Title',
+            'reviews.text': 'Review Description',
             'categories': 'Categories',
             'city': 'City',
             'country': 'Country',
@@ -38,12 +38,13 @@ class Configuration:
             "left_panel": "1 2 3 2",
             "new_filter": "1 4 3 1",
             "filters": "1 5 3 -1",
-            "middle_panel": "4 2 4 9",
-            "right_panel": "8 2 5 9",
+            "middle_panel": "4 2 4 -1",
+            "right_panel": "8 2 5 -1",
         }
 
     def init_dataset(self, refresh=False):
         if refresh or self.dataset is None:
-            df = pd.read_csv(self.training_path).head(40)
+            df = pd.read_csv(self.training_path).head(50)
+            df.dropna(subset=self.filterable_columns, inplace=True)
             df['reviews.rating'] = df['reviews.rating'].astype(int)
             self.dataset = df

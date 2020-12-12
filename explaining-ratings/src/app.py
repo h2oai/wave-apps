@@ -13,13 +13,12 @@ def render_home(q: Q):
         ui.text_xl("Hotel Reviews"),
         ui.dropdown(
             name="reviews",
-            label="Select field",
+            label="Choose a review type",
             placeholder=config.column_mapping[q.client.review] if q.client.review else "please select a review type",
             choices=[
                 ui.choice(name=column, label=config.column_mapping[column])
                 for column in config.dataset[config.review_column_list]
             ],
-            tooltip="Please select the rating option to analyse",
             trigger=True,
         ),
     ])
@@ -40,24 +39,22 @@ def populate_dropdown_list(q: Q):
         for attr, attr_val in value.items():
             items.append(ui.dropdown(
                 name="filter",
-                label="Select filter",
-                placeholder=attr,
+                label="Choose a review attribute",
+                placeholder=config.column_mapping[attr],
                 choices=[
                     ui.choice(
                         name=json.dumps({'id': key, 'attr': column, 'attr_val': None}),
                         label=config.column_mapping[column]
                     ) for column in config.filterable_columns
                 ],
-                tooltip="Please select a category to filter",
                 trigger=True,
             ), )
             items.append(ui.dropdown(
                 name="filter_value",
-                label="Select a value",
+                label="Choose a value for selected review attribute",
                 placeholder=attr_val,
                 choices=[ui.choice(name=json.dumps({'id': key, 'attr': attr, 'attr_val': column}), label=column) for
                          column in config.dataset[attr].drop_duplicates()],
-                tooltip="Please select a value to filter",
                 trigger=True,
             ), )
             items.append(ui.separator())
@@ -65,10 +62,9 @@ def populate_dropdown_list(q: Q):
     if (q.args.add_filter and all(q.client.filters.values())) or q.args.reviews or q.args.reset_filters:
         items.append(ui.dropdown(
             name="filter",
-            label="Select filter",
+            label="Choose a review attribute",
             placeholder="Please select a category to filter",
             choices=filter_choices,
-            tooltip="Please select a category to filter",
             trigger=True
         ), )
 
@@ -110,7 +106,7 @@ def get_text_word_cloud_plot(q: Q):
 def render_text_word_cloud_image(q: Q, image):
     q.page['all'] = ui.image_card(
         box=config.boxes['middle_panel'],
-        title='All',
+        title=f'Word Cloud of the {config.column_mapping[q.client.review]}',
         type='png',
         image=image,
     )
@@ -121,7 +117,7 @@ def render_all_text_word_cloud(q: Q):
 
     q.page['all'] = ui.image_card(
         box=config.boxes['middle_panel'],
-        title='All',
+        title=f'Word Cloud of the {config.column_mapping[q.client.review]}',
         type='png',
         image=image,
     )
@@ -135,7 +131,7 @@ def render_compare_word_cloud(q: Q):
 
         q.page['compare'] = ui.image_card(
             box=config.boxes['right_panel'],
-            title='Compare',
+            title='Word Cloud based on the selected filters',
             type='png',
             image=image,
         )
