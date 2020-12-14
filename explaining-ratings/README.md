@@ -3,6 +3,10 @@
 This application allows users to build word clouds on the hotel reviews texts. 
 It further allows the users to filter reviews and compare the word clouds. 
 
+### Screenshots from App
+
+![Explaining Ratings App Screenshot](docs/screenshots/explain-text-app.png)
+
 ## Developer Guide 
 
 ### Prerequisite 
