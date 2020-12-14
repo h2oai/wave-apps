@@ -3,7 +3,7 @@
 This application allows users to explore the [Kaggle Churn Data](https://www.kaggle.com/c/churn-analytics-bda/data) 
 to understand more about when and why customers are churning. 
 
-## Screenshots from App
+### Screenshots from App
 
 ![Chrun App Screenshot - 1](docs/screenshots/Churn%20app%20-%201.png)
 ![Chrun App Screenshot - 2](docs/screenshots/Churn%20app%20-2.png)
