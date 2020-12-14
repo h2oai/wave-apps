@@ -11,19 +11,9 @@ setup: ## Create venv and install dependencies on it
 	./venv/bin/pip install -U pip
 	./venv/bin/pip install wheel
 	./venv/bin/pip install -r requirements.txt
-	./venv/bin/pip install -r requirements.test.txt
-	./venv/bin/pip install -r requirements.dev.txt
 
 install: ## Install dependencies on active python environment
 	pip install -r requirements.txt
-	pip install -r requirements.test.txt
-	pip install -r requirements.dev.txt
-
-test:
-	pytest test/unit
-
-test-cov:
-	pytest --cov=src --cov-report html --junit-xml=unit-test-report.xml --html=unit-test-report/index.html
 
 clean: ## Clean
 	rm -rf dist venv *.whl *.qz
