@@ -6,11 +6,11 @@ This application allows credit card issuers to review and approve credit card ap
 
 #### Home page
 
-![Credit Risk App Screenshot - Home Page](docs/screenshots/Credit%20Risk%20-%20Home%20Page.png)
+![Credit Risk App Screenshot - Home Page](docs/screenshots/credit-risk-home-page.png)
 
 #### Customer Page 
 
-![Credit Risk App Screenshot - Customer Page](docs/screenshots/Credit%20Risk%20-%20Customer%20Page.png)
+![Credit Risk App Screenshot - Customer Page](docs/screenshots/credit-risk-customer-page.png)
 
 ## Developer Guide 
 
