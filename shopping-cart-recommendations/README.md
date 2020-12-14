@@ -2,6 +2,10 @@
 
 Provide product suggestions based on user's active cart using market basket analysis. 
 
+### Screenshots from App
+
+![Shopping Cart Recommendations App Screenshot](docs/screenshots/shopping-app.png)
+
 ## Developer Guide 
 
 ### Prerequisite 
