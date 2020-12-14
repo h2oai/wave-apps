@@ -1,6 +1,13 @@
 # Wave Telecom Customer Churn Application
 
-This application allows users to explore the [Kaggle Churn Data](https://www.kaggle.com/c/churn-analytics-bda/data) to understand more about when and why customers are churning. 
+This application allows users to explore the [Kaggle Churn Data](https://www.kaggle.com/c/churn-analytics-bda/data) 
+to understand more about when and why customers are churning. 
+
+## Screenshots from App
+
+![Chrun App Screenshot - 1](./static/screenshots/Churn%20app%20-%201.png)
+![Chrun App Screenshot - 2](./static/screenshots/Churn%20app%20-2.png)
+![Chrun App Screenshot - 3](./static/screenshots/Churn%20app%20-%203.png)
 
 ## Developer Guide 
 
