@@ -1,7 +1,7 @@
 from h2o_wave import app, Q, ui, main
 
-from .views.home import load_home
-from .views.customer import show_customer_page, handle_approve_click, handle_reject_click
+from .views.home import render_home
+from .views.customer import render_customer_page, handle_approve_click, handle_reject_click
 
 
 def init(q: Q):
@@ -15,14 +15,14 @@ async def serve(q: Q):
         q.app.initialized = True
 
     if q.args.risk_table:
-        show_customer_page(q)
+        render_customer_page(q)
     elif q.args.approve_btn:
         handle_approve_click(q)
-        load_home(q)
+        render_home(q)
     elif q.args.reject_btn:
         handle_reject_click(q)
-        load_home(q)
+        render_home(q)
     else:
-        load_home(q)
+        render_home(q)
 
     await q.page.save()

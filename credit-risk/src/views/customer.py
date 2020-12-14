@@ -142,7 +142,7 @@ def handle_reject_click(q: Q):
     customer_status[q.client.selected_customer_id] = 'BoxMultiplySolid'
 
 
-def show_customer_page(q: Q):
+def render_customer_page(q: Q):
     init(q)
 
     selected_row = q.args.risk_table[0]

@@ -54,7 +54,7 @@ def get_rows(q: Q, df):
     return rows
 
 
-def load_home(q: Q):
+def render_home(q: Q):
     init(q)
 
     df = predictor.get_testing_data_as_pd_frame()
