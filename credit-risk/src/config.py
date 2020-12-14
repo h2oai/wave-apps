@@ -21,7 +21,7 @@ class Configuration:
         self.testing_data_url = "./data/Kaggle/CreditCard-train.csv"
 
         self.figure_config = {"scrollZoom": False, "displayModeBar": None}
-        self.approval_threshold = 0.35
+        self.approval_threshold = 0.35  # This prediction threshold could be optimized per model but it is hard coded for this example.
 
 
 config = Configuration()
