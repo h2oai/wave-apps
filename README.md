@@ -16,18 +16,6 @@ Follow the instructions [here](https://h2oai.github.io/wave/docs/installation) t
 
 
 
-### [Getting Started with Images](getting-started-with-images/README.md)
-
-**Details:** The app teaches you how to build an image-hello-world model using the MNIST dataset and view the images with the highest error.
-
-
-
-### [Getting Started with NLP](getting-started-with-nlp/README.md)
-
-**Details:** A language generation application which takes text from a user and appends new, predictive text. This is a demo application for app devs to learn how to use third-party best in breed NLP models in their apps. This could evolve into a chat bot. 
-
-
-
 ### [Guess the Number](guess-the-number/README.md)
 
 **Details:** This a game where the machine "thinks" of a number and the human has to guess, getting told higher or lower. This application has a leader board where different users can compete to see who can guess numbers in the fewest number of turns, on average. This application teaches the developer about different app states and could be fun for new users.
@@ -43,12 +31,6 @@ Follow the instructions [here](https://h2oai.github.io/wave/docs/installation) t
 ### [Mitigating Churn Risk](churn-risk/README.md)
 
 **Details:** This application builds a churn predictin model with H2O-3 and provides the liklihood to churn and actionable recommendations to prevent churn via nicely-presented top shapley values.
-
-
-
-### [Model Card](model-card/README.md)
-
-**Details:** This application is robust documentation that explains one of the models in another OSS App.
 
 
 
