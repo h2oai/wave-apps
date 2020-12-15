@@ -8,14 +8,14 @@ This application builds a model using H2O-3 AutoML to predict which [Telco Custo
 
 ## Running this App Locally
 
-### 0. System Requirements 
+### System Requirements 
 1. Python 3.6+
 2. pip3
 3. JRE 11+ (needed to run H2O-3) 
-4. NodeJS (Only needed for [Run integration tests on local machine](#run-integration-tests-on-local-machine))
+4. NodeJS (Only needed for [Run integration tests on local machine](#run-integration-tests))
 
 ### 1. Run the Wave Server
-New to H2O Wave? We reccomend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easy use any Wave app. 
+New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
 
 ### 2. Setup Your Python Environment
 
@@ -41,7 +41,6 @@ Note! If you did not activate your virtual environment this will be:
 Point your favorite web browser to [localhost:10101](http://localhost:10101)
 
 
-
 ## Run Unit Tests
 
 Optionally, you can run unit tests on this app
@@ -60,7 +59,7 @@ Optionally, you can run unit tests on this app
 
 Optionally, you can run integration tests on this app
 
-1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine).
+1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#running-this-app-locally).
 2. Go to `test` folder inside Wave folder.
 3. Run `npm install`
 4. Go back to `churn-risk` app directory.
