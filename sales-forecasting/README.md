@@ -19,7 +19,7 @@ New to H2O Wave? We recommend starting in the documentation to [download and run
 
 ```bash
 $ git clone git@github.com:h2oai/wave-apps.git
-$ cd wave-apps/credit-risk
+$ cd wave-apps/sales-forecasting
 $ make setup
 $ source venv/bin/activate
 ```
