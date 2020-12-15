@@ -1,32 +1,40 @@
 # Shopping Cart Recommendations app
 
-Provide product suggestions based on user's active cart using market basket analysis. 
-
-### Screenshots from App
+This application provides product suggestions based on user's active cart using market basket analysis.
 
 ![Shopping Cart Recommendations App Screenshot](docs/screenshots/shopping-app.png)
 
-## Developer Guide 
 
-### Prerequisite 
-1. Python 3.7+
+## Running this App Locally
+
+### System Requirements 
+1. Python 3.6+
 2. pip3
 
-### Run app on local machine 
 
-1. Download the latest [Wave](https://github.com/h2oai/wave/releases) version and have that running. 
-2. Create a python virtual environment in the home app directory and install requirements. 
-    ```bash
-    make setup
-    ```
-3. Activate the virtual environment.
-    ```bash 
-    source venv/bin/activate
-    ```
-4. Run the app with Wave CLI.
-    ```bash
-    wave run src.app
-    ```
-5. Point your web browser to [localhost:10101](http://localhost:10101)
+### 1. Run the Wave Server
+New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
 
-After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
+### 2. Setup Your Python Environment
+
+```bash
+$ git clone git@github.com:h2oai/wave-apps.git
+$ cd wave-apps/shopping-cart-recommendations
+$ make setup
+$ source venv/bin/activate
+```
+
+### 3. Run the App
+
+```bash
+wave run src.app
+```
+
+Note! If you did not activate your virtual environment this will be:
+```bash
+./venv/bin/wave run src.app
+```
+
+### 4. View the App
+Point your favorite web browser to [localhost:10101](http://localhost:10101)
+

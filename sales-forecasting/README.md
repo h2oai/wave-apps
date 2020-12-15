@@ -3,24 +3,25 @@
 This application allows users to explore the Kaggle Walmart Sales data to understand seasonality of sales by department.
 This application uses predictions made from Driverless AI but doesn't explicitly connect to a DAI instance.
 
-![Screenshot of the app][screenshot-main]
+![Screenshot of the app](./static/wave_sales_forecast.png)
+
 
 ## Running this App Locally
 
-### 1. Download the latest release of Wave and have that running
+### System Requirements 
+1. Python 3.6+
+2. pip3
 
-- Read instructions from [Wave Documentation][wave-docs-installation]
+### 1. Run the Wave Server
+New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
 
-### 2. Create a python environment in the home app directory and install requirements
+### 2. Setup Your Python Environment
 
-- Need Python `3.7.9`
-
-```console
+```bash
 $ git clone git@github.com:h2oai/wave-apps.git
 $ cd wave-apps/sales-forecasting
-$ python3 -m venv venv
+$ make setup
 $ source venv/bin/activate
-$ pip install -r requirements.txt
 ```
 
 ### 3. Download input data from AWS S3
@@ -31,14 +32,16 @@ $ s3cmd get s3://ai.h2o.benchmark/temp/walmart_train.csv .
 $ s3cmd get s3://ai.h2o.benchmark/temp/walmart_test_preds.csv .
 ```
 
-### 4. Run the app by pointing to the module directory
+### 4. Run the App
 
-```console
-$ wave run wave-forecast
+```bash
+wave run src.app
 ```
 
-- Point your web browser to `localhost:10101`. In the future, if you want to run this app you can skip steps 2 and 3 as
-  the environment is already set up.
+Note! If you did not activate your virtual environment this will be:
+```bash
+./venv/bin/wave run src.app
+```
 
-[screenshot-main]: ./static/wave_sales_forecast.png "Screenshot of the app"
-[wave-docs-installation]: https://h2oai.github.io/wave/docs/installation
+### 5. View the App
+Point your favorite web browser to [localhost:10101](http://localhost:10101)
