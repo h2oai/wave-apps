@@ -1,6 +1,14 @@
-# Wave Twitter Sentiment Application
+# Wave Twitter Streamer Application
 
-This application allows you to search for Twitter hashtags and do sentiment analysis
+This application fetch twitter stream for a configured hashtags and provides insights
+
+#### Login Screen
+
+![Twitter-Streamer App Screenshot - Login Page](docs/screenshots/login-page.png)
+
+#### Home Page 
+
+![Twitter-Streamer App Screenshot - Home Page](docs/screenshots/home-page.png)
 
 ## Developer Guide 
 

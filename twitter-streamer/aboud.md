@@ -1,5 +1,5 @@
 ### App Goal
-Provides sentiment on data pulled given twitter hashtags 
+Fetch twitter stream for a configured hashtags and provides insights
 
 ### Target Audience:
 Application Developers, Social Media Manager
@@ -8,10 +8,10 @@ Application Developers, Social Media Manager
 Any customer facing business 
 
 ### GitHub
-https://github.com/h2oai/wave-apps/tree/main/twitter-sentiment
+https://github.com/h2oai/wave-apps/tree/main/twitter-streamer
 
 ### Comes with Demo Mode (pre-loaded data, models, results, etc.)
 Yes
 
 ### Detailed Description
-An explainable text model which runs on data pulled from a specific twitter hashtag and show the positive and negative words of each tweet.
+An application which provides insights on live twitter stream based on the pre-configured hashtags

@@ -13,6 +13,7 @@ class Configuration:
         self.title = "Twitter Streamer"
         self.subtitle = "Streams twitter hashtags and provide insights"
         self.icon = "UpgradeAnalysis"
+        self.languages = ['en']
 
         self.boxes = {
             "banner": "1 1 -1 1",

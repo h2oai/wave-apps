@@ -5,24 +5,21 @@ import time
 from threading import Thread
 from .utils import check_credentials_empty
 
-import sys
-import os
-
-from tweepy import OAuthHandler, Stream, StreamListener
+from tweepy import OAuthHandler, Stream
 from .config import Configuration
 from .tweet_stream_listener import TwitterStreamListener
 from .word_cloud_util import plot_word_cloud, merge_to_single_text
 
 config = Configuration()
 
-tweets = collections.deque(maxlen=12)
 
 def tweet_stream(q: Q, hashtag='AI'):
-    twitter_stream_listener = TwitterStreamListener(tweets)
+    q.client.tweets = collections.deque(maxlen=12)
+    twitter_stream_listener = TwitterStreamListener(q.client.tweets)
     auth = OAuthHandler(q.client.consumer_key, q.client.consumer_secret)
     auth.set_access_token(q.client.access_token, q.client.access_token_secret)
     stream = Stream(auth, twitter_stream_listener)
-    stream.filter(track=[hashtag], is_async=True)
+    stream.filter(track=[hashtag], languages=config.languages)
     q.client.twitter_stream = stream
 
 
@@ -33,8 +30,7 @@ async def initialize_page(q: Q):
         q.args.search = True
         (q.app.header_png,) = await q.site.upload([config.image_path])
         init_client_credentials(q)
-        tweet_stream(q, config.default_search_text)
-        # on_start(q, config.default_search_text)
+        start_twiter_stream(q, config.default_search_text)
         home_content(q)
         await create_dashboard(q, update_freq=10, keyword=config.default_search_text)
         q.client.initialized = True
@@ -129,15 +125,14 @@ def create_twitter_card_slots(row_count, column_count):
 
 
 async def create_dashboard(q: Q, keyword, update_freq=0.0):
-    items = [ui.text(content='') for i in range(1, tweets.maxlen)]
+    items = [ui.text(content='') for i in range(1, q.client.tweets.maxlen)]
     large_pbs = q.page['twitter_card']
     large_pbs.items = items
 
     while update_freq > 0:
         time.sleep(update_freq)
-        print(len(tweets))
         items = []
-        for index, tweet in enumerate(tweets):
+        for index, tweet in enumerate(q.client.tweets):
             items.append(
                 ui.message_bar(type=ui.MessageBarType.INFO, text=f'Twitter user : {tweet["user"]["screen_name"]}'))
             items.append(ui.text(content=tweet['text']))
@@ -167,26 +162,21 @@ def capture_credentials(q: Q):
     ])
 
 
-def on_start(q: Q, keyword):
+def start_twiter_stream(q: Q, keyword):
     stream_thread = Thread(target=tweet_stream, args=[q, keyword])
+    stream_thread.setDaemon(True)
     q.client.stream_thread = stream_thread
     stream_thread.start()
 
 
-def on_shutdown():
-    print("Stopping Application")
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
-
-
 def render_all_text_word_cloud(q: Q, hashtag):
-    image = plot_word_cloud(merge_to_single_text(tweets))
+    image = plot_word_cloud(merge_to_single_text(q.client.tweets))
 
     q.page['word_cloud_card'].image = image
     q.page['word_cloud_card'].title = f'WordCloud of {hashtag}'
 
 
-@app('/', on_shutdown=on_shutdown)
+@app('/')
 async def serve(q: Q):
     if q.args.submit:
         if check_credentials_empty(q):
