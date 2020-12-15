@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from random import randint
 from typing import Dict, List
 
+# don't forget to import main below
+# Read https://h2oai.github.io/wave/docs/tutorial-counter#step-1-start-listening
 from h2o_wave import Q, app, main, ui
 
 
