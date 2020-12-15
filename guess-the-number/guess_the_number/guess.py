@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from random import randint
 from typing import Dict, List
 
-from h2o_wave import Q, app, main, ui  # noqa
+from h2o_wave import Q, app, main, ui
 
 
 @dataclass
@@ -378,9 +378,9 @@ async def run_app(q: Q):
                     f'🏅 🎉 🎂 You Got It, The number is **{q.client.game.number}**'
                 ),
                 ui.text_m(
-                    f'You made **{len(q.client.game.guesses)}** guesses in'  # noqa
+                    f'You made **{len(q.client.game.guesses)}** guesses in'
                 ),
-                ui.text_m(f'{q.client.game.game_time()}.'),  # noqa
+                ui.text_m(f'{q.client.game.game_time()}.'),
                 ui.toggle(
                     name='submit_game',
                     label='Submit your game to Public Scoreboard',
