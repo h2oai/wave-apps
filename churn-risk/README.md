@@ -1,46 +1,52 @@
 # Wave Telecom Customer Churn Application
 
-This application allows users to explore the [Kaggle Churn Data](https://www.kaggle.com/c/churn-analytics-bda/data) 
-to understand more about when and why customers are churning. 
-
-### Screenshots from App
+This application builds a model using H2O-3 AutoML to predict which [Telco Customers](https://www.kaggle.com/c/churn-analytics-bda/data) are most likely to churn and why. Shapley values and partial dependence plots allow the user to understand why the model thinks each customer will or will not churn. 
 
 ![Chrun App Screenshot - 1](docs/screenshots/churn-app-1.png)
 ![Chrun App Screenshot - 2](docs/screenshots/churn-app-2.png)
 ![Chrun App Screenshot - 3](docs/screenshots/churn-app-3.png)
 
-## Developer Guide 
+## Running this App Locally
 
-### Prerequisite 
-1. Python 3.8+
+### 0. System Requirements 
+1. Python 3.6+
 2. pip3
-3. JRE 11+
+3. JRE 11+ (needed to run H2O-3) 
 4. NodeJS (Only needed for [Run integration tests on local machine](#run-integration-tests-on-local-machine))
 
-### Run app on local machine 
+### 1. Run the Wave Server
+New to H2O Wave? We reccomend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easy use any Wave app. 
 
-_This has only been tested only on OSX._
+### 2. Setup Your Python Environment
 
-1. Download a [Wave](https://github.com/h2oai/wave/releases) version higher than 0.9.0 and have that running. 
-2. Create a python virtual environment in the home app directory and install requirements. 
-    ```bash
-    make setup
-    ```
-3. Activate the virtual environment.
-    ```bash 
-    source venv/bin/activate
-    ```
-4. Run the app with Wave CLI.
-    ```bash
-    wave run src.app
-    ```
-5. Point your web browser to [localhost:10101](http://localhost:10101)
+```bash
+$ git clone git@github.com:h2oai/wave-apps.git
+$ cd wave-apps/churn-risk
+$ make setup
+$ source venv/bin/activate
+```
 
-After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
+### 3. Run the App
 
-### Run unit tests on local machine 
+```bash
+wave run src.app
+```
 
-1. Run unit tests.
+Note! If you did not activate your virtual environment this will be:
+```bash
+./venv/bin/wave run src.app
+```
+
+### 4. View the App
+Point your favorite web browser to [localhost:10101](http://localhost:10101)
+
+
+
+## Run Unit Tests
+
+Optionally, you can run unit tests on this app
+
+1. Run unit tests
     ```
     pytest
     ```
@@ -50,7 +56,9 @@ After the initial setup, you can skip step 2 and 3 as the virtual environment is
     ```
     This will generate a html report in `htmlcov` directory.
     
-### Run integration tests on local machine 
+## Run Integration Tests
+
+Optionally, you can run integration tests on this app
 
 1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine).
 2. Go to `test` folder inside Wave folder.
