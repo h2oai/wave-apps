@@ -34,6 +34,6 @@ This application allows credit card issuers to review and approve credit card ap
     ```bash
     wave run src.app
     ```
-5. Point your web browser to [localhost:55555](http://localhost:55555)
+5. Point your web browser to [localhost:10101](http://localhost:10101)
 
 After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
