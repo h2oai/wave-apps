@@ -15,6 +15,7 @@ to understand more about when and why customers are churning.
 1. Python 3.8+
 2. pip3
 3. JRE 11+
+4. NodeJS (Only needed for [Run integration tests on local machine](#run-integration-tests-on-local-machine))
 
 ### Run app on local machine 
 
@@ -36,4 +37,32 @@ _This has only been tested only on OSX._
 5. Point your web browser to [localhost:10101](http://localhost:10101)
 
 After the initial setup, you can skip step 2 and 3 as the virtual environment is already available.
+
+### Run unit tests on local machine 
+
+1. Run unit tests.
+    ```
+    pytest
+    ```
+2. Run unit tests with coverage
+    ```bash
+    pytest --cov=src --cov-report html
+    ```
+    This will generate a html report in `htmlcov` directory.
+    
+### Run integration tests on local machine 
+
+1. Go to your Wave folder downloaded in step 1 of [Run app on local machine](#run-app-on-local-machine).
+2. Go to `test` folder inside Wave folder.
+3. Run `npm install`
+4. Go back to `churn-risk` app directory.
+5. Here I assume I have Wave downloaded in my home directory. 
+If you have an already running wave instance,
+    ```bash
+    python3 ~/wave/test/cypress.py -m src.app
+    ```
+   else if you want to launch a new Wave instance automatically,
+   ```bash
+       python3 ~/wave/test/cypress.py -m src.app -w ~/wave/waved -wd ~/wave/www
+   ```
 
