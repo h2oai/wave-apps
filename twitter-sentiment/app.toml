@@ -3,13 +3,11 @@ Name = "ai.h2o.hashtag_run"
 Version = "0.1729.1"
 Title = "Twitter Sentiment"
 Description = "App for searching twitter hashtags and sentiment analysis"
+LongDescription="about.md"
 Category = "Data Science"
-Keywords = ["Document"]
+Keywords =  ["Data Science", "Wave", "Open Source", "Sentiment Analysis"]
 
 [Runtime]
-Module = "hashtag_run"
-VolumeMount = "/data"
-VolumeSize = "1Gi"
-ResourceVolumeSize = "2Gi"
-MemoryLimit = "500Mi"
-MemoryReservation = "400Mi"
+Module = "src.app"
+MemoryReservation = "4Gi"
+MemoryLimit = "6Gi"
