@@ -11,7 +11,6 @@ This application uses predictions made from Driverless AI but doesn't explicitly
 ### System Requirements 
 1. Python 3.6+
 2. pip3
-3. JRE 11+ (needed to run H2O-3) 
 
 ### 1. Run the Wave Server
 New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
