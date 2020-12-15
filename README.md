@@ -1,6 +1,6 @@
 # Sample Wave Apps
 
-H2O Wave allows you to build AI apps, faster. This directorly houses sample applications that you can download and run locally, modify, and integrate into your own AI apps. 
+H2O Wave allows you to build AI apps, faster. This directory houses sample applications that you can download and run locally, modify, and integrate into your own AI apps. 
 
 ## Installation 
 
@@ -10,7 +10,7 @@ Follow the instructions [here](https://h2oai.github.io/wave/docs/installation) t
 
 ## Available Apps
 
-### [Explainable Hotel Raitings](explaining-ratings/README.md)
+### [Explainable Hotel Ratings](explaining-ratings/README.md)
 
 **Details:** This app allows you to filter hotel reviews and compare the most common phrases from the subset to the overall most common phrases.
 
@@ -30,25 +30,25 @@ Follow the instructions [here](https://h2oai.github.io/wave/docs/installation) t
 
 ### [Mitigating Churn Risk](churn-risk/README.md)
 
-**Details:** This application builds a churn predictin model with H2O-3 and provides the liklihood to churn and actionable recommendations to prevent churn via nicely-presented top shapley values.
+**Details:** This application builds a churn prediction model with H2O-3 and provides the likelihood to churn and actionable recommendations to prevent churn via nicely-presented top shapley values.
 
 
 
 ### [Online Shopping Recommendations](shopping-cart-recommendations/README.md)
 
-**Details:** This application allows a marketing anlayst to understand how their reccomendation engine works. It allows them to add items to their cart and as they do a list of reccomended products is updated.
+**Details:** This application allows a marketing anlayst to understand how their recommendation engine works. It allows them to add items to their cart and as they do a list of recommended products is updated.
 
 
 
 ### [Sales Forecasting EDA](sales-forecasting/README.md)
 
-**Details:** This application provides easy-to-use interface for exploring historical sales values and looking at future forecasts accross store segments
+**Details:** This application provides easy-to-use interface for exploring historical sales values and looking at future forecasts across store segments
 
 
 
  ### [Social Media Sentiment](twitter-sentiment/README.md)
 
-**Details:** This application pulls tweets and uses the open source VaderSentiment to understand postive and negative tweets
+**Details:** This application pulls tweets and uses the open source VaderSentiment to understand positive and negative tweets
 
 
 
