@@ -111,7 +111,6 @@ The previous section will help get the app up and running. However, the player i
 [screenshot-done]: ./static/guess_the_number_done.png
 [screenshot-scores]: ./static/guess_the_number_scores.png
 [screenshot-private-scores]: ./static/guess_the_number_private_scores.png
-[wave-installation-gif]: ./static/install_wave_server.gif
 [wave-installation-term-gif]: ./static/install_wave_server_term.gif
 [wave-app-env-setup-term-gif]: ./static/wave_app_env_setup_term.gif
 [wave-docs-installation]: https://h2oai.github.io/wave/docs/installation
