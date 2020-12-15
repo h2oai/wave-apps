@@ -37,7 +37,7 @@ $ s3cmd get s3://ai.h2o.benchmark/temp/walmart_test_preds.csv .
 $ wave run wave-forecast
 ```
 
-- Point your web browser to `localhost:55555`. In the future, if you want to run this app you can skip steps 2 and 3 as
+- Point your web browser to `localhost:10101`. In the future, if you want to run this app you can skip steps 2 and 3 as
   the environment is already set up.
 
 [screenshot-main]: ./static/wave_sales_forecast.png "Screenshot of the app"
