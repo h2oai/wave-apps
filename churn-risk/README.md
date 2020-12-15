@@ -66,12 +66,3 @@ If you have an already running wave instance,
        python3 ~/wave/test/cypress.py -m src.app -w ~/wave/waved -wd ~/wave/www
    ```
 
-### Run unit and integration tests on Jenkins
-
-1. Go to [Wave OSS/CI/Wave Telco Churn Risk](http://mr-0xc1:8080/job/wave-oss/job/ci/job/wave-churn-risk) pipeline 
-(You should be logged into H2O.ai VPN to access Jenkins).
-2. Select the branch or pull request you want to run tests on.
-3. Click `Build with Parameters` button and select the desired `WAVE_REVISION`. 
-Default value will work on most of the cases. 
-4. At the end of the test run you can find both unit and integration test results in
-pipeline artifacts and `Test Results Analyzer` tab. 
