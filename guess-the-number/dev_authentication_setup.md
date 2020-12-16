@@ -31,7 +31,7 @@ $ docker run \
 quay.io/keycloak/keycloak:11.0.3
 ```
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 2. Login to Keycloak
 
@@ -39,13 +39,13 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-home]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - Click on `Administration Console` and login as User: `admin` with Password: `admin`
 
 ![keycloak-admin-login]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 3. Create a new Client
 
@@ -53,13 +53,13 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-admin-console]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - Click `Create` button in the top right corner to create new client
 
 ![keycloak-clients]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - Enter a **Client ID**, for example: `wave`
 - Select **Client Protocol** to be `openid-connect`
@@ -67,7 +67,7 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-new-client-save]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - Right after the page is saved, new settings appear on the same page
 - Set **Access Type** as `confidential`
@@ -76,7 +76,7 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-client-access-type]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 3. Save Client Secret
 
@@ -86,7 +86,7 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-credentials]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 4. Create New User
 
@@ -95,14 +95,14 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-add-user]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - Enter an email, for example `john.smith@aol.com` as **Username**
 - Press `Save`
 
 ![keycloak-save-new-user]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - After saving, goto the `Credentials` tab for the newly created user
 - Enter a new password for the user
@@ -112,14 +112,14 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-new-user-set-password]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 - To see all the users, click on `Users` under `Manage` in the left menu
 - Click on `View all users` button
 
 ![keycloak-view-all-users]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 5. Logout of Admin on Keycloak
 
@@ -127,7 +127,7 @@ quay.io/keycloak/keycloak:11.0.3
 
 ![keycloak-admin-logout]
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 6. Start `waved` with authentication
 
@@ -143,7 +143,7 @@ quay.io/keycloak/keycloak:11.0.3
   -oidc-redirect-url http://localhost:10101/_auth/callback
 ```
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 7. Start the App
 
@@ -153,41 +153,19 @@ quay.io/keycloak/keycloak:11.0.3
 $ wave run guess_the_number/guess.py
 ```
 
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 #### 8. Login to Wave app
 
 - In a new `incognito` browser window, goto `http://localhost:10101` to launch the app
 - The app will require you to login now
-
-![wave-app-login]
-
-[Top](#table-of-contents)
-
-- Login as one of the newly created users. Logging in as `jane.smith@aol.com` in this example.
-
-![wave-app-user-login]
-
-[Top](#table-of-contents)
-
+- Login as one of the newly created users.
 - Once logged in, we can see the Player's name displayed on top.
-
-![jane-smith-logged-in]
-
-[Top](#table-of-contents)
-
 - Use a different browser, for example `chrome/firefox` to login simultaneously as a different user
 - Play a few games while logged in as each player
-
-![john-smith-all-games]
-
-[Top](#table-of-contents)
-
 - Private games include games that are abandoned by selecting `Quit` and games that are not selected to be shared publicly
 
-![john-smith-private-games]
-
-[Top](#table-of-contents)
+[Top](#guess-the-number)
 
 [keycloak-home]: ./static/keycloak_home.png
 [keycloak-admin-login]: ./static/keycloak_admin_login.png
@@ -202,8 +180,3 @@ $ wave run guess_the_number/guess.py
 [keycloak-new-user-set-password]: ./static/keycloak_new_user_set_password.png
 [keycloak-view-all-users]: ./static/keycloak_view_all_users.png
 [keycloak-admin-logout]: ./static/keycloak_admin_logout.png
-[wave-app-login]: ./static/wave_app_login.png
-[wave-app-user-login]: ./static/wave_app_user_login.png
-[jane-smith-logged-in]: ./static/jane_smith_logged_in.png
-[john-smith-all-games]: ./static/john_smith_all_games.png
-[john-smith-private-games]: ./static/john_smith_private_games.png
