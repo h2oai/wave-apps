@@ -12,7 +12,7 @@ def render_home(q: Q):
     q.page["left_panel"] = ui.form_card(box=config.boxes['left_panel'], items=[
         ui.text_xl("Hotel Reviews"),
         ui.dropdown(
-            name="reviews",
+            name="review_choice",
             label="Choose a review type",
             placeholder=config.column_mapping[q.client.review] if q.client.review else "please select a review type",
             choices=[
@@ -27,7 +27,7 @@ def render_home(q: Q):
 def populate_dropdown_list(q: Q):
     filter_choices = [
         ui.choice(
-            name=json.dumps({"id": q.client.count + 1, "attr": column, "attr_val": None}),
+            name=json.dumps({"id": q.client.filter_count + 1, "attr": column, "attr_val": None}),
             label=config.column_mapping[column]
         ) for column in config.filterable_columns
     ]
@@ -59,7 +59,7 @@ def populate_dropdown_list(q: Q):
             ), )
             items.append(ui.separator())
 
-    if (q.args.add_filter and all(q.client.filters.values())) or q.args.reviews or q.args.reset_filters:
+    if (q.args.add_filter and all(q.client.filters.values())) or q.args.review_choice or q.args.reset_filters:
         items.append(ui.dropdown(
             name="filter",
             label="Choose a review attribute",
@@ -148,6 +148,7 @@ async def init(q: Q):
     if not q.client.app_initialized:
         (q.app.header_png,) = await q.site.upload([config.image_path])
         (q.app.training_file_url,) = await q.site.upload([config.training_path])
+        reset_filters(q)
         config.init_dataset()
         q.client.app_initialized = True
 
@@ -162,18 +163,21 @@ async def init(q: Q):
     )
 
 
+def reset_filters(q: Q):
+    q.client.filter_count = 0
+    q.client.filters = {}
+
+
 @app("/")
 async def serve(q: Q):
     await init(q)
-    if q.args.reviews:
-        q.client.count = 0
-        q.client.review = q.args.reviews
-        q.client.filters = {}
+    if q.args.review_choice:
+        q.client.review = q.args.review_choice
         render_filter_toolbar(q)
         q.client.all_text_word_cloud = get_text_word_cloud_plot(q)
         render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.add_filter:
-        q.client.count = q.client.count + 1
+        q.client.filter_count += 1
         if not q.client.filters:
             q.client.filters = {}
         if q.args.filter:
@@ -191,8 +195,7 @@ async def serve(q: Q):
         render_filter_toolbar(q)
         render_text_word_cloud_image(q, q.client.all_text_word_cloud)
     elif q.args.reset_filters:
-        q.client.count = 0
-        q.client.filters = {}
+        reset_filters(q)
         render_filter_toolbar(q)
         render_all_text_word_cloud(q)
     elif q.args.compare_review_button:
