@@ -3,13 +3,10 @@
 This application allows users to explore the Kaggle Walmart Sales data to understand seasonality of sales by department.
 This application uses predictions made from Driverless AI but doesn't explicitly connect to a DAI instance.
 
-![Screenshot of the app](./static/wave_sales_forecast.png)
-
-
 ## Running this App Locally
 
 ### System Requirements 
-1. Python 3.6+
+1. Python 3.7.9+
 2. pip3
 
 ### 1. Run the Wave Server
@@ -18,29 +15,30 @@ New to H2O Wave? We recommend starting in the documentation to [download and run
 ### 2. Setup Your Python Environment
 
 ```bash
-$ git clone git@github.com:h2oai/wave-apps.git
+$ git clone https://github.com/h2oai/wave-apps.git
 $ cd wave-apps/sales-forecasting
-$ make setup
+$ python3 -m venv venv
 $ source venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
 ### 3. Download input data from AWS S3
 
 ```console
 $ cd wave-apps/sales-forecasting
-$ s3cmd get s3://ai.h2o.benchmark/temp/walmart_train.csv .
-$ s3cmd get s3://ai.h2o.benchmark/temp/walmart_test_preds.csv .
+$ wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_train.csv
+$ wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_test_preds.csv
 ```
 
 ### 4. Run the App
 
 ```bash
-wave run src.app
+wave run wave-forecast.py
 ```
 
 Note! If you did not activate your virtual environment this will be:
 ```bash
-./venv/bin/wave run src.app
+./venv/bin/wave run wave-forecast.py
 ```
 
 ### 5. View the App

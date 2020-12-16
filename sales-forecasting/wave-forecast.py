@@ -199,8 +199,8 @@ async def draw_weekly_sales_plot(q: Q, plot_data):
 
 async def initialize_app(q: Q):
     # Inputs for the app, Should be read from a config file
-    walmart_train_s3 = "s3://ai.h2o.benchmark/temp/walmart_train.csv"
-    walmart_predictions_s3 = "s3://ai.h2o.benchmark/temp/walmart_test_preds.csv"
+    walmart_train_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_train.csv"
+    walmart_predictions_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_test_preds.csv"
     walmart_train = './walmart_train.csv'
     walmart_predictions = './walmart_test_preds.csv'
 
