@@ -173,6 +173,7 @@ async def serve(q: Q):
     await init(q)
     if q.args.review_choice:
         q.client.review = q.args.review_choice
+        reset_filters(q)
         render_filter_toolbar(q)
         q.client.all_text_word_cloud = get_text_word_cloud_plot(q)
         render_text_word_cloud_image(q, q.client.all_text_word_cloud)
