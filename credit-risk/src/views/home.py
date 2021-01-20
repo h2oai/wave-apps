@@ -24,7 +24,7 @@ def init(q: Q):
                     ui.zone('title', size='400px'),
                     ui.zone('menu'),
                 ]),
-                ui.zone('risk_table'),
+                ui.zone('risk_table', direction=ui.ZoneDirection.ROW, size='800px'),
             ]
         )
     ])

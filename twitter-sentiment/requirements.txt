@@ -1,5 +1,5 @@
 tweepy==3.9.0
-h2o-wave==0.10.0
+h2o-wave==0.11.0
 vaderSentiment
 plotly==4.10.0
 

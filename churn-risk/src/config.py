@@ -1,3 +1,5 @@
+from h2o_wave import ui
+
 class Configuration:
     """
     Configuration file for Telco Customer Churn
@@ -50,7 +52,7 @@ class Configuration:
         self.testing_data_url = "./data/churnTest.csv"
 
         self.boxes = {
-            "banner": "1 1 3 1",
+            "banner": "1 1 -1 1",
             "content": "1 2 -1 -1",
             "logo": "11 1 -1 1",
             "navbar": "4 1 -1 1",
@@ -91,3 +93,10 @@ class Configuration:
         }
 
         self.mandatory_columns = ["State","Account_Length","Area_Code","Phone_No"]
+
+        self.global_nav = [
+            ui.nav_group('Main Menu', items=[
+                ui.nav_item(name="#profile", label="Customer Profiles"),
+                ui.nav_item(name="#tour", label="Application Code"),
+            ]),
+        ]
