@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.explaining-ratings"
-Version = "0.1.0"
+Version = "0.1.3"
 Title = "Explaining Ratings"
 Description = "Application which allows a business user to extracting ratings, and displaying trends as word cloud"
 LongDescription = "about.md"
