@@ -33,12 +33,12 @@ $ wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_
 ### 4. Run the App
 
 ```bash
-wave run wave-forecast.py
+wave run wave_forecast
 ```
 
 Note! If you did not activate your virtual environment this will be:
 ```bash
-./venv/bin/wave run wave-forecast.py
+./venv/bin/wave run wave_forecast.py
 ```
 
 ### 5. View the App
