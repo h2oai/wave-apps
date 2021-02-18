@@ -38,7 +38,7 @@ wave run wave_forecast
 
 Note! If you did not activate your virtual environment this will be:
 ```bash
-./venv/bin/wave run wave_forecast.py
+./venv/bin/wave run wave_forecast
 ```
 
 ### 5. View the App
