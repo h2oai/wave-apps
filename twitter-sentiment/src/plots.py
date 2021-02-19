@@ -18,7 +18,6 @@ def generate_figure_pie_of_target_percent(scores):
         xaxis=go.layout.XAxis(domain=[0.4, 0.67]),
         yaxis=go.layout.YAxis(domain=[0.4, 0.67]),
         annotations=[dict(text='sentiment <br>strengths', x=0.5, y=0.5, font_size=14, showarrow=False)]
-
     ))
     return fig
 
