@@ -1,0 +1,10 @@
+[App]
+Name = "ai.h2o.tested_app"
+Version = "0.0.1"
+Title = "Well-tested"
+Description = "Separate views, controllers and workers for better testing"
+Category = "Other"
+Keywords = ["qa", "pytest"]
+
+[Runtime]
+Module = "tested_app.app"

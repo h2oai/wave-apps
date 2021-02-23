@@ -1,0 +1,15 @@
+# IDE
+.vscode
+
+# Python
+venv
+__pycache__/
+
+# Tests
+.pytest_cache/
+reports/
+
+
+# Wave
+h2o_wave.state
+.apps/
