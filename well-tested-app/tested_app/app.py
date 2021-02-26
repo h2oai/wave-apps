@@ -20,21 +20,16 @@ async def do_stop(q: Q):
 
 
 async def do_calculate(q: Q):
-    async def on_done(result: str):
-        q.app.result = str(result)
-        await render_calculate(q)
-
     async def on_update(progress: float):
         q.app.progress = progress
         await render_calculate(q)
-        return q.app.result is not None
+        return q.app.result
 
     q.app.function = q.args.function
     q.app.result = None
     await render_calculate(q)
     if q.app.function == "sum":
-        await calculate_sum(q.args.number[0], on_update=on_update, on_done=on_done)
+        q.app.result = await calculate_sum(q.args.number[0], on_update=on_update)
     else:
-        await calculate_factorial(
-            q.args.number[0], on_update=on_update, on_done=on_done
-        )
+        q.app.result = await calculate_factorial(q.args.number[0], on_update=on_update)
+    await render_calculate(q)

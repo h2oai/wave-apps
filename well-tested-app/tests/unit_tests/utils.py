@@ -8,10 +8,6 @@ def async_stub() -> asyncio.Future:
     return f
 
 
-async def on_done_pass(result: str):
-    pass
-
-
 async def on_update_pass(update: float) -> bool:
     return False
 

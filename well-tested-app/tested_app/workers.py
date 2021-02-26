@@ -5,7 +5,6 @@ from typing import Awaitable, Callable
 async def calculate_sum(
     number: int,
     on_update: Callable[[float], Awaitable[bool]],
-    on_done: Callable[[str], Awaitable[None]],
     sleep: float = 1,
 ):
     result = 0
@@ -13,14 +12,13 @@ async def calculate_sum(
         time.sleep(sleep)
         result += i
         if await on_update(i / number):
-            return
-    await on_done(str(result))
+            return "Stopped"
+    return str(result)
 
 
 async def calculate_factorial(
     number: int,
     on_update: Callable[[float], Awaitable[bool]],
-    on_done: Callable[[str], Awaitable[None]],
     sleep: float = 1,
 ):
     result = 1
@@ -28,5 +26,5 @@ async def calculate_factorial(
         time.sleep(sleep)
         result *= i
         if await on_update(i / number):
-            return
-    await on_done(str(result))
+            return "Stopped"
+    return str(result)
