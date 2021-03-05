@@ -69,5 +69,19 @@ def generate_histogram(image):
     return hist_filename
 
 
+def average_blurring(image: np.array, filter_size: tuple = (5, 5)):
+    return cv2.blur(image, filter_size)
+
+
 def gaussian_blurring(image: np.array, filter_size: tuple = (5, 5), std: float = 0):
     return cv2.GaussianBlur(image, filter_size, std)
+
+
+def median_blurring(image: np.array, kernel_size: int = 5):
+    return cv2.medianBlur(image, kernel_size)
+
+
+def bilateral_blurring(image: np.array, kernel_size: int = 5, colors: int = 21, sigma: int = 0):
+    return cv2.bilateralFilter(image, kernel_size, colors, sigma)
+
+

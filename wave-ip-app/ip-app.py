@@ -1,4 +1,4 @@
-from h2o_wave import Q, app, ui, main, types
+from h2o_wave import Q, app, ui, main, core
 import utils.ip_utils as ip
 import utils.ui_utils as U
 from utils import helper
@@ -12,7 +12,7 @@ async def serve(q: Q):
     _hash = q.args['#']
 
     if not q.client.flag:
-        q.client.image = cv2.imread('data/lena.jpg')[:, :, ::-1]
+        q.client.image = cv2.imread('data/h2o.png')[:, :, ::-1]
         q.client.image_df = pd.DataFrame({
             'Image': [],
             'Timestamp': []
@@ -70,8 +70,16 @@ async def serve(q: Q):
     if q.args.histogram:
         await U.get_histogram(q)
 
-    if q.args.gaussian_blur:
+    if q.args.ave_blur:
+        await U.average_blur(q)
+    elif q.args.gaussian_blur:
         await U.gaussian_blur(q)
+    elif q.args.median_blur:
+        await U.median_blur(q)
+    elif q.args.bil_blur:
+        await U.bilateral_blur(q)
+    elif q.args.reset_blur:
+        await U.reset_blur(q)
 
     if not q.client.initialized:
         q.client.initialized = True
@@ -85,24 +93,105 @@ async def serve(q: Q):
 
 
 async def blur_layout(q: Q):
-    # need to add nested form_cards for different blur techniques
-    # q.page['controls'].items = [ui.form_card(box='content', title='', items=[
-    #         ui.textbox(name='gb_filter', label='Filter Size'),
-    #         ui.textbox(name='gb_std', label='Standard Deviation'),
-    #         ui.buttons(
-    #             items=[
-    #                 ui.button(name='gaussian_blur', label='Apply Gaussian Blurring', primary=True,
-    #                           tooltip='Click to apply gaussian blur'),
-    #                 ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
-    #             ]
-    #         )
-    #     ])
-    # ]
-    q.page['controls'].items = [
-        ui.button(name='gaussian_blur', label='Apply Gaussian Blurring', primary=True,
-                  tooltip='Click to apply gaussian blur'),
-        ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
-    ]
+    q.client.blur_controls = True
+
+    if q.page['controls']:
+        del q.page['controls']
+
+    q.page['controls_b0'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='content', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='content', order=1, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.textbox(name='ave_filter_w', label='Filter Width', placeholder='3 or 5 or ...'),
+            ui.textbox(name='ave_filter_h', label='Filter Height', placeholder='3 or 5 or ...'),
+            ui.buttons(
+                items=[
+                    ui.button(name='ave_blur', label='Average Blurring', primary=True,
+                              tooltip='Click to apply average blur'),
+                    ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
+                ]
+            )
+
+        ]
+    )
+
+    q.page['controls_b1'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='content', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='content', order=2, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.textbox(name='gb_filter_w', label='Filter Width', placeholder='3 or 5 or ...'),
+            ui.textbox(name='gb_filter_h', label='Filter Height', placeholder='3 or 5 or ...'),
+            ui.textbox(name='gb_std', label='Standard Deviation'),
+            ui.buttons(
+                items=[
+                    ui.button(name='gaussian_blur', label='Gaussian Blurring', primary=True,
+                              tooltip='Click to apply gaussian blur'),
+                    ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
+                ]
+            )
+
+        ]
+    )
+    q.page['controls_b2'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='content', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='content', order=3, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.textbox(name='med_kernel', label='Kernel Size', placeholder='3 or 5 or ...'),
+            ui.buttons(
+                items=[
+                    ui.button(name='median_blur', label='Median Blurring', primary=True,
+                              tooltip='Click to apply median blur'),
+                    ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
+                ]
+            )
+        ]
+    )
+
+    q.page['controls_b3'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='content', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='content', order=4, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.textbox(name='bil_kernel', label='Kernel Size', placeholder='3 or 5 or ...'),
+            ui.textbox(name='bil_color', label='Number of Colors'),
+            ui.textbox(name='bil_sigma', label='Sigma'),
+            ui.buttons(
+                items=[
+                    ui.button(name='bil_blur', label='Bilateral Blurring', primary=True,
+                              tooltip='Click to apply bilateral blur'),
+                    ui.button(name='reset_blur', label='Reset Image', tooltip='Click to Reset')
+                ]
+            )
+        ]
+    )
+
     image_filename = ip.plot_image(q.client.image)
     content, = await q.site.upload([image_filename])
     os.remove(image_filename)
@@ -110,7 +199,19 @@ async def blur_layout(q: Q):
     await q.page.save()
 
 
+async def remove_blur_controls(q: Q):
+    del q.page['controls_b0']
+    del q.page['controls_b1']
+    del q.page['controls_b2']
+    del q.page['controls_b3']
+    await get_standard_control(q)
+
+
 async def histogram_layout(q: Q):
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_control = False
+
     q.page['controls'].items = [
         ui.buttons(
             items=[
@@ -128,6 +229,10 @@ async def histogram_layout(q: Q):
 
 
 async def rgb2gray_layout(q: Q):
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_control = False
+
     q.page['controls'].items = [
         ui.buttons(
             items=[
@@ -146,6 +251,10 @@ async def rgb2gray_layout(q: Q):
 
 
 async def rotation_layout(q: Q):
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_control = False
+
     q.page['controls'].items = [
         ui.slider(name='rotate', label='Translation on X axis', min=-180, max=180, step=1),
         ui.textbox(name='x_point', label='X coordinate to rotate'),
@@ -168,6 +277,10 @@ async def rotation_layout(q: Q):
 
 
 async def translation_layout(q: Q):
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_control = False
+
     q.page['controls'].items = [
         ui.slider(name='translate_X', label='Translation on X axis', min=0, max=360, step=1),
         ui.slider(name='translate_Y', label='Translation on Y axis', min=0, max=360, step=1),
@@ -189,6 +302,10 @@ async def translation_layout(q: Q):
 
 
 async def transformation_layout(q: Q, content):
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_control = False
+
     q.page['original_image'] = ui.markdown_card(
         box=ui.boxes(
             # If the viewport width >= 0, place as second item in content zone.
@@ -215,6 +332,24 @@ async def transformation_layout(q: Q, content):
         Last Translation X = {q.args.translate_X}  Y = {q.args.translate_Y}
         ''',
     )
+    await get_standard_control(q)
+
+    q.page['controls'].items = [
+        ui.slider(name='translate_X', label='Translation on X axis', min=0, max=360, step=1),
+        ui.slider(name='translate_Y', label='Translation on Y axis', min=0, max=360, step=1),
+        ui.buttons(
+            items=[
+                ui.button(name='translation', label='Apply Translation', primary=True,
+                          tooltip='Click to apply translation transformation'),
+                ui.button(name='reset_translation', label='Reset Translation', tooltip='Click to Reset')
+            ]
+        )
+    ]
+
+    await q.page.save()
+
+
+async def get_standard_control(q: Q):
     q.page['controls'] = ui.form_card(
         box=ui.boxes(
             # If the viewport width >= 0, place as fourth item in content zone.
@@ -222,20 +357,10 @@ async def transformation_layout(q: Q, content):
             # If the viewport width >= 768, place as third item in content zone.
             ui.box(zone='content', order=3),
             # If the viewport width >= 1200, place in content zone.
-            ui.box(zone='content', height='400px'),
+            ui.box(zone='content', height='400px', size=1),
         ),
         title='',
-        items=[
-            ui.slider(name='translate_X', label='Translation on X axis', min=0, max=360, step=1),
-            ui.slider(name='translate_Y', label='Translation on Y axis', min=0, max=360, step=1),
-            ui.buttons(
-                items=[
-                    ui.button(name='translation', label='Apply Translation', primary=True,
-                              tooltip='Click to apply translation transformation'),
-                    ui.button(name='reset_translation', label='Reset Translation', tooltip='Click to Reset')
-                ]
-            )
-        ]
+        items=[]
     )
     await q.page.save()
 
@@ -286,7 +411,7 @@ async def responsive_layout(q: Q, content, layout):
                         # Use one half for charts
                         ui.zone('charts', direction=ui.ZoneDirection.ROW),
                         # Use other half for content
-                        ui.zone('content'),
+                        ui.zone('content', direction=ui.ZoneDirection.ROW),
                     ]),
                 ]),
                 ui.zone('footer'),
