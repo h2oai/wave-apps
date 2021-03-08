@@ -40,11 +40,11 @@ def home_content(q: Q):
             zones=[
                 # 80px high header
                 ui.zone('header', size='80px'),
-                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size='80', zones=[
                     # 400px wide search_text_area
                     ui.zone('search_text_area', size='400px', direction=ui.ZoneDirection.ROW),
                 ]),
-                ui.zone('search_button_area', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                ui.zone('search_button_area', direction=ui.ZoneDirection.ROW, size='80', zones=[
                     # 400px wide search_button
                     ui.zone('search_button', size='400px', direction=ui.ZoneDirection.ROW),
                 ]),
@@ -60,7 +60,7 @@ def home_content(q: Q):
             zones=[
                 # 80px high header
                 ui.zone('header', size='80px'),
-                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size='80', zones=[
                     # 600px wide search_text_area
                     ui.zone('search_text_area', size='600px', direction=ui.ZoneDirection.ROW),
                     # 160px wide search_button
@@ -77,7 +77,7 @@ def home_content(q: Q):
             zones=[
                 # 80px high header
                 ui.zone('header', size='80px'),
-                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size='80', zones=[
                     # 1000px wide search_text_area
                     ui.zone('search_text_area', size='1000px', direction=ui.ZoneDirection.ROW),
                     # 215px wide search_button
@@ -94,7 +94,7 @@ def home_content(q: Q):
             zones=[
                 # 80px high header
                 ui.zone('header', size='80px'),
-                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size=80, zones=[
+                ui.zone('search_bar', direction=ui.ZoneDirection.ROW, size='80', zones=[
                     # 1400px wide search_text_area
                     ui.zone('search_text_area', size='1400px', direction=ui.ZoneDirection.ROW),
                     # 230px wide search_button
@@ -128,7 +128,7 @@ def home_content(q: Q):
 
 def create_twitter_card_slots(row_count, column_count):
     return [
-        ui.zone(f'row_{row}', direction=ui.ZoneDirection.ROW, size='450px', zones=[
+        ui.zone(f'row_{row}', direction=ui.ZoneDirection.ROW, size='350px', zones=[
             ui.zone(f'content_{(row * column_count) + column}', direction=ui.ZoneDirection.ROW, size='400px') for
             column in range(0, column_count)
         ]) for row in range(0, row_count)]
@@ -180,7 +180,7 @@ async def list_tweets_for_hashtag(q):
             ui.text(content=tweet[:200]),
             ui.frame(content=convert_plot_to_html(
                 generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
-                width='100%', height='60%')
+                width='100%', height='100%')
         ]
 
 

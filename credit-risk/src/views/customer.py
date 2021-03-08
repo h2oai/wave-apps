@@ -145,7 +145,7 @@ def handle_reject_click(q: Q):
 def render_customer_page(q: Q):
     init(q)
 
-    selected_row = q.args.risk_table[0]
+    selected_row = int(q.args.risk_table[0])
     training_df = predictor.get_testing_data_as_pd_frame()
     predictions_df = predictor.predicted_df.as_data_frame()
     contributions_df = predictor.contributions_df.as_data_frame()

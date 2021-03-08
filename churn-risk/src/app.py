@@ -22,8 +22,17 @@ churn_predictor = ChurnPredictor()
 df = pd.read_csv(config.testing_data_url).head(40)
 df.fillna(config.def_column_values, inplace=True)
 df.dropna(subset=config.mandatory_columns, inplace=True)
-phone_choices = [ui.choice(name=phone, label=str(phone)) for phone in df[config.id_column]]
+phone_choices = [ui.choice(name=str(phone), label=str(phone)) for phone in df[config.id_column]]
 
+def render_header(q: Q):
+    q.page["title"] = ui.header_card(
+        box=config.boxes["banner"],
+        title=config.title,
+        subtitle=config.subtitle,
+        icon=config.icon,
+        icon_color=config.color,
+        nav=config.global_nav
+    )
 
 def show_profile(q: Q):
     del q.page["content"]
@@ -45,7 +54,7 @@ def show_profile(q: Q):
     else: 
         del q.page["empty_profile_page"]
         df = pd.read_csv(config.testing_data_url)
-        cust_phone_no = q.args.customers[0]
+        cust_phone_no = int(q.args.customers[0])
         q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
         populate_churn_plots(q)
         populate_customer_churn_stats(cust_phone_no,df,q)
@@ -138,7 +147,7 @@ def populate_customer_churn_stats(cust_phone_no, df, q):
 
 
 def get_figure_layout():
-    return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True))
+    return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True), height=120)
 
 
 async def initialize(q: Q):
@@ -149,28 +158,13 @@ async def initialize(q: Q):
 
     q.app.header_png = await q.site.upload([config.image_path])
     q.app.training_file_url = await q.site.upload([config.working_data])
-    q.page["title"] = ui.header_card(
-        box=config.boxes["banner"],
-        title=config.title,
-        subtitle=config.subtitle,
-        icon=config.icon,
-        icon_color=config.color,
-    )
-
-    q.page["nav_bar"] = ui.tab_card(
-        box=config.boxes["navbar"],
-        value=f'#{q.args["#"]}',
-        items=[
-            ui.tab(name="#profile", label="Customer Profiles"),
-            ui.tab(name="#tour", label="Application Code"),
-        ],
-    )
     q.page['meta'] = ui.meta_card(box='', title='Telcom Churn Analytics')
     q.client.app_initialized = True
 
 
 @app("/")
 async def serve(q: Q):
+    render_header(q)
     if not q.client.app_initialized:
         await initialize(q)
 

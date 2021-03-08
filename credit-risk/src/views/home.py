@@ -24,7 +24,7 @@ def init(q: Q):
                     ui.zone('title', size='400px'),
                     ui.zone('menu'),
                 ]),
-                ui.zone('risk_table'),
+                ui.zone('risk_table', direction=ui.ZoneDirection.ROW, size='800px'),
             ]
         )
     ])
@@ -46,7 +46,7 @@ def get_rows(q: Q, df):
     df = df.head(20)
     rows = [
         ui.table_row(
-            name=index,
+            name=str(index),
             cells=[str(row[column]) for column in df.columns] + [q.app.customer_status.get(row["ID"]) or '']
         )
         for index, row in df.iterrows()
