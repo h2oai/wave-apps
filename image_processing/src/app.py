@@ -1,11 +1,11 @@
-from h2o_wave import Q, app, ui, main, core
-import src.ip_utils as ip
-import src.ui_utils as U
-from src import helper
+from h2o_wave import Q, app, ui, main
+import ip_utils as ip
+import ui_utils as U
+import helper
 import cv2
 import os
 import pandas as pd
-import src.layout_utils as layouts
+import views.layout_utils as layouts
 
 
 @app('/ip')
@@ -13,7 +13,7 @@ async def serve(q: Q):
     _hash = q.args['#']
 
     if not q.client.flag:
-        q.client.image = cv2.imread('data/h2o.png')[:, :, ::-1]
+        q.client.image = cv2.imread('../data/h2o.png')[:, :, ::-1]
         q.client.image_df = pd.DataFrame({
             'Image': [],
             'Timestamp': []

@@ -1,5 +1,5 @@
 from h2o_wave import ui, main, Q, app
-import src.ip_utils as ip
+import ip_utils as ip
 import os
 
 

@@ -1,6 +1,6 @@
 from h2o_wave import Q, app, ui, main
 import os
-import src.ip_utils as ip
+import ip_utils as ip
 
 
 async def do_translation(q: Q):
