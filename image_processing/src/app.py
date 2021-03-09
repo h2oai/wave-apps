@@ -1,11 +1,11 @@
 from h2o_wave import Q, app, ui, main, core
-import utils.ip_utils as ip
-import utils.ui_utils as U
-from utils import helper
+import src.ip_utils as ip
+import src.ui_utils as U
+from src import helper
 import cv2
 import os
 import pandas as pd
-import utils.layout_utils as layouts
+import src.layout_utils as layouts
 
 
 @app('/ip')
@@ -36,9 +36,11 @@ async def serve(q: Q):
             await layouts.histogram_layout(q)
         elif _hash == 'menu/blur':
             await layouts.blur_layout(q)
+        elif _hash == 'menu/histogram_eq':
+            await layouts.histogram_eq_layout(q)
 
     if q.args.image_table:
-        temp = await q.site.download(q.args.image_table[-1], './data/')
+        temp = await q.site.download(q.args.image_table[-1], '../data/')
         q.client.image = cv2.imread(temp)[:, :, ::-1]
 
         image_filename = ip.plot_image(q.client.image)

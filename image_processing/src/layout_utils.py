@@ -1,6 +1,48 @@
 from h2o_wave import ui, main, Q, app
-import utils.ip_utils as ip
+import src.ip_utils as ip
 import os
+
+
+async def histogram_eq_layout(q: Q):
+    q.client.histogram_eq = True
+
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_controls = False
+    if q.page['controls']:
+        del q.page['controls']
+        del q.page['original_image']
+        del q.page['transformed_image']
+
+    q.page['controls_he0'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='charts', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='charts', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='charts', order=1, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.text_xl(name='image_0', content="select your source image")
+        ]
+    )
+
+    q.page['controls_he1'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='charts', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='charts', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='charts', order=2, height='400px', size=1),
+        ),
+        title='',
+        items=[
+            ui.text_xl(name='image_1', content="select your destination image")
+        ]
+    )
 
 
 async def blur_layout(q: Q):
@@ -8,6 +50,9 @@ async def blur_layout(q: Q):
 
     if q.page['controls']:
         del q.page['controls']
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
 
     q.page['controls_b0'] = ui.form_card(
         box=ui.boxes(
@@ -106,6 +151,7 @@ async def blur_layout(q: Q):
     image_filename = ip.plot_image(q.client.image)
     content, = await q.site.upload([image_filename])
     os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
     q.page['transformed_image'].content = f'''![plot]({content})'''
     await q.page.save()
 
@@ -118,10 +164,19 @@ async def remove_blur_controls(q: Q):
     await get_standard_control(q)
 
 
+async def remove_histogram_eq(q: Q):
+    del q.page['controls_he0']
+    del q.page['controls_he1']
+    await get_standard_charts(q)
+
+
 async def histogram_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
 
     q.page['controls'].items = [
         ui.buttons(
@@ -132,9 +187,10 @@ async def histogram_layout(q: Q):
         )
 
     ]
-    # image_filename = ip.plot_image(q.client.image)
-    # content, = await q.site.upload([image_filename])
-    # os.remove(image_filename)
+    image_filename = ip.plot_image(q.client.image)
+    content, = await q.site.upload([image_filename])
+    os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
     q.page['transformed_image'].content = f'''Your histogram will be displayed here'''
     await q.page.save()
 
@@ -143,6 +199,9 @@ async def rgb2gray_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
 
     q.page['controls'].items = [
         ui.buttons(
@@ -157,6 +216,7 @@ async def rgb2gray_layout(q: Q):
     image_filename = ip.plot_image(q.client.image)
     content, = await q.site.upload([image_filename])
     os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
     q.page['transformed_image'].content = f'''![plot]({content})'''
     await q.page.save()
 
@@ -165,6 +225,9 @@ async def rotation_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
 
     q.page['controls'].items = [
         ui.slider(name='rotate', label='Translation on X axis', min=-180, max=180, step=1),
@@ -182,6 +245,7 @@ async def rotation_layout(q: Q):
     image_filename = ip.plot_image(q.client.image)
     content, = await q.site.upload([image_filename])
     os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
     q.page['transformed_image'].content = f'''![plot]({content})\n
             Last Rotation = {q.args.rotation} '''
     await q.page.save()
@@ -191,6 +255,9 @@ async def translation_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
 
     q.page['controls'].items = [
         ui.slider(name='translate_X', label='Translation on X axis', min=0, max=360, step=1),
@@ -206,6 +273,7 @@ async def translation_layout(q: Q):
     image_filename = ip.plot_image(q.client.image)
     content, = await q.site.upload([image_filename])
     os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
     q.page['transformed_image'].content = f'![plot]({content})'
     q.page['controls'].items[1].value = q.page['controls'].items[2].value = 0
 
@@ -216,6 +284,11 @@ async def transformation_layout(q: Q, content):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
+    if q.client.histogram_eq:
+        await remove_histogram_eq(q)
+        q.client.histogram_eq = False
+
+    await get_standard_charts(q)
 
     q.page['original_image'] = ui.markdown_card(
         box=ui.boxes(
@@ -257,6 +330,34 @@ async def transformation_layout(q: Q, content):
         )
     ]
 
+    await q.page.save()
+
+
+async def get_standard_charts(q: Q):
+    q.page['original_image'] = ui.markdown_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as second item in content zone.
+            ui.box(zone='content', order=2),
+            # If the viewport width >= 768, place in content zone.
+            'content',
+            # If the viewport width >= 1200, place as first item in charts zone, use 2 parts of available space.
+            ui.box(zone='charts', order=1, size=1),
+        ),
+        title='Original Image',
+        content='',
+    )
+    q.page['transformed_image'] = ui.markdown_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 768, place as second item in content zone.
+            ui.box(zone='content', order=2),
+            # If the viewport width >= 1200, place as second item in charts zone, use 1 part of available space.
+            ui.box(zone='charts', order=2, size=1),
+        ),
+        title='Transformed Image',
+        content=''
+    )
     await q.page.save()
 
 
@@ -341,6 +442,7 @@ async def responsive_layout(q: Q, content, layout):
                 ui.nav_item(name='#menu/rgb2gray', label='RGB2GRAY'),
                 ui.nav_item(name='#menu/histogram', label='Histogram'),
                 ui.nav_item(name='#menu/blur', label='Blur'),
+                ui.nav_item(name='#menu/histogram_eq', label='Histogram Equalization'),
             ]),
             ui.nav_group('Help', items=[
                 ui.nav_item(name='#about', label='About'),

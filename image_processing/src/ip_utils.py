@@ -43,7 +43,7 @@ def plot_image(image, cmap=None):
 
     image_filename = f'{str(uuid.uuid4())}.png'
     plt.savefig(image_filename, bbox_inches='tight', pad_inches=0, transparent=True)
-    plt.clf()
+    plt.close()
     print(f'file saved at {image_filename}')
 
     return image_filename
@@ -65,7 +65,7 @@ def generate_histogram(image):
 
     hist_filename = f'{str(uuid.uuid4())}.png'
     plt.savefig(hist_filename, bbox_inches='tight', pad_inches=0, transparent=True)
-    plt.clf()
+    plt.close()
     print(f'file saved at {hist_filename}')
 
     return hist_filename
