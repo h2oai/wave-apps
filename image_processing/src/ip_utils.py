@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
+from skimage.exposure import match_histograms
 
 
 def image_translation(image, tx, ty):
@@ -87,3 +88,27 @@ def bilateral_blurring(image: np.array, kernel_size: int = 5, colors: int = 21, 
     return cv2.bilateralFilter(image, kernel_size, colors, sigma)
 
 
+def histogram_matching(image: np.array, reference: np.array, multi_channel: bool = True):
+    return match_histograms(image, reference, multichannel=multi_channel)
+
+
+def hist_match_plot(image, title):
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
+
+    histB = cv2.calcHist([image], [2], None, [256], [0, 256])
+    histG = cv2.calcHist([image], [1], None, [256], [0, 256])
+    histR = cv2.calcHist([image], [0], None, [256], [0, 256])
+
+    ax1.imshow(image)
+    ax2.plot(histB, color='blue')
+    ax2.plot(histR, color='red')
+    ax2.plot(histG, color='green')
+
+    plt.tight_layout()
+    fig.suptitle(title)
+    hist_filename = f'{str(uuid.uuid4())}.png'
+    plt.savefig(hist_filename, pad_inches=0, transparent=True)
+    plt.close()
+    print(f'file saved at {hist_filename}')
+
+    return hist_filename

@@ -36,17 +36,13 @@ async def serve(q: Q):
             await layouts.histogram_layout(q)
         elif _hash == 'menu/blur':
             await layouts.blur_layout(q)
-        elif _hash == 'menu/histogram_eq':
-            await layouts.histogram_eq_layout(q)
+        elif _hash == 'menu/histogram_match':
+            await layouts.histogram_match_layout(q)
+            q.client.load_image_hist_eq = True
+            q.client.load_count = 0
 
     if q.args.image_table:
-        temp = await q.site.download(q.args.image_table[-1], '../data/')
-        q.client.image = cv2.imread(temp)[:, :, ::-1]
-
-        image_filename = ip.plot_image(q.client.image)
-        content, = await q.site.upload([image_filename])
-        os.remove(image_filename)
-        await layouts.responsive_layout(q, content, layouts.transformation_layout)
+        await U.load_image(q)
 
     if q.args.image_upload:
         q.client.image_df = helper.update_df(q.client.image_df, q.args.image_upload[-1])
@@ -84,6 +80,9 @@ async def serve(q: Q):
     elif q.args.reset_blur:
         await U.reset_blur(q)
 
+    if q.args.hist_match:
+        await U.do_histogram_matching(q)
+
     if not q.client.initialized:
         q.client.initialized = True
         image_filename = ip.plot_image(q.client.image)
@@ -91,7 +90,7 @@ async def serve(q: Q):
         os.remove(image_filename)
 
         await layouts.responsive_layout(q, content, layouts.transformation_layout)
-
+        await layouts.responsive_sidebar(q)
     await q.page.save()
 
 

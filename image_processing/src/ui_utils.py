@@ -1,6 +1,8 @@
 from h2o_wave import Q, app, ui, main
 import os
 import ip_utils as ip
+import views.layout_utils as layouts
+import cv2
 
 
 async def do_translation(q: Q):
@@ -69,7 +71,7 @@ async def get_histogram(q: Q):
 async def average_blur(q: Q):
     if q.args.ave_filter_h and q.args.ave_filter_w:
         image_name = ip.plot_image(ip.average_blurring(
-                q.client.image, filter_size=(int(q.args.ave_filter_w), int(q.args.ave_filter_h))))
+            q.client.image, filter_size=(int(q.args.ave_filter_w), int(q.args.ave_filter_h))))
     else:
         image_name = ip.plot_image(
             ip.average_blurring(q.client.image))
@@ -133,3 +135,52 @@ async def reset_blur(q: Q):
     q.page['controls_b2'].items[0].value = 0
     q.page['controls_b2'].items[0].value = \
         q.page['controls_b2'].items[1].value = q.page['controls_b2'].items[2].value = 0
+
+
+async def load_image(q: Q):
+    if q.client.load_image_hist_eq:
+        if q.client.load_count == 0:
+            temp = await q.site.download(q.args.image_table[-1], '../data/')
+            q.client.image = cv2.imread(temp)[:, :, ::-1]
+
+            # keep copy of src image for histogram matching
+            q.client.hm_dict = {'src': q.client.image.copy()}
+
+            image_filename = ip.hist_match_plot(q.client.image, 'Source')
+            content, = await q.site.upload([image_filename])
+            os.remove(image_filename)
+
+            q.page['chart_hm0'].content = f'''![plot]({content})'''
+            q.client.load_count += 1
+        elif q.client.load_count == 1:
+            temp = await q.site.download(q.args.image_table[-1], '../data/')
+            q.client.image = cv2.imread(temp)[:, :, ::-1]
+
+            # keep copy of reference image
+            q.client.hm_dict['reference'] = q.client.image.copy()
+
+            image_filename = ip.hist_match_plot(q.client.image, 'Reference')
+            content, = await q.site.upload([image_filename])
+            os.remove(image_filename)
+
+            q.page['chart_hm1'].content = f'''![plot]({content})'''
+            q.client.load_count += 1
+    else:
+        temp = await q.site.download(q.args.image_table[-1], '../data/')
+        q.client.image = cv2.imread(temp)[:, :, ::-1]
+
+        image_filename = ip.plot_image(q.client.image)
+        content, = await q.site.upload([image_filename])
+        os.remove(image_filename)
+        q.page['original_image'].content = f'''![plot]({content})'''
+        q.page['transformed_image'].content = f'''![plot]({content})'''
+
+
+async def do_histogram_matching(q: Q):
+    matched_image = ip.histogram_matching(q.client.hm_dict['src'], q.client.hm_dict['reference'])
+
+    image_filename = ip.hist_match_plot(matched_image, 'Matched')
+    content, = await q.site.upload([image_filename])
+    os.remove(image_filename)
+
+    q.page['matched_hm'].content = f'''![plot]({content})'''

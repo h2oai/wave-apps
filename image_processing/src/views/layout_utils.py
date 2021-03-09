@@ -3,8 +3,8 @@ import ip_utils as ip
 import os
 
 
-async def histogram_eq_layout(q: Q):
-    q.client.histogram_eq = True
+async def histogram_match_layout(q: Q):
+    q.client.histogram_match = True
 
     if q.client.blur_controls:
         await remove_blur_controls(q)
@@ -14,34 +14,59 @@ async def histogram_eq_layout(q: Q):
         del q.page['original_image']
         del q.page['transformed_image']
 
-    q.page['controls_he0'] = ui.form_card(
+    q.page['chart_hm0'] = ui.markdown_card(
         box=ui.boxes(
             # If the viewport width >= 0, place as fourth item in content zone.
             ui.box(zone='charts', order=4),
             # If the viewport width >= 768, place as third item in content zone.
             ui.box(zone='charts', order=3),
             # If the viewport width >= 1200, place in content zone.
-            ui.box(zone='charts', order=1, height='400px', size=1),
+            ui.box(zone='charts', order=1, size=1, width='600px', height='300px'),
+        ),
+        title='',
+        content="Select Source Image"
+    )
+
+    q.page['chart_hm1'] = ui.markdown_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='charts', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='charts', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='charts', order=2, size=1, width='600px', height='300px'),
+        ),
+        title='',
+        content='Select Destination Image'
+    )
+
+    q.page['control_hm'] = ui.form_card(
+        box=ui.boxes(
+            # If the viewport width >= 0, place as fourth item in content zone.
+            ui.box(zone='content', order=4),
+            # If the viewport width >= 768, place as third item in content zone.
+            ui.box(zone='content', order=3),
+            # If the viewport width >= 1200, place in content zone.
+            ui.box(zone='content', order=1, height='600px', width='250px'),
         ),
         title='',
         items=[
-            ui.text_xl(name='image_0', content="select your source image")
+            ui.button(name='hist_match', label='Histogram Matching', primary=True,
+                      tooltip='Click to match histogram')
         ]
     )
 
-    q.page['controls_he1'] = ui.form_card(
+    q.page['matched_hm'] = ui.markdown_card(
         box=ui.boxes(
             # If the viewport width >= 0, place as fourth item in content zone.
-            ui.box(zone='charts', order=4),
+            ui.box(zone='content', order=4),
             # If the viewport width >= 768, place as third item in content zone.
-            ui.box(zone='charts', order=3),
+            ui.box(zone='content', order=3),
             # If the viewport width >= 1200, place in content zone.
-            ui.box(zone='charts', order=2, height='400px', size=1),
+            ui.box(zone='content', order=2, height='600px', size=1),
         ),
         title='',
-        items=[
-            ui.text_xl(name='image_1', content="select your destination image")
-        ]
+        content=''
     )
 
 
@@ -50,9 +75,9 @@ async def blur_layout(q: Q):
 
     if q.page['controls']:
         del q.page['controls']
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     q.page['controls_b0'] = ui.form_card(
         box=ui.boxes(
@@ -164,19 +189,22 @@ async def remove_blur_controls(q: Q):
     await get_standard_control(q)
 
 
-async def remove_histogram_eq(q: Q):
-    del q.page['controls_he0']
-    del q.page['controls_he1']
+async def remove_histogram_match(q: Q):
+    del q.page['chart_hm0']
+    del q.page['chart_hm1']
+    del q.page['control_hm']
+    del q.page['matched_hm']
     await get_standard_charts(q)
+    await get_standard_control(q)
 
 
 async def histogram_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     q.page['controls'].items = [
         ui.buttons(
@@ -199,9 +227,9 @@ async def rgb2gray_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     q.page['controls'].items = [
         ui.buttons(
@@ -225,9 +253,9 @@ async def rotation_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     q.page['controls'].items = [
         ui.slider(name='rotate', label='Translation on X axis', min=-180, max=180, step=1),
@@ -255,9 +283,9 @@ async def translation_layout(q: Q):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     q.page['controls'].items = [
         ui.slider(name='translate_X', label='Translation on X axis', min=0, max=360, step=1),
@@ -284,9 +312,9 @@ async def transformation_layout(q: Q, content):
     if q.client.blur_controls:
         await remove_blur_controls(q)
         q.client.blur_control = False
-    if q.client.histogram_eq:
-        await remove_histogram_eq(q)
-        q.client.histogram_eq = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
 
     await get_standard_charts(q)
 
@@ -369,10 +397,38 @@ async def get_standard_control(q: Q):
             # If the viewport width >= 768, place as third item in content zone.
             ui.box(zone='content', order=3),
             # If the viewport width >= 1200, place in content zone.
-            ui.box(zone='content', height='400px', size=1),
+            ui.box(zone='content', height='500px', size=1),
         ),
         title='',
         items=[]
+    )
+    await q.page.save()
+
+
+async  def responsive_sidebar(q: Q):
+    q.page['main_sidebar'] = ui.form_card(
+        # If the viewport width >= 0, place in content zone.
+        # If the viewport width >= 768, place in sidebar zone.
+        # If the viewport width >= 1200, place in sidebar zone.
+        box=ui.boxes('content', 'sidebar', 'sidebar'),
+        title='',
+        items=[
+            ui.text_xl(name='image_uploader_header', content="<h4 align='center'>Upload Your Images</h4>"),
+            ui.file_upload(name='image_upload', label='Upload Image', multiple=True,
+                           file_extensions=['jpg', 'jpeg', 'png']),
+            ui.table(
+                name='image_table',
+                columns=q.client.columns,
+                rows=[ui.table_row(
+                    name='images',
+                    cells=[row.Image, row.Timestamp]
+                ) for row in q.client.image_df.itertuples()],
+                groupable=False,
+                downloadable=True,
+                resettable=False,
+                height='425px',
+            ),
+        ],
     )
     await q.page.save()
 
@@ -442,37 +498,12 @@ async def responsive_layout(q: Q, content, layout):
                 ui.nav_item(name='#menu/rgb2gray', label='RGB2GRAY'),
                 ui.nav_item(name='#menu/histogram', label='Histogram'),
                 ui.nav_item(name='#menu/blur', label='Blur'),
-                ui.nav_item(name='#menu/histogram_eq', label='Histogram Equalization'),
+                ui.nav_item(name='#menu/histogram_match', label='Histogram Matching'),
             ]),
             ui.nav_group('Help', items=[
                 ui.nav_item(name='#about', label='About'),
                 ui.nav_item(name='#support', label='Support'),
             ])
-        ],
-    )
-
-    q.page['main_sidebar'] = ui.form_card(
-        # If the viewport width >= 0, place in content zone.
-        # If the viewport width >= 768, place in sidebar zone.
-        # If the viewport width >= 1200, place in sidebar zone.
-        box=ui.boxes('content', 'sidebar', 'sidebar'),
-        title='',
-        items=[
-            ui.text_xl(name='image_uploader_header', content="<h4 align='center'>Upload Your Images</h4>"),
-            ui.file_upload(name='image_upload', label='Upload Image', multiple=True,
-                           file_extensions=['jpg', 'jpeg', 'png']),
-            ui.table(
-                name='image_table',
-                columns=q.client.columns,
-                rows=[ui.table_row(
-                    name='images',
-                    cells=[row.Image, row.Timestamp]
-                ) for row in q.client.image_df.itertuples()],
-                groupable=False,
-                downloadable=True,
-                resettable=False,
-                height='425px',
-            ),
         ],
     )
 
