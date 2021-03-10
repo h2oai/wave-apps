@@ -13,7 +13,7 @@ async def serve(q: Q):
     _hash = q.args['#']
 
     if not q.client.flag:
-        q.client.image = cv2.imread('../data/h2o.png')[:, :, ::-1]
+        q.client.image = cv2.imread('../data/lena.jpg')[:, :, ::-1]
         q.client.image_df = pd.DataFrame({
             'Image': [],
             'Timestamp': []
