@@ -10,30 +10,6 @@ from h2o_wave import app, data, main, Q, ui
 
 
 @dataclass
-class WaveColors:
-    # Colors from Wave default Theme.
-    # https://github.com/h2oai/wave/blob/4ec0f6a6a2b8f43f11cdb557ba35a540ad23c13c/ui/src/theme.ts#L86
-    red: str = '#F44336'
-    pink: str = '#E91E63'
-    purple: str = '#9C27B0'
-    violet: str = '#673AB7'
-    indigo: str = '#3F51B5'
-    blue: str = '#2196F3'
-    azure: str = '#03A9F4'
-    cyan: str = '#00BCD4'
-    teal: str = '#009688'
-    mint: str = '#4CAF50'
-    green: str = '#8BC34A'
-    lime: str = '#CDDC39'
-    yellow: str = '#FFEB3B'
-    amber: str = '#FFC107'
-    orange: str = '#FF9800'
-    tangerine: str = '#FF5722'
-    brown: str = '#795548'
-    gray: str = '#9E9E9E'
-
-
-@dataclass
 class UserInputs:
     stores: Optional[List[int]] = field(default_factory=list)
     departments: Optional[List[int]] = field(default_factory=list)
@@ -59,7 +35,7 @@ class UserInputs:
             # Hack: Forcing limits to handle app freeze
             if len(self.departments) > 20:
                 self.departments = self.departments[:20]
-        if q_args.n_forecast_weeks:
+        if q_args.n_forecast_weeks is not None:
             self.n_forecast_weeks = q_args.n_forecast_weeks
 
 
@@ -119,61 +95,46 @@ def download_file_from_s3(s3_uri, file_path, overwrite=True):
 
 def get_user_input_items(sales_data, user_inputs, progress=False):
     return [
-        ui.text_l('**Select Area of Interest**'),
+        ui.text_l('**Prediction Configuration**'),
         ui.dropdown(
             name='stores',
             label='Store IDs',
             values=[str(x) for x in user_inputs.stores],
             choices=[ui.choice(name=str(x), label=str(x)) for x in sales_data.stores_unique],
-            tooltip='Select the Stores to include in the prediction',
             trigger=True,
         ),
-        ui.text_xs('⠀'),
         ui.dropdown(
             name='departments',
             label='Product IDs',
             values=[str(x) for x in user_inputs.departments],
             choices=[ui.choice(name=str(x), label=str(x)) for x in sales_data.departments_unique],
-            tooltip='Select the Products to include in the prediction',
             trigger=True,
         ),
-        ui.frame(content=' ', height="40px"),
-        ui.text_l('**Generate Sales Forecast**'),
         ui.slider(
             name='n_forecast_weeks',
-            label='Number of Weeks',
+            label='Weeks to predict',
             min=0,
             max=len(sales_data.prediction_dates) - 1,
             step=1,
             value=user_inputs.n_forecast_weeks,
             trigger=True,
-            tooltip='Select the number of weeks into the future to predict'
         ),
-        ui.text_xs('⠀'),
-        ui.button(
-            name='reset',
-            label='Reset',
-            primary=True,
-            tooltip='Click to reset all values to defaults'
-        ),
-        ui.text_xs('⠀'),
+        ui.button(name='reset', label='Reset', primary=True, tooltip='Click to reset all values to defaults'),
         ui.progress(label='', caption='', visible=progress),
     ]
 
 
 async def update_sidebar(q: Q, user_inputs, progress=False):
     q.page['sidebar'].items[1].dropdown.values = [str(x) for x in user_inputs.stores]
-    q.page['sidebar'].items[3].dropdown.values = [str(x) for x in user_inputs.departments]
-    q.page['sidebar'].items[6].slider.value = user_inputs.n_forecast_weeks
-    q.page['sidebar'].items[10].progress.visible = progress
+    q.page['sidebar'].items[2].dropdown.values = [str(x) for x in user_inputs.departments]
+    q.page['sidebar'].items[3].slider.value = user_inputs.n_forecast_weeks
+    q.page['sidebar'].items[5].progress.visible = progress
     await q.page.save()
 
 
 async def draw_weekly_sales_plot(q: Q, plot_data):
-    v = q.page.add(
-        'content',
-        ui.plot_card(
-            box='4 2 9 9',
+    v = q.page.add( 'content', ui.plot_card(
+            box='content',
             title='Walmart Weekly Sales Forecast',
             data=data('Date Weekly_Sales data_type', 0),
             plot=ui.plot([
@@ -186,7 +147,7 @@ async def draw_weekly_sales_plot(q: Q, plot_data):
                     x_title='Date',
                     y_title='Weekly Sales (USD)',
                     color='=data_type',
-                    color_range=' '.join([WaveColors.red, WaveColors.purple]),
+                    color_range='$red $purple',
                     size=6,
                     fill_opacity=0.75,
                     shape='circle'
@@ -205,16 +166,29 @@ async def initialize_app(q: Q):
     walmart_predictions = './walmart_test_preds.csv'
 
     # Setup UI elements on the page
-    q.page['meta'] = ui.meta_card(box='', title='H2O Wave - Sales Forecasting')
+    q.page['meta'] = ui.meta_card(box='', title='H2O Wave - Sales Forecasting', layouts=[
+        ui.layout(
+            breakpoint='xs',
+            zones=[
+                ui.zone('header'),
+                ui.zone('loading'),
+                # vh means viewport height, 70px accounts for header and spacing between cards.
+                ui.zone('body', size='calc(100vh - 70px)', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('sidebar', size='350px'),
+                    ui.zone('content'),
+                ]),
+            ]
+        ),
+    ])
     q.page['title'] = ui.header_card(
-        box='1 1 12 1',
+        box='header',
         title='Sales Forecasting',
         subtitle='Exploring historic demand and forecasts for supply chain optimization',
         icon='GiftBox',
         icon_color='#ffe600',
     )
     q.page['loading'] = ui.form_card(
-        box='4 4 6 1',
+        box='loading',
         items=[ui.progress(label='Downloading sales data from AWS S3 ...', caption='')]
     )
     await q.page.save()
@@ -239,7 +213,7 @@ async def initialize_app(q: Q):
 
     del q.page['loading']
     q.page['sidebar'] = ui.form_card(
-        box='1 2 3 9',
+        box='sidebar',
         items=get_user_input_items(q.app.sales_data, q.app.user_inputs)
     )
     await draw_weekly_sales_plot(q, plot_data)
@@ -255,6 +229,6 @@ async def serve(q: Q):
     q.app.user_inputs.update(q.args)
     await update_sidebar(q, q.app.user_inputs, progress=True)
     plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
-    q.page['sidebar'].items[10].progress.visible = False
+    q.page['sidebar'].items[5].progress.visible = False
     q.page['content'].data = plot_data
     await q.page.save()

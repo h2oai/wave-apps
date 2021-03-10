@@ -3,7 +3,7 @@ botocore==1.19.23
 certifi==2020.11.8; python_version >= "3.6" and python_full_version >= "3.6.1"
 click==7.1.2; python_full_version >= "3.6.1"
 h11==0.11.0; python_version >= "3.6" and python_full_version >= "3.6.1"
-h2o-wave<1.0; python_full_version >= "3.6.1"
+h2o-wave==0.13; python_full_version >= "3.6.1"
 httpcore==0.12.2; python_version >= "3.6" and python_full_version >= "3.6.1"
 httpx==0.16.1; python_version >= "3.6" and python_full_version >= "3.6.1"
 idna==2.10; python_version >= "3.6" and python_full_version >= "3.6.1"
