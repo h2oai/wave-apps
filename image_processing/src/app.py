@@ -40,6 +40,8 @@ async def serve(q: Q):
             await layouts.histogram_match_layout(q)
             q.client.load_image_hist_eq = True
             q.client.load_count = 0
+        elif _hash == 'menu/edge_detection':
+            await layouts.edge_detection(q)
 
     if q.args.image_table:
         await U.load_image(q)
@@ -79,9 +81,13 @@ async def serve(q: Q):
         await U.bilateral_blur(q)
     elif q.args.reset_blur:
         await U.reset_blur(q)
-
-    if q.args.hist_match:
+    elif q.args.hist_match:
         await U.do_histogram_matching(q)
+
+    if q.args.edge_detect:
+        await U.do_edge_detection(q)
+    elif q.args.edge_reset:
+        await U.reset_edge_detection(q)
 
     if not q.client.initialized:
         q.client.initialized = True
@@ -92,5 +98,3 @@ async def serve(q: Q):
         await layouts.responsive_layout(q, content, layouts.transformation_layout)
         await layouts.responsive_sidebar(q)
     await q.page.save()
-
-

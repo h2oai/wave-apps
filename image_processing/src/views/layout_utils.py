@@ -3,6 +3,39 @@ import ip_utils as ip
 import os
 
 
+async def edge_detection(q: Q):
+    choices = [
+        ui.choice('laplace', 'Laplace'),
+        ui.choice('sobel', 'Sobel')
+    ]
+    if q.client.blur_controls:
+        await remove_blur_controls(q)
+        q.client.blur_controls = False
+    if q.client.histogram_match:
+        await remove_histogram_match(q)
+        q.client.histogram_match = False
+
+    q.page['controls'].items = [
+        ui.choice_group(name='ed_kernels', label='Pick the Kernel',
+                        value='laplace', required=True, choices=choices),
+        ui.checkbox(name='ed_smooth', label='Apply Smoothing before Edge Detection'),
+        ui.buttons(
+            items=[
+                ui.button(name='edge_detect', label='Edge Detection', primary=True,
+                          tooltip='Click to detect edges'),
+                ui.button(name='edge_reset', label='Reset Image')
+            ]
+        )
+
+    ]
+    image_filename = ip.plot_image(q.client.image)
+    content, = await q.site.upload([image_filename])
+    os.remove(image_filename)
+    q.page['original_image'].content = f'''![plot]({content})'''
+    q.page['transformed_image'].content = f'''![plot]({content})'''
+    await q.page.save()
+
+
 async def histogram_match_layout(q: Q):
     q.client.histogram_match = True
 
@@ -499,6 +532,7 @@ async def responsive_layout(q: Q, content, layout):
                 ui.nav_item(name='#menu/histogram', label='Histogram'),
                 ui.nav_item(name='#menu/blur', label='Blur'),
                 ui.nav_item(name='#menu/histogram_match', label='Histogram Matching'),
+                ui.nav_item(name='#menu/edge_detection', label='Edge Detection')
             ]),
             ui.nav_group('Help', items=[
                 ui.nav_item(name='#about', label='About'),

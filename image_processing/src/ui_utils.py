@@ -184,3 +184,23 @@ async def do_histogram_matching(q: Q):
     os.remove(image_filename)
 
     q.page['matched_hm'].content = f'''![plot]({content})'''
+
+
+async def do_edge_detection(q: Q):
+    flag = True if q.args.ed_smooth else False
+    edges = ip.edge_detection(q.client.image, q.args.ed_kernels, flag)
+
+    image_name = ip.plot_image(edges)
+
+    temp, = await q.site.upload([image_name])
+    os.remove(image_name)
+    q.page['transformed_image'].content = f'''![plot]({temp})'''
+
+
+async def reset_edge_detection(q: Q):
+    image_filename = ip.plot_image(q.client.image)
+    content, = await q.site.upload([image_filename])
+    os.remove(image_filename)
+    q.page['transformed_image'].content = f'''![plot]({content})'''
+    q.page['controls'].items[0].value = 'laplace'
+    q.page['control'].items[1].value = False

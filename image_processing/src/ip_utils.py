@@ -112,3 +112,22 @@ def hist_match_plot(image, title):
     print(f'file saved at {hist_filename}')
 
     return hist_filename
+
+
+def edge_detection(image: np.array, kernel: str = 'laplace', smoothing: bool = False):
+    if smoothing:
+        image = gaussian_blurring(image, (3, 3), 0)
+    if kernel == 'laplace':
+        lap_gradient = cv2.Laplacian(image, cv2.CV_64F)
+        lap_gradient = np.uint(np.absolute(lap_gradient))
+
+        return lap_gradient
+    elif kernel == 'sobel':
+        sob_gradient_x = cv2.Sobel(image, cv2.CV_64F, 1, 0)
+        sob_gradient_y = cv2.Sobel(image, cv2.CV_64F, 0, 1)
+
+        sob_gradient_x = np.uint(np.absolute(sob_gradient_x))
+        sob_gradient_y = np.uint(np.absolute(sob_gradient_y))
+
+        return cv2.bitwise_or(sob_gradient_x, sob_gradient_y)
+
