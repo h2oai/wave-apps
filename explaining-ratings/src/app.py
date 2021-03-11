@@ -52,8 +52,8 @@ def populate_dropdown_list(q: Q):
             items.append(ui.dropdown(
                 name="filter_value",
                 label="Choose a value for selected review attribute",
-                placeholder=attr_val,
-                choices=[ui.choice(name=json.dumps({'id': key, 'attr': attr, 'attr_val': column}), label=column) for
+                placeholder=str(attr_val),
+                choices=[ui.choice(name=json.dumps({'id': key, 'attr': attr, 'attr_val': column}), label=str(column)) for
                          column in config.dataset[attr].drop_duplicates()],
                 trigger=True,
             ), )
