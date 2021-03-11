@@ -158,7 +158,7 @@ async def initialize(q: Q):
 
     q.app.header_png = await q.site.upload([config.image_path])
     q.app.training_file_url = await q.site.upload([config.working_data])
-    q.page['meta'] = ui.meta_card(box='', title='Telcom Churn Analytics')
+    q.page['meta'] = ui.meta_card(box='', title='Telecom Churn Analytics')
     q.client.app_initialized = True
 
 
