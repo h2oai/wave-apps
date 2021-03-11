@@ -22,36 +22,34 @@ def init(q: Q):
         ),
         ui.layout(
             breakpoint='m',
-            width='1920px',
             zones=[
                 ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('title', size='400px'),
                     ui.zone('menu'),
                     ui.zone('button_group', size='200px'),
                 ]),
-                ui.zone('body', size='900px', direction=ui.ZoneDirection.ROW, zones=[
+                ui.zone('body', size='calc(100vh - 80px)', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('risk_table_selected', size='400px'),
-                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, size='calc(100% - 400px)',zones=[
                         ui.zone('risk_explanation', size='150px'),
-                        ui.zone('shap_plot'),
+                        ui.zone('shap_plot', size='calc(100vh - 230px)'),
                     ])
                 ]),
             ]
         ),
         ui.layout(
             breakpoint='xl',
-            width='1920px',
             zones=[
                 ui.zone('header', size='80px', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('title', size='400px'),
                     ui.zone('menu'),
                     ui.zone('button_group', size='200px'),
                 ]),
-                ui.zone('body', size='1200px', direction=ui.ZoneDirection.ROW, zones=[
+                ui.zone('body', size='calc(100vh - 80px)', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('risk_table_selected', size='400px'),
-                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, zones=[
+                    ui.zone('pane', direction=ui.ZoneDirection.COLUMN, size='calc(100% - 400px)', zones=[
                         ui.zone('risk_explanation', size='150px'),
-                        ui.zone('shap_plot'),
+                        ui.zone('shap_plot', size='calc(100vh - 230px)'),
                     ])
                 ]),
             ]
@@ -101,7 +99,7 @@ def render_customer_details_table(q: Q, df, row):
                 groupable=False,
                 resettable=False,
                 multiple=False,
-                height='100%'
+                height='1200px'
             )
         ])
    )
@@ -152,6 +150,7 @@ def render_customer_page(q: Q):
     del contributions_df['BiasTerm']
 
     q.client.selected_customer_id = training_df.loc[selected_row]["ID"]
+    print("selected id : ", q.client.selected_customer_id)
     score = predictions_df.loc[selected_row]["predict"]
     approve = bool(score < config.approval_threshold)
 
