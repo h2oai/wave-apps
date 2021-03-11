@@ -120,7 +120,8 @@ def home_content(q: Q):
                    value=q.args.text, multiline=False, trigger=False)])
 
     q.page["search_button"] = ui.form_card(box=ui.boxes('search_button'), items=[
-        ui.button(name="search", label="search", primary=True)])
+                    ui.buttons([ui.button(name="search", label="search", primary=True)],
+                    justify=ui.ButtonsJustify.AROUND)])
 
     for tweet_count in range(0, config.max_tweet_count):
         q.page[f'twitter_card_{tweet_count}'] = ui.form_card(box=f'content_{tweet_count}', items=[])
@@ -128,7 +129,7 @@ def home_content(q: Q):
 
 def create_twitter_card_slots(row_count, column_count):
     return [
-        ui.zone(f'row_{row}', direction=ui.ZoneDirection.ROW, size='350px', zones=[
+        ui.zone(f'row_{row}', direction=ui.ZoneDirection.ROW, size='400px', zones=[
             ui.zone(f'content_{(row * column_count) + column}', direction=ui.ZoneDirection.ROW, size='400px') for
             column in range(0, column_count)
         ]) for row in range(0, row_count)]
@@ -177,10 +178,10 @@ async def list_tweets_for_hashtag(q):
         q.page[f'twitter_card_{tweet_count}'].items = [
             ui.message_bar(type=f"{derive_sentiment_message_type(popularity_score['compound'])}",
                            text=f"Sentiment - {derive_sentiment_status(popularity_score['compound'])}"),
-            ui.text(content=tweet[:200]),
+            ui.text(content=tweet[:150].strip()),
             ui.frame(content=convert_plot_to_html(
                 generate_figure_pie_of_target_percent(map_popularity_score_keys(popularity_score)), "cdn", False),
-                width='100%', height='100%')
+                    width='300px', height='250px')
         ]
 
 
