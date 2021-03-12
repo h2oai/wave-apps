@@ -73,7 +73,7 @@ def render_home(q: Q):
                 rows=get_rows(q, df),
                 groupable=True,
                 multiple=False,
-                height="90%"
+                height="800px"
             )
         ]
     )
