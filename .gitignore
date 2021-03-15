@@ -131,6 +131,7 @@ dmypy.json
 .pyre/
 
 .idea
+.vscode
 *.iml
 *.wave
 *.state
