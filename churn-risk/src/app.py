@@ -48,9 +48,10 @@ def show_profile(q: Q):
        )
     ])
     if not q.args.customers:
-      q.page["empty_profile_page"] = ui.form_card(box=config.boxes["empty_profile_page"], items=[
-        ui.text_xl("To see the analysis results, you need to choose a phone number first.")
-      ])
+        cleanup_pages(q)
+        q.page["empty_profile_page"] = ui.form_card(box=config.boxes["empty_profile_page"], items=[
+            ui.text_xl("To see the analysis results, you need to choose a phone number first.")
+        ])
     else: 
         del q.page["empty_profile_page"]
         df = pd.read_csv(config.testing_data_url)
@@ -84,6 +85,12 @@ def populate_churn_plots(q):
         type="png",
         image=get_image_from_matplotlib(top_positive_pd_plot),
     )
+
+
+def cleanup_pages(q: Q):
+    del [q.page["day_stat"], q.page["eve_stat"], q.page["night_stat"], q.page["intl_stat"], q.page["total_stat"],
+         q.page["customer"], q.page["churn_rate"], q.page["stat_pie"], q.page["shap_plot"],
+         q.page["top_negative_pd_plot"], q.page["top_positive_pd_plot"]]
 
 
 def populate_customer_churn_stats(cust_phone_no, df, q):
@@ -169,6 +176,7 @@ async def serve(q: Q):
         await initialize(q)
 
     if q.args['#'] == 'tour':
+        cleanup_pages(q)
         q.page["content"] = ui.form_card(box=config.boxes["content"], items=python_code_content("app.py"))
     else:
         show_profile(q)
