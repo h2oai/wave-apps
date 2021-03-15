@@ -9,6 +9,12 @@ import pandas as pd
 from h2o_wave import app, data, main, Q, ui
 
 
+# Inputs for the app, Should be read from a config file
+walmart_train_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_train.csv"
+walmart_predictions_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_test_preds.csv"
+walmart_train = './walmart_train.csv'
+walmart_predictions = './walmart_test_preds.csv'
+
 @dataclass
 class UserInputs:
     stores: Optional[List[int]] = field(default_factory=list)
@@ -133,7 +139,7 @@ async def update_sidebar(q: Q, user_inputs, progress=False):
 
 
 async def draw_weekly_sales_plot(q: Q, plot_data):
-    v = q.page.add( 'content', ui.plot_card(
+    v = q.page.add('content', ui.plot_card(
             box='content',
             title='Walmart Weekly Sales Forecast',
             data=data('Date Weekly_Sales data_type', 0),
@@ -159,19 +165,12 @@ async def draw_weekly_sales_plot(q: Q, plot_data):
 
 
 async def initialize_app(q: Q):
-    # Inputs for the app, Should be read from a config file
-    walmart_train_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_train.csv"
-    walmart_predictions_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_test_preds.csv"
-    walmart_train = './walmart_train.csv'
-    walmart_predictions = './walmart_test_preds.csv'
-
     # Setup UI elements on the page
     q.page['meta'] = ui.meta_card(box='', title='H2O Wave - Sales Forecasting', layouts=[
         ui.layout(
             breakpoint='xs',
             zones=[
                 ui.zone('header'),
-                ui.zone('loading'),
                 # vh means viewport height, 70px accounts for header and spacing between cards.
                 ui.zone('body', size='calc(100vh - 70px)', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('sidebar', size='350px'),
@@ -187,22 +186,6 @@ async def initialize_app(q: Q):
         icon='GiftBox',
         icon_color='#ffe600',
     )
-    q.page['loading'] = ui.form_card(
-        box='loading',
-        items=[ui.progress(label='Downloading sales data from AWS S3 ...', caption='')]
-    )
-    await q.page.save()
-
-    # Download input data from S3
-    train = download_file_from_s3(walmart_train_s3, walmart_train, overwrite=False)
-    if train is None or not os.path.isfile(train):
-        sys.exit(1)
-    pred = download_file_from_s3(walmart_predictions_s3, walmart_predictions, overwrite=False)
-    if pred is None or not os.path.isfile(pred):
-        sys.exit(1)
-
-    q.page['loading'].items[0].progress.label = 'Processing sales data ...'
-    await q.page.save()
 
     # Create default UserInputs and SalesData
     q.app.user_inputs = UserInputs()
@@ -211,15 +194,23 @@ async def initialize_app(q: Q):
 
     plot_data = q.app.sales_data.get_plot_data(**asdict(q.app.user_inputs))
 
-    del q.page['loading']
     q.page['sidebar'] = ui.form_card(
         box='sidebar',
         items=get_user_input_items(q.app.sales_data, q.app.user_inputs)
     )
     await draw_weekly_sales_plot(q, plot_data)
 
+def on_startup():
+    # Download input data from S3
+    train = download_file_from_s3(walmart_train_s3, walmart_train, overwrite=False)
+    if train is None or not os.path.isfile(train):
+        sys.exit(1)
+    pred = download_file_from_s3(walmart_predictions_s3, walmart_predictions, overwrite=False)
+    if pred is None or not os.path.isfile(pred):
+        sys.exit(1)
 
-@app('/')
+
+@app('/', on_startup=on_startup)
 async def serve(q: Q):
     if not q.client.app_initialized:
         await initialize_app(q)
