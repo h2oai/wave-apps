@@ -43,12 +43,10 @@ def render_diff_word_cloud(q: Q):
         df = df[df[key] == value]
 
     if len(df):
-        # Remove when https://github.com/h2oai/wave/pull/611 merged.
-        q.page['meta'].layouts[0].zones[1].zones[1].zones[1].size = '1'
-        q.page['diff'] = ui.image_card(box='diff', title='Diff', type='png', image=plot_word_cloud(df[q.client.review], q))
+        q.page['diff'] = ui.image_card(box='content', title='Diff', type='png', image=plot_word_cloud(df[q.client.review], q))
     else:
         # TODO: Move into sidebar when https://github.com/h2oai/wave/pull/507 merged.
-        q.page['diff'] = ui.form_card(box='diff', items=[ui.message_bar(type='warning', text='No reviews matching filter criteria!')])
+        q.page['diff'] = ui.form_card(box='content', items=[ui.message_bar(type='warning', text='No reviews matching filter criteria!')])
 
 
 def init(q: Q):
@@ -59,10 +57,7 @@ def init(q: Q):
                 ui.zone('header'),
                 ui.zone('body', direction=ui.ZoneDirection.ROW, size='calc(100vh - 70px)', zones=[
                     ui.zone('sidebar', size='350px'),
-                    ui.zone('content', direction=ui.ZoneDirection.ROW, zones=[
-                        ui.zone('all'),
-                        ui.zone('diff')
-                    ])
+                    ui.zone('content', direction=ui.ZoneDirection.ROW)
                 ])
             ]
         ),
@@ -80,7 +75,7 @@ def init(q: Q):
     ),
     ui.separator('Filters')] + form_filters
     q.page['sidebar'] = ui.form_card(box='sidebar', items=sidebar_items)
-    q.page['original'] = ui.image_card(box='all', title='Original', type='png', image=plot_word_cloud(config.dataset[q.client.review], q))
+    q.page['original'] = ui.image_card(box='content', title='Original', type='png', image=plot_word_cloud(config.dataset[q.client.review], q))
 
 
 def handle_filter(q: Q, key: str, val: str):
@@ -137,7 +132,5 @@ async def serve(q: Q):
         render_diff_word_cloud(q)
     else:
         del q.page['diff']
-        # TODO: Remove when https://github.com/h2oai/wave/pull/611 merged.
-        q.page['meta'].layouts[0].zones[1].zones[1].zones[1].size = '0'
 
     await q.page.save()
