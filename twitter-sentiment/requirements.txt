@@ -3,7 +3,6 @@ h2o-wave<1.0
 vaderSentiment
 plotly==4.10.0
 
-# Test dependencies
 pytest==6.1.2
 pytest-mock==3.3.1
 pytest-html==3.0.0
