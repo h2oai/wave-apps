@@ -1,184 +1,167 @@
 from test.e2e import walkthrough
 
 import pandas as pd
-from h2o_wave import app, main, Q, ui
-from plotly import graph_objects as go
+import os
 
+from pygments import highlight
+from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+from h2o_wave import app, main, Q, ui, data
 from .churn_predictor import ChurnPredictor
-from .config import Configuration
-from .plots import (
-    convert_plot_to_html,
-    generate_figure_pie_of_target_percent,
-    get_image_from_matplotlib,
-    tall_stat_card_dollars,
-    wide_stat_card_dollars,
-)
-from .utils import python_code_content
 
-config = Configuration()
+df = pd.read_csv('data/churnTest.csv')
+df.dropna(subset=['State', 'Account_Length', 'Area_Code', 'Phone_No'], inplace=True)
+df.fillna({'International_Plan': 'no', 'Voice_Mail_Plan': 'no', 'No_Vmail_Messages': 0, 'Total_Day_minutes': 0.00,
+           'Total_Day_Calls': 0, 'Day Charges': 0.00, 'Total_Eve_Minutes': 0.00, 'Total_Eve_Calls': 0,
+           'Evening Charges': 0, 'Total_Night_Minutes': 0.00, 'Total_Night_Calls': 0, 'Night Charges': 0.00,
+           'Total_Intl_Minutes': 0.00, 'Total_Intl_Calls': 0, 'Intl Charges': 0.00, 'No_CS_Calls': 0},
+          inplace=True)
+df['Total Charges'] = (df['Day Charges'] + df['Evening Charges'] + df['Night Charges'] + df['Intl Charges'])
+rank = df['Total Charges'].rank(pct=True).values[0]
 churn_predictor = ChurnPredictor()
 
 
-df = pd.read_csv(config.testing_data_url).head(40)
-df.fillna(config.def_column_values, inplace=True)
-df.dropna(subset=config.mandatory_columns, inplace=True)
-phone_choices = [ui.choice(name=str(phone), label=str(phone)) for phone in df[config.id_column]]
-
-def render_header(q: Q):
-    q.page["title"] = ui.header_card(
-        box=config.boxes["banner"],
-        title=config.title,
-        subtitle=config.subtitle,
-        icon=config.icon,
-        icon_color=config.color,
-        nav=config.global_nav
-    )
-
-def show_profile(q: Q):
-    del q.page["content"]
-    q.page['search'] = ui.form_card(box=config.boxes['search'], items=[
-        ui.text_xl("Customer Profiles from Model Predictions"),
-        ui.picker(
-            name="customers",
-            label="Customer Phone Number",
-            choices=phone_choices,
-            max_choices=1,
-            values=q.args.customers,
-            trigger=True
-       )
-    ])
+def render_analysis(q: Q):
     if not q.args.customers:
-        cleanup_pages(q)
-        q.page["empty_profile_page"] = ui.form_card(box=config.boxes["empty_profile_page"], items=[
-            ui.text_xl("To see the analysis results, you need to choose a phone number first.")
+        q.page['title'].items[0].picker.values = None
+        q.page['empty'] = ui.form_card(box=ui.box('empty', height='calc(100vh - 150px)'), items=[
+            ui.text_xl('You need to choose a phone number first in order to see the analysis results.')
         ])
-    else: 
-        del q.page["empty_profile_page"]
-        df = pd.read_csv(config.testing_data_url)
-        cust_phone_no = int(q.args.customers[0])
-        q.client.selected_customer_index = int(df[df[config.id_column] == cust_phone_no].index[0])
-        populate_churn_plots(q)
-        populate_customer_churn_stats(cust_phone_no,df,q)
-
-
-def populate_churn_plots(q):
-    shap_plot = churn_predictor.get_shap_explanation(q.client.selected_customer_index)
-    q.page["shap_plot"] = ui.image_card(
-        box=config.boxes["shap_plot"],
-        title="",
-        type="png",
-        image=get_image_from_matplotlib(shap_plot),
-    )
-
-    top_negative_pd_plot = churn_predictor.get_top_negative_pd_explanation(q.client.selected_customer_index)
-    q.page["top_negative_pd_plot"] = ui.image_card(
-        box=config.boxes["top_negative_pd_plot"],
-        title="Feature Most Contributing to Retention",
-        type="png",
-        image=get_image_from_matplotlib(top_negative_pd_plot),
-    )
-
-    top_positive_pd_plot = churn_predictor.get_top_positive_pd_explanation(q.client.selected_customer_index)
-    q.page["top_positive_pd_plot"] = ui.image_card(
-        box=config.boxes["top_positive_pd_plot"],
-        title="Feature Most Contributing to Churn",
-        type="png",
-        image=get_image_from_matplotlib(top_positive_pd_plot),
-    )
-
-
-def cleanup_pages(q: Q):
-    del [q.page["day_stat"], q.page["eve_stat"], q.page["night_stat"], q.page["intl_stat"], q.page["total_stat"],
-         q.page["customer"], q.page["churn_rate"], q.page["stat_pie"], q.page["shap_plot"],
-         q.page["top_negative_pd_plot"], q.page["top_positive_pd_plot"]]
-
-
-def populate_customer_churn_stats(cust_phone_no, df, q):
-    df["Total Charges"] = (df.Total_Day_charge + df.Total_Eve_Charge + df.Total_Night_Charge + df.Total_Intl_Charge)
-
-    df = df[
-        [
-            "Total_Day_charge",
-            "Total_Eve_Charge",
-            "Total_Night_Charge",
-            "Total_Intl_Charge",
-            config.id_column,
-            "Total Charges",
-        ]
-    ]
-
-    df.columns = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges", config.id_column, "Total Charges"]
-
-    q.page["day_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Day Charges", config.boxes["day_stat"], config.color
-    )
-    q.page["eve_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Evening Charges", config.boxes["eve_stat"], config.color
-    )
-    q.page["night_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Night Charges", config.boxes["night_stat"], config.color
-    )
-    q.page["intl_stat"] = wide_stat_card_dollars(
-        df, cust_phone_no, "Int'l Charges", config.boxes["intl_stat"], config.color
-    )
-    q.page["total_stat"] = tall_stat_card_dollars(
-        df,
-        cust_phone_no,
-        "Total Charges",
-        config.boxes["total_stat"],
-        config.total_gauge_color,
-    )
-    q.page["customer"] = ui.small_stat_card(box=config.boxes["customer"], title="Customer", value=str(cust_phone_no))
-
-    q.page["churn_rate"] = ui.small_stat_card(
-        box=config.boxes["churn_rate"],
-        title="Churn Rate",
-        value=f"{churn_predictor.get_churn_rate_of_customer(q.client.selected_customer_index)}%",
-    )
-
-    labels = ["Day Charges", "Evening Charges", "Night Charges", "Int'l Charges"]
-    values = [
-        df[df[config.id_column] == cust_phone_no][labels[0]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[1]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[2]].values[0],
-        df[df[config.id_column] == cust_phone_no][labels[3]].values[0],
-    ]
-
-    html_plot = generate_figure_pie_of_target_percent( "", labels, values, get_figure_layout())
-
-    q.page["stat_pie"] = ui.frame_card(
-        box=config.boxes["stat_pie"],
-        title="Total call charges breakdown",
-        content=convert_plot_to_html(config.figure_config, html_plot, "cdn", False),
-    )
-
-
-def get_figure_layout():
-    return go.Layout(margin=go.layout.Margin(l=0, r=0, b=0, t=0, pad=0, autoexpand=True), height=120)
-
-
-async def initialize(q: Q):
-    # Initialize H2O-3 model and tests data set
-    churn_predictor.build_model(config.training_data_url, config.default_model)
-    churn_predictor.set_testing_data_frame(config.testing_data_url)
-    churn_predictor.predict()
-
-    q.app.header_png = await q.site.upload([config.image_path])
-    q.app.training_file_url = await q.site.upload([config.working_data])
-    q.page['meta'] = ui.meta_card(box='', title='Telco Churn Analytics')
-    q.client.app_initialized = True
-
-
-@app("/")
-async def serve(q: Q):
-    render_header(q)
-    if not q.client.app_initialized:
-        await initialize(q)
-
-    if q.args['#'] == 'tour':
-        cleanup_pages(q)
-        q.page["content"] = ui.form_card(box=config.boxes["content"], items=python_code_content("app.py"))
     else:
-        show_profile(q)
+        del q.page['empty']
+        row_phone_no = int(q.args.customers[0])
+        q.page['title'].items[0].picker.values = q.args.customers
+        q.page['title'].subtitle = f'Customer: {row_phone_no}'
+        selected_row_index = int(df[df['Phone_No'] == row_phone_no].index[0])
+
+        shap_rows = churn_predictor.get_shap(selected_row_index)
+        q.page['shap_plot'] = ui.plot_card(
+            box=ui.box('top-plot', height='700px'),
+            title='Shap explanation',
+            data=data(['label', 'value'], rows=shap_rows),
+            plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label', color='$blue')])
+        )
+        is_cat, min_contrib_col, retention_rows = churn_predictor.get_negative_explanation(selected_row_index)
+        q.page['top_negative_plot'] = ui.plot_card(
+            box='middle',
+            title='Feature Most Contributing to Retention',
+            data=data(['label', 'value', 'size'], rows=retention_rows),
+            plot=ui.plot([
+                ui.mark(type='interval', x='=label', y='=size', color='#c7f8ff', fill_opacity=0.5),
+                ui.mark(type='line' if is_cat else 'point', x='=label', x_title=min_contrib_col, y='=value', color='$blue', shape='circle'),
+                ui.mark(x=churn_predictor.get_python_type(df[min_contrib_col][selected_row_index])),
+            ])
+        )
+        is_cat, max_contrib_col, churn_rows = churn_predictor.get_positive_explanation(selected_row_index)
+        q.page['top_positive_plot'] = ui.plot_card(
+            box='middle',
+            title='Feature Most Contributing to Churn',
+            data=data(['label', 'value', 'size'], rows=churn_rows),
+            plot=ui.plot([
+                ui.mark(type='interval', x='=label', y='=size', color='#c7f8ff', fill_opacity=0.5),
+                ui.mark(type='line' if is_cat else 'point', x='=label', x_title=max_contrib_col, y='=value', color='$blue', shape='circle'),
+                ui.mark(x=churn_predictor.get_python_type(df[max_contrib_col][selected_row_index])),
+            ])
+        )
+        churn_rate = churn_predictor.get_churn_rate(selected_row_index)
+        q.page['churn_rate'] = ui.tall_gauge_stat_card(
+            box='top-stats',
+            title='Churn Rate',
+            value='={{intl churn minimum_fraction_digits=2 maximum_fraction_digits=2}}%',
+            aux_value='',
+            progress=churn_rate / 100,
+            plot_color='#00A8E0',
+            data=dict(churn=churn_rate)
+        )
+        q.page['total_charges'] = ui.tall_gauge_stat_card(
+            box='top-stats',
+            title='Total Charges',
+            value="=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}",
+            aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
+            plot_color='#00A8E0',
+            progress=rank,
+            data=dict(charge=df['Total Charges'][selected_row_index], rank=rank),
+        )
+        labels = ['Day Charges', 'Evening Charges', 'Night Charges', 'Intl Charges']
+        rows = [(label, df[label][selected_row_index]) for label in labels]
+        q.page['bar_chart'] = ui.plot_card(
+            box=ui.box('top-stats', height='300px'),
+            title='Total call charges breakdown',
+            data=data(['label', 'value'], rows=rows),
+            plot=ui.plot([ui.mark(type='interval', x='=label', y='=value', color='=label', color_range='#00A8E0 $blue $cyan #67dde6')])
+        )
+
+
+def render_code(q: Q):
+    local_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(local_dir, 'app.py')) as f:
+        contents = f.read()
+
+    py_lexer = get_lexer_by_name("python")
+    html_formatter = HtmlFormatter(full=True, style="xcode")
+    q.page['code'] = ui.frame_card(box=ui.box('code', height='calc(100vh - 150px)'), title='', content=highlight(contents, py_lexer, html_formatter))
+
+def init(q: Q):
+    q.page['meta'] = ui.meta_card(box='', title='Telco Churn Analytics', layouts=[
+        ui.layout(breakpoint='xs', zones=[
+            ui.zone('header'),
+            ui.zone('title'),
+            ui.zone('content', zones=[
+                ui.zone('empty'),
+                ui.zone('code'),
+                ui.zone('top', direction=ui.ZoneDirection.ROW, zones=[
+                    ui.zone('top-plot', size='70%'),
+                    ui.zone('top-stats')
+                ]),
+                ui.zone('middle', direction=ui.ZoneDirection.ROW),
+            ])
+        ])
+    ])
+    q.page['header'] = ui.header_card(
+        box='header',
+        title='Telecom Churn Analytics',
+        subtitle='EDA & Churn Modeling with AutoML & Wave',
+        nav=[
+            ui.nav_group('Main Menu', items=[
+                ui.nav_item(name='#analysis', label='Analysis'),
+                ui.nav_item(name='#code', label='Application Code'),
+            ])
+        ]
+    )
+    q.page['title'] = ui.section_card(
+        box='title',
+        title='Customer profiles from model predictions',
+        subtitle='Customer: No customer chosen',
+        items=[
+            # TODO: Replace with dropdown after https://github.com/h2oai/wave/pull/303 merged.
+            ui.picker(
+                name='customers',
+                label='Customer Phone Number',
+                choices=[ui.choice(name=str(phone), label=str(phone)) for phone in df['Phone_No']],
+                max_choices=1,
+                trigger=True
+            ),
+        ]
+    )
+
+
+@app('/')
+async def serve(q: Q):
+    if not q.client.initialized:
+        init(q)
+        q.client.initialized = True
+
+    if q.args['#'] == 'code':
+        del q.page['empty']
+        del q.page['shap_plot']
+        del q.page['top_negative_plot']
+        del q.page['top_positive_plot']
+        del q.page['total_charges']
+        del q.page['bar_chart']
+        del q.page['churn_rate']
+        render_code(q)
+    else:
+        del q.page['code']
+        render_analysis(q)
 
     await q.page.save()

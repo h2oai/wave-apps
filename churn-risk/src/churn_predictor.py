@@ -1,4 +1,5 @@
 import h2o
+
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
@@ -11,85 +12,57 @@ class ChurnPredictor:
     """
 
     def __init__(self):
-        self.model = None
-        self.train_df = None
-        self.test_df = None
-        self.predicted_df = None
-        self.contributions_df = None
-
         h2o.init()
+        # Initialize H2O-3 model and tests data set
+        self.train_df = h2o.import_file(path='./data/churnTrain.csv', destination_frame="telco_churn_train.csv")
 
-    def build_model(self, training_data_path, model_id):
-        train_df = h2o.import_file(
-            path=training_data_path, destination_frame="telco_churn_train.csv"
-        )
+        train, valid = self.train_df.split_frame([0.8])
+        self.model = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)
+        self.model.train(x=self.train_df.columns, y="Churn?", training_frame=train, validation_frame=valid)
 
-        predictors = train_df.columns
-        response = "Churn?"
-        train, valid = train_df.split_frame([0.8])
+        self.h2o_test_df = h2o.import_file(path='./data/churnTest.csv', destination_frame="telco_churn_test.csv")
+        self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
+        self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
 
-        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=1234)
-        self.model.train(
-            x=predictors, y=response, training_frame=train, validation_frame=valid
-        )
+    def get_churn_rate(self, row_index: int):
+        return round(float(self.predicted_df["TRUE"][row_index]) * 100, 2)
 
-    def set_testing_data_frame(self, testing_data_path):
-        self.test_df = h2o.import_file(
-            path=testing_data_path, destination_frame="telco_churn_test.csv"
-        )
+    def get_shap(self, row_index: int):
+        np_row = self.contributions_df.iloc[row_index].to_numpy()
+        shap= [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
+        shap.sort(key=lambda e : e[1])
+        return shap 
+    
+    def get_python_type(self, val):
+        return val if isinstance(val, (str, float)) else val.item()
+        
+    def get_size(self, group_size, idx: int):
+        return 0 if idx > len(group_size) - 1 else self.get_python_type(group_size[idx])
 
-    def predict(self):
-        self.predicted_df = self.model.predict(self.test_df)
-        self.contributions_df = self.model.predict_contributions(self.test_df)
+    def get_negative_explanation(self, row_index: int):
+        min_contrib = self.contributions_df.idxmin(axis=1)[row_index]
+        min_contrib_col = self.h2o_test_df[min_contrib]
+        partial_plot = self.model.partial_plot(
+            self.h2o_test_df, 
+            plot=False,
+            cols=[min_contrib],
+            nbins=min_contrib_col.nlevels()[0] + 1 if min_contrib_col.isfactor()[0] else 20,
+            row_index=row_index
+        )[0]
+        group_by_size = min_contrib_col.as_data_frame().groupby(min_contrib).size().values
+        churn_rows = [(partial_plot[0][i], partial_plot[1][i], self.get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
+        return isinstance(partial_plot[0][0], float), min_contrib, churn_rows
 
-    def get_churn_rate_of_customer(self, row_index):
-        """
-        Return the churn rate of given customer as a percentage.
-
-        :param row_index: row index of the customer in dataframe
-        :return: percentage as a float
-        """
-        return round(
-            float(self.predicted_df.as_data_frame()["TRUE"][row_index]) * 100, 2
-        )
-
-    def get_shap_explanation(self, row_index):
-        return self.model.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
-
-    def get_top_negative_pd_explanation(self, row_index):
-        """
-        Return the partial dependence explanation of the top negatively contributing feature.
-
-        :param row_index: row index to select from H2OFrame for the explanation
-        :return: matplotlib figure object
-        """
-        # column_index = self.contributions_df.idxmin(axis=1).as_data_frame()[
-        #     "which.min"
-        # ][row_index]
-
-        # Using Pandas DataFrame.idxmin() until https://h2oai.atlassian.net/browse/PUBDEV-7906 is fixed
-        pdf = self.contributions_df.as_data_frame()
-        del pdf["BiasTerm"]  # Delete bias column added by predict_contributions()
-        min_column_name = pdf.idxmin(axis=1)[row_index]
-
-        return self.model.pd_plot(
-            frame=self.test_df,
-            row_index=row_index,
-            column=min_column_name,
-        )
-
-    def get_top_positive_pd_explanation(self, row_index):
-        """
-        Return the partial dependence explanation of the top positively contributing feature.
-
-        :param row_index: row index to select from H2OFrame for the explanation
-        :return: matplotlib figure object
-        """
-        column_index = self.contributions_df.idxmax(axis=1).as_data_frame()[
-            "which.max"
-        ][row_index]
-        return self.model.pd_plot(
-            frame=self.test_df,
-            row_index=row_index,
-            column=self.test_df.col_names[column_index],
-        )
+    def get_positive_explanation(self, row_index: int):
+        max_contrib = self.contributions_df.idxmax(axis=1)[row_index]
+        max_contrib_col = self.h2o_test_df[max_contrib]
+        partial_plot = self.model.partial_plot(
+            self.h2o_test_df,
+            plot=False,
+            cols=[max_contrib],
+            nbins=max_contrib_col.nlevels()[0] + 1 if max_contrib_col.isfactor()[0] else 20,
+            row_index=row_index
+        )[0]
+        group_by_size = max_contrib_col.as_data_frame().groupby(max_contrib).size().values
+        retention_rows = [(partial_plot[0][i], partial_plot[1][i], self.get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
+        return isinstance(partial_plot[0][0], float), max_contrib, retention_rows 
