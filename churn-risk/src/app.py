@@ -30,7 +30,7 @@ def render_analysis(q: Q):
     shap_rows = churn_predictor.get_shap(selected_row_index)
     q.page['shap_plot'] = ui.plot_card(
         box=ui.box('top-plot', height='700px'),
-        title='Shap explanation',
+        title='Shap explanation' if selected_row_index else 'Global Shap',
         data=data(['label', 'value'], rows=shap_rows),
         plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label', color=q.client.secondary_color)])
     )
@@ -68,7 +68,7 @@ def render_analysis(q: Q):
     churn_rate = churn_predictor.get_churn_rate(selected_row_index)
     q.page['churn_rate'] = ui.tall_gauge_stat_card(
         box='top-stats',
-        title='Churn Rate',
+        title='Churn Rate' if selected_row_index else 'Average Churn Prediction',
         value='={{intl churn minimum_fraction_digits=2 maximum_fraction_digits=2}}%',
         aux_value='',
         progress=churn_rate / 100,
@@ -80,7 +80,7 @@ def render_analysis(q: Q):
     charge = total_charges[selected_row_index] if selected_row_index is not None else total_charges.mean(axis=0)
     q.page['total_charges'] = ui.tall_gauge_stat_card(
         box='top-stats',
-        title='Total Charges',
+        title='Total Charges' if selected_row_index else 'Average Total Charges',
         value="=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}",
         aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
         plot_color=q.client.secondary_color,
@@ -98,7 +98,7 @@ def render_analysis(q: Q):
     color_range = f'{q.client.primary_color} {q.client.secondary_color} {q.client.tertiary_color} #67dde6'
     q.page['bar_chart'] = ui.plot_card(
         box=ui.box('top-stats', height='300px'),
-        title='Total call charges breakdown',
+        title='Total call charges breakdown' if selected_row_index else 'Average Charges Breakdown',
         data=data(['label', 'value'], rows=rows),
         plot=ui.plot([ui.mark(type='interval', x='=label', y='=value', color='=label', color_range=color_range)])
     )
