@@ -47,8 +47,8 @@ def render_analysis(q: Q):
             title='Feature Most Contributing to Retention',
             data=data(['label', 'value', 'size'], rows=retention_rows),
             plot=ui.plot([
-                ui.mark(type='interval', x='=label', y='=size', color=q.client.secondary_color, fill_opacity=0.5),
-                ui.mark(type='line' if is_cat else 'point', x='=label', x_title=min_contrib_col, y='=value', color=q.client.primary_color, shape='circle'),
+                ui.mark(type='interval', x='=label', y='=size', x_title=min_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
+                ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
                 ui.mark(x=churn_predictor.get_python_type(df[min_contrib_col][selected_row_index])),
             ])
         )
@@ -58,8 +58,8 @@ def render_analysis(q: Q):
             title='Feature Most Contributing to Churn',
             data=data(['label', 'value', 'size'], rows=churn_rows),
             plot=ui.plot([
-                ui.mark(type='interval', x='=label', y='=size', color=q.client.secondary_color, fill_opacity=0.5),
-                ui.mark(type='line' if is_cat else 'point', x='=label', x_title=max_contrib_col, y='=value', color=q.client.primary_color, shape='circle'),
+                ui.mark(type='interval', x='=label', y='=size', x_title=max_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
+                ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
                 ui.mark(x=churn_predictor.get_python_type(df[max_contrib_col][selected_row_index])),
             ])
         )

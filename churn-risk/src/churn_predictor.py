@@ -1,5 +1,5 @@
 import h2o
-
+from typing import Tuple, Any, Union
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
@@ -24,45 +24,38 @@ class ChurnPredictor:
         self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
         self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
 
-    def get_churn_rate(self, row_index: int):
+    def get_churn_rate(self, row_index: int) -> float:
         return round(float(self.predicted_df["TRUE"][row_index]) * 100, 2)
 
-    def get_shap(self, row_index: int):
+    def get_shap(self, row_index: int) -> list:
         np_row = self.contributions_df.iloc[row_index].to_numpy()
-        shap= [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
+        shap = [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
         shap.sort(key=lambda e : e[1])
         return shap 
     
-    def get_python_type(self, val):
+    def get_negative_explanation(self, row_index: int) -> Tuple[bool, Any, list]:
+        return self._get_explanation(self.contributions_df.idxmin(axis=1)[row_index], row_index)
+
+    def get_positive_explanation(self, row_index: int) -> Tuple[bool, Any, list]:
+        return self._get_explanation(self.contributions_df.idxmax(axis=1)[row_index], row_index)
+
+    @staticmethod
+    def get_python_type(val: Union[str, float, Any]) -> Union[str, float, int]:
         return val if isinstance(val, (str, float)) else val.item()
         
-    def get_size(self, group_size, idx: int):
-        return 0 if idx > len(group_size) - 1 else self.get_python_type(group_size[idx])
+    @classmethod
+    def _get_size(cls, group_size, idx: int) -> Union[str, float, int]:
+        return 0 if idx > len(group_size) - 1 else cls.get_python_type(group_size[idx])
 
-    def get_negative_explanation(self, row_index: int):
-        min_contrib = self.contributions_df.idxmin(axis=1)[row_index]
-        min_contrib_col = self.h2o_test_df[min_contrib]
+    def _get_explanation(self, contrib, row_index: int) -> Tuple[bool, Any, list]:
+        contrib_col = self.h2o_test_df[contrib]
         partial_plot = self.model.partial_plot(
             self.h2o_test_df, 
             plot=False,
-            cols=[min_contrib],
-            nbins=min_contrib_col.nlevels()[0] + 1 if min_contrib_col.isfactor()[0] else 20,
+            cols=[contrib],
+            nbins=contrib_col.nlevels()[0] + 1 if contrib_col.isfactor()[0] else 20,
             row_index=row_index
         )[0]
-        group_by_size = min_contrib_col.as_data_frame().groupby(min_contrib).size().values
-        churn_rows = [(partial_plot[0][i], partial_plot[1][i], self.get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
-        return isinstance(partial_plot[0][0], float), min_contrib, churn_rows
-
-    def get_positive_explanation(self, row_index: int):
-        max_contrib = self.contributions_df.idxmax(axis=1)[row_index]
-        max_contrib_col = self.h2o_test_df[max_contrib]
-        partial_plot = self.model.partial_plot(
-            self.h2o_test_df,
-            plot=False,
-            cols=[max_contrib],
-            nbins=max_contrib_col.nlevels()[0] + 1 if max_contrib_col.isfactor()[0] else 20,
-            row_index=row_index
-        )[0]
-        group_by_size = max_contrib_col.as_data_frame().groupby(max_contrib).size().values
-        retention_rows = [(partial_plot[0][i], partial_plot[1][i], self.get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
-        return isinstance(partial_plot[0][0], float), max_contrib, retention_rows 
+        group_by_size = contrib_col.as_data_frame().groupby(contrib).size().values
+        rows = [(partial_plot[0][i], partial_plot[1][i], self._get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
+        return isinstance(partial_plot[0][0], float), contrib, rows
