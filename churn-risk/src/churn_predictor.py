@@ -1,5 +1,5 @@
 import h2o
-from typing import Tuple, Any, Union
+from typing import List, Tuple, Any, Union
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
@@ -27,16 +27,16 @@ class ChurnPredictor:
     def get_churn_rate(self, row_index: int) -> float:
         return round(float(self.predicted_df["TRUE"][row_index]) * 100, 2)
 
-    def get_shap(self, row_index: int) -> list:
+    def get_shap(self, row_index: int) -> List:
         np_row = self.contributions_df.iloc[row_index].to_numpy()
         shap = [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
         shap.sort(key=lambda e : e[1])
         return shap 
     
-    def get_negative_explanation(self, row_index: int) -> Tuple[bool, Any, list]:
+    def get_negative_explanation(self, row_index: int) -> Tuple[bool, Any, List]:
         return self._get_explanation(self.contributions_df.idxmin(axis=1)[row_index], row_index)
 
-    def get_positive_explanation(self, row_index: int) -> Tuple[bool, Any, list]:
+    def get_positive_explanation(self, row_index: int) -> Tuple[bool, Any, List]:
         return self._get_explanation(self.contributions_df.idxmax(axis=1)[row_index], row_index)
 
     @staticmethod
@@ -47,7 +47,7 @@ class ChurnPredictor:
     def _get_size(cls, group_size, idx: int) -> Union[str, float, int]:
         return 0 if idx > len(group_size) - 1 else cls.get_python_type(group_size[idx])
 
-    def _get_explanation(self, contrib, row_index: int) -> Tuple[bool, Any, list]:
+    def _get_explanation(self, contrib, row_index: int) -> Tuple[bool, Any, List]:
         contrib_col = self.h2o_test_df[contrib]
         partial_plot = self.model.partial_plot(
             self.h2o_test_df, 
