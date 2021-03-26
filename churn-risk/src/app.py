@@ -141,6 +141,7 @@ def init(q: Q):
                 max_choices=1,
                 trigger=True
             ),
+            ui.toggle(name='theme', label='Dark Theme', trigger=True)
         ]
     )
 
@@ -150,6 +151,11 @@ async def serve(q: Q):
     if not q.client.initialized:
         init(q)
         q.client.initialized = True
+
+    dark_theme = q.args.theme
+    if dark_theme is not None:
+        q.page['meta'].theme = 'neon' if dark_theme else 'default'
+        q.page['title'].items[1].toggle.value = dark_theme
 
     if q.args['#'] == 'code':
         del q.page['empty']
