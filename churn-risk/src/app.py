@@ -22,75 +22,86 @@ churn_predictor = ChurnPredictor()
 
 
 def render_analysis(q: Q):
-    if not q.args.customers:
-        q.page['title'].items[0].picker.values = None
-        q.page['empty'] = ui.form_card(box=ui.box('empty', height='calc(100vh - 155px)'), items=[
-            ui.text_xl('You need to choose a phone number first in order to see the analysis results.')
-        ])
-    else:
-        del q.page['empty']
-        row_phone_no = int(q.args.customers[0])
-        q.page['title'].items[0].picker.values = q.args.customers
-        q.page['title'].subtitle = f'Customer: {row_phone_no}'
-        selected_row_index = int(df[df['Phone_No'] == row_phone_no].index[0])
+    row_phone_no = int(q.args.customers[0]) if q.args.customers else None
+    q.page['title'].items[0].picker.values = q.args.customers
+    q.page['title'].subtitle = f'Customer: {row_phone_no or "No customer selected"}'
+    selected_row_index = int(df[df['Phone_No'] == row_phone_no].index[0]) if row_phone_no else None
 
-        shap_rows = churn_predictor.get_shap(selected_row_index)
-        q.page['shap_plot'] = ui.plot_card(
-            box=ui.box('top-plot', height='700px'),
-            title='Shap explanation',
-            data=data(['label', 'value'], rows=shap_rows),
-            plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label', color=q.client.secondary_color)])
-        )
-        is_cat, min_contrib_col, retention_rows = churn_predictor.get_negative_explanation(selected_row_index)
-        q.page['top_negative_plot'] = ui.plot_card(
-            box='middle',
-            title='Feature Most Contributing to Retention',
-            data=data(['label', 'value', 'size'], rows=retention_rows),
-            plot=ui.plot([
-                ui.mark(type='interval', x='=label', y='=size', x_title=min_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
-                ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
-                ui.mark(x=churn_predictor.get_python_type(df[min_contrib_col][selected_row_index])),
-            ])
-        )
-        is_cat, max_contrib_col, churn_rows = churn_predictor.get_positive_explanation(selected_row_index)
-        q.page['top_positive_plot'] = ui.plot_card(
-            box='middle',
-            title='Feature Most Contributing to Churn',
-            data=data(['label', 'value', 'size'], rows=churn_rows),
-            plot=ui.plot([
-                ui.mark(type='interval', x='=label', y='=size', x_title=max_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
-                ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
-                ui.mark(x=churn_predictor.get_python_type(df[max_contrib_col][selected_row_index])),
-            ])
-        )
-        churn_rate = churn_predictor.get_churn_rate(selected_row_index)
-        q.page['churn_rate'] = ui.tall_gauge_stat_card(
-            box='top-stats',
-            title='Churn Rate',
-            value='={{intl churn minimum_fraction_digits=2 maximum_fraction_digits=2}}%',
-            aux_value='',
-            progress=churn_rate / 100,
-            plot_color=q.client.secondary_color,
-            data=dict(churn=churn_rate)
-        )
-        q.page['total_charges'] = ui.tall_gauge_stat_card(
-            box='top-stats',
-            title='Total Charges',
-            value="=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}",
-            aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
-            plot_color=q.client.secondary_color,
-            progress=rank,
-            data=dict(charge=df['Total Charges'][selected_row_index], rank=rank),
-        )
-        labels = ['Day Charges', 'Evening Charges', 'Night Charges', 'Intl Charges']
-        rows = [(label, df[label][selected_row_index]) for label in labels]
-        color_range = f'{q.client.primary_color} {q.client.secondary_color} {q.client.tertiary_color} #67dde6'
-        q.page['bar_chart'] = ui.plot_card(
-            box=ui.box('top-stats', height='300px'),
-            title='Total call charges breakdown',
-            data=data(['label', 'value'], rows=rows),
-            plot=ui.plot([ui.mark(type='interval', x='=label', y='=value', color='=label', color_range=color_range)])
-        )
+    shap_rows = churn_predictor.get_shap(selected_row_index)
+    q.page['shap_plot'] = ui.plot_card(
+        box=ui.box('top-plot', height='700px'),
+        title='Shap explanation',
+        data=data(['label', 'value'], rows=shap_rows),
+        plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label', color=q.client.secondary_color)])
+    )
+
+    min_contrib_col = shap_rows[-1][0] if selected_row_index is None else None
+    is_cat, min_contrib_col, retention_rows = churn_predictor.get_negative_explanation(selected_row_index, min_contrib_col)
+    plot = [
+        ui.mark(type='interval', x='=label', y='=size', x_title=min_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
+        ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
+    ]
+    if selected_row_index is not None:
+        plot.append(ui.mark(x=churn_predictor.get_python_type(df[min_contrib_col][selected_row_index])))
+    q.page['top_negative_plot'] = ui.plot_card(
+        box='middle',
+        title='Feature Most Contributing to Retention',
+        data=data(['label', 'value', 'size'], rows=retention_rows),
+        plot=ui.plot(plot)
+    )
+
+    max_contrib_col = shap_rows[0][0] if selected_row_index is None else None
+    is_cat, max_contrib_col, churn_rows = churn_predictor.get_positive_explanation(selected_row_index, max_contrib_col)
+    plot = [
+        ui.mark(type='interval', x='=label', y='=size', x_title=max_contrib_col, color=q.client.secondary_color, fill_opacity=0.5),
+        ui.mark(type='line' if is_cat else 'point', x='=label', y='=value', color=q.client.primary_color, shape='circle'),
+    ]
+    if selected_row_index is not None:
+        plot.append(ui.mark(x=churn_predictor.get_python_type(df[max_contrib_col][selected_row_index])))
+    q.page['top_positive_plot'] = ui.plot_card(
+        box='middle',
+        title='Feature Most Contributing to Churn',
+        data=data(['label', 'value', 'size'], rows=churn_rows),
+        plot=ui.plot(plot)
+    )
+
+    churn_rate = churn_predictor.get_churn_rate(selected_row_index)
+    q.page['churn_rate'] = ui.tall_gauge_stat_card(
+        box='top-stats',
+        title='Churn Rate',
+        value='={{intl churn minimum_fraction_digits=2 maximum_fraction_digits=2}}%',
+        aux_value='',
+        progress=churn_rate / 100,
+        plot_color=q.client.secondary_color,
+        data=dict(churn=churn_rate)
+    )
+
+    total_charges = df['Total Charges']
+    charge = total_charges[selected_row_index] if selected_row_index is not None else total_charges.mean(axis=0)
+    q.page['total_charges'] = ui.tall_gauge_stat_card(
+        box='top-stats',
+        title='Total Charges',
+        value="=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}",
+        aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
+        plot_color=q.client.secondary_color,
+        progress=rank,
+        data=dict(charge=charge, rank=rank),
+    )
+
+    labels = ['Day Charges', 'Evening Charges', 'Night Charges', 'Intl Charges']
+    rows = []
+    for label in labels:
+        if selected_row_index is not None:
+            rows.append((label, df[label][selected_row_index]))
+        else:
+            rows.append((label, df[label].mean(axis=0)))
+    color_range = f'{q.client.primary_color} {q.client.secondary_color} {q.client.tertiary_color} #67dde6'
+    q.page['bar_chart'] = ui.plot_card(
+        box=ui.box('top-stats', height='300px'),
+        title='Total call charges breakdown',
+        data=data(['label', 'value'], rows=rows),
+        plot=ui.plot([ui.mark(type='interval', x='=label', y='=value', color='=label', color_range=color_range)])
+    )
 
 
 def render_code(q: Q):
@@ -151,6 +162,9 @@ def init(q: Q):
 async def serve(q: Q):
     if not q.client.initialized:
         init(q)
+        q.client.primary_color = '$blue'
+        q.client.secondary_color = '$cyan'
+        q.client.tertiary_color = '$azure'
         q.client.initialized = True
 
     dark_theme = q.args.theme
