@@ -1,5 +1,3 @@
-from test.e2e import walkthrough
-
 import pandas as pd
 import os
 

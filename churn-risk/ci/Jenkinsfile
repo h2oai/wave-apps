@@ -46,58 +46,58 @@ ansiColor("xterm") {
                     DOCKER_TAG = waveTag
                 }
                 parallel([
-                        E2E : {
-                            withCredentials([
-                                    [
-                                            $class: 'AmazonWebServicesCredentialsBinding',
-                                            credentialsId: 'awsArtifactsUploader',
-                                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                                    ]
-                            ]) {
-                                def workspace = env.WORKSPACE
-                                sh "mkdir -p cypress/videos cypress/reports cypress/screenshots cypress/integration"
+                        // E2E : {
+                        //     withCredentials([
+                        //             [
+                        //                     $class: 'AmazonWebServicesCredentialsBinding',
+                        //                     credentialsId: 'awsArtifactsUploader',
+                        //                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        //                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                        //             ]
+                        //     ]) {
+                        //         def workspace = env.WORKSPACE
+                        //         sh "mkdir -p cypress/videos cypress/reports cypress/screenshots cypress/integration"
 
-                                try {
-                                    sh """
-                                        docker run -t --rm \
-                                            -u \$(id -u) \
-                                            -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
-                                            -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
-                                            -e PYTHONPATH=/app \
-                                            -v ${appDir}:/app \
-                                            -v ${workspace}/cypress/screenshots:/wave/test/cypress/screenshots \
-                                            -v ${workspace}/cypress/videos:/wave/test/cypress/videos \
-                                            -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
-                                            -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
-                                            ${waveTag} \
-                                            bash -c '. /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
-                                    """
-                                } finally {
-                                    ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
-                                    ignoreError { junit "cypress/reports/*.xml" }
-                                }
-                            }
-                        },
-                        Unit: {
-                            try {
-                                sh """
-                                docker run -t --rm \
-                                    -u \$(id -u) \
-                                    -e PYTHONPATH=/app \
-                                    -v ${appDir}:/app \
-                                    ${waveTag} \
-                                    bash -c 'make setup ; . venv/bin/activate ; make test-cov'
-                                """
-                                sh "ls -la"
-                            } finally {
-                                ignoreError {
-                                    archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
-                                    archiveArtifacts artifacts: "${appModule}/unit-test-report/**/*.*", fingerprint: true
-                                }
-                                ignoreError { junit "${appModule}/unit-test-report.xml" }
-                            }
-                        }
+                        //         try {
+                        //             sh """
+                        //                 docker run -t --rm \
+                        //                     -u \$(id -u) \
+                        //                     -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+                        //                     -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+                        //                     -e PYTHONPATH=/app \
+                        //                     -v ${appDir}:/app \
+                        //                     -v ${workspace}/cypress/screenshots:/wave/test/cypress/screenshots \
+                        //                     -v ${workspace}/cypress/videos:/wave/test/cypress/videos \
+                        //                     -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
+                        //                     -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
+                        //                     ${waveTag} \
+                        //                     bash -c '. /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                        //             """
+                        //         } finally {
+                        //             ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
+                        //             ignoreError { junit "cypress/reports/*.xml" }
+                        //         }
+                        //     }
+                        // },
+                        // Unit: {
+                        //     try {
+                        //         sh """
+                        //         docker run -t --rm \
+                        //             -u \$(id -u) \
+                        //             -e PYTHONPATH=/app \
+                        //             -v ${appDir}:/app \
+                        //             ${waveTag} \
+                        //             bash -c 'make setup ; . venv/bin/activate ; make test-cov'
+                        //         """
+                        //         sh "ls -la"
+                        //     } finally {
+                        //         ignoreError {
+                        //             archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
+                        //             archiveArtifacts artifacts: "${appModule}/unit-test-report/**/*.*", fingerprint: true
+                        //         }
+                        //         ignoreError { junit "${appModule}/unit-test-report.xml" }
+                        //     }
+                        // }
                 ])
             }
         }
