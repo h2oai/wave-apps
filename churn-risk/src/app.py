@@ -119,7 +119,6 @@ def init(q: Q):
             ui.zone('header'),
             ui.zone('title'),
             ui.zone('content', zones=[
-                ui.zone('empty'),
                 ui.zone('code'),
                 ui.zone('top', direction=ui.ZoneDirection.ROW, zones=[
                     ui.zone('top-plot', size='70%'),
@@ -182,7 +181,6 @@ async def serve(q: Q):
         q.page['title'].items[1].toggle.value = dark_theme
 
     if q.args['#'] == 'code':
-        del q.page['empty']
         del q.page['shap_plot']
         del q.page['top_negative_plot']
         del q.page['top_positive_plot']
