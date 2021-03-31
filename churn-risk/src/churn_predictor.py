@@ -32,10 +32,6 @@ class ChurnPredictor:
         self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
         self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
 
-    def clean_data(self):
-        pass
-        # self.train_df['']
-
     def get_churn_rate(self, row_index: Optional[int]) -> float:
         predict_col = self.predicted_df["TRUE"]
         churn = predict_col[row_index] if row_index is not None else predict_col.mean(axis=0)
@@ -65,6 +61,7 @@ class ChurnPredictor:
         return 0 if idx > len(group_size) - 1 else cls.get_python_type(group_size[idx])
 
     def _get_explanation(self, contrib, row_index: Optional[int]) -> Tuple[bool, Any, List]:
+        print(f'_get_explanation: {contrib}')
         contrib_col = self.h2o_test_df[contrib]
         partial_plot = self.model.partial_plot(
             self.h2o_test_df, 
@@ -72,7 +69,24 @@ class ChurnPredictor:
             cols=[contrib],
             nbins=contrib_col.nlevels()[0] + 1 if contrib_col.isfactor()[0] else 20,
             row_index=row_index
-        )[0]
-        group_by_size = contrib_col.as_data_frame().groupby(contrib).size().values
-        rows = [(partial_plot[0][i], partial_plot[1][i], self._get_size(group_by_size, i)) for i in range(len(partial_plot[0]))]
-        return isinstance(partial_plot[0][0], float), contrib, rows
+        )[0].as_data_frame()
+
+        if self.h2o_test_df.type(contrib) in ['int', 'real']:
+            bins = [contrib_col.na_omit().min()] + partial_plot.iloc[:, 0].tolist() + [contrib_col.na_omit().max()]
+
+            group_by_size = contrib_col.cut(
+                bins,
+                labels=[str(i) for i in bins[1:]],
+                include_lowest=True
+            ).table().as_data_frame().iloc[:, 1].values
+
+        else:
+            group_by_size = contrib_col.as_data_frame().groupby(contrib).size().values
+
+        rows = [(
+            partial_plot.iloc[i, 0],
+            partial_plot.iloc[i, 1],
+            self._get_size(group_by_size, i)
+        ) for i in range(len(partial_plot))]
+
+        return isinstance(partial_plot.iloc[0: 0], float), contrib, rows
