@@ -18,11 +18,20 @@ class ChurnPredictor:
 
         train, valid = self.train_df.split_frame([0.8])
         self.model = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)
-        self.model.train(x=self.train_df.columns, y="Churn?", training_frame=train, validation_frame=valid)
+
+        columns_to_train = self.train_df.columns
+        columns_to_train.remove("Churn?")
+        columns_to_train.remove("Phone")
+
+        self.model.train(x=columns_to_train, y="Churn?", training_frame=train, validation_frame=valid)
 
         self.h2o_test_df = h2o.import_file(path='./data/churnTest.csv', destination_frame="telco_churn_test.csv")
         self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
         self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
+
+    def clean_data(self):
+        pass
+        # self.train_df['']
 
     def get_churn_rate(self, row_index: Optional[int]) -> float:
         predict_col = self.predicted_df["TRUE"]
