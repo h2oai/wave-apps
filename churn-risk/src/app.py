@@ -1,3 +1,4 @@
+from typing import List, Optional
 import pandas as pd
 import os
 
@@ -8,24 +9,13 @@ from h2o_wave import app, main, Q, ui, data
 from .churn_predictor import ChurnPredictor
 
 df = pd.read_csv('data/churnTest.csv')
-df.dropna(subset=['State', 'Account_Length', 'Area_Code', 'Phone_No'], inplace=True)
-df.fillna({'International_Plan': 'no', 'Voice_Mail_Plan': 'no', 'No_Vmail_Messages': 0, 'Total_Day_minutes': 0.00,
-           'Total_Day_Calls': 0, 'Day Charges': 0.00, 'Total_Eve_Minutes': 0.00, 'Total_Eve_Calls': 0,
-           'Evening Charges': 0, 'Total_Night_Minutes': 0.00, 'Total_Night_Calls': 0, 'Night Charges': 0.00,
-           'Total_Intl_Minutes': 0.00, 'Total_Intl_Calls': 0, 'Intl Charges': 0.00, 'No_CS_Calls': 0},
-          inplace=True)
+df.dropna(inplace=True)
 df['Total Charges'] = (df['Day Charges'] + df['Evening Charges'] + df['Night Charges'] + df['Intl Charges'])
 rank = df['Total Charges'].rank(pct=True).values[0]
 churn_predictor = ChurnPredictor()
 
 
-def render_analysis(q: Q):
-    row_phone_no = int(q.args.customers[0]) if q.args.customers else None
-    q.page['title'].items[0].picker.values = q.args.customers
-    q.page['title'].subtitle = f'Customer: {row_phone_no or "No customer selected"}'
-    selected_row_index = int(df[df['Phone_No'] == row_phone_no].index[0]) if row_phone_no else None
-
-    shap_rows = churn_predictor.get_shap(selected_row_index)
+def render_shap_plot(q: Q, shap_rows: List, selected_row_index: Optional[int]):
     q.page['shap_plot'] = ui.plot_card(
         box=ui.box('top-plot', height='700px'),
         title='Shap explanation' if selected_row_index else 'Global Shap',
@@ -33,6 +23,8 @@ def render_analysis(q: Q):
         plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label', color=q.client.secondary_color)])
     )
 
+
+def render_negative_pdp_plot(q: Q, shap_rows: List, selected_row_index: Optional[int]):
     min_contrib_col = shap_rows[-1][0] if selected_row_index is None else None
     is_cat, min_contrib_col, retention_rows = churn_predictor.get_negative_explanation(selected_row_index, min_contrib_col)
     plot = [
@@ -48,6 +40,8 @@ def render_analysis(q: Q):
         plot=ui.plot(plot)
     )
 
+
+def render_positive_pdp_plot(q: Q, shap_rows: List, selected_row_index: Optional[int]):
     max_contrib_col = shap_rows[0][0] if selected_row_index is None else None
     is_cat, max_contrib_col, churn_rows = churn_predictor.get_positive_explanation(selected_row_index, max_contrib_col)
     plot = [
@@ -63,6 +57,8 @@ def render_analysis(q: Q):
         plot=ui.plot(plot)
     )
 
+
+def render_desc_info(q: Q, selected_row_index: Optional[int]):
     churn_rate = churn_predictor.get_churn_rate(selected_row_index)
     q.page['churn_rate'] = ui.tall_gauge_stat_card(
         box='top-stats',
@@ -86,6 +82,8 @@ def render_analysis(q: Q):
         data=dict(charge=charge, rank=rank),
     )
 
+
+def render_charges_breakdown(q: Q, selected_row_index: Optional[int]):
     labels = ['Day Charges', 'Evening Charges', 'Night Charges', 'Intl Charges']
     rows = []
     for label in labels:
@@ -102,6 +100,20 @@ def render_analysis(q: Q):
     )
 
 
+def render_analysis(q: Q):
+    row_phone_no = int(q.args.customers[0]) if q.args.customers else None
+    q.page['title'].items[0].picker.values = q.args.customers
+    q.page['title'].subtitle = f'Customer: {row_phone_no or "No customer selected"}'
+    selected_row_index = int(df[df['Phone'] == row_phone_no].index[0]) if row_phone_no else None
+
+    shap_rows = churn_predictor.get_shap(selected_row_index)
+    render_shap_plot(q, shap_rows, selected_row_index)
+    render_negative_pdp_plot(q, shap_rows, selected_row_index)
+    render_positive_pdp_plot(q, shap_rows, selected_row_index)
+    render_desc_info(q, selected_row_index)
+    render_charges_breakdown(q, selected_row_index)
+
+
 def render_code(q: Q):
     local_dir = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(local_dir, 'app.py')) as f:
@@ -111,7 +123,11 @@ def render_code(q: Q):
     html_formatter = HtmlFormatter(full=True, style="xcode")
     q.page['code'] = ui.frame_card(box=ui.box('code', height='calc(100vh - 155px)'), title='', content=highlight(contents, py_lexer, html_formatter))
 
+
 def init(q: Q):
+    q.client.primary_color = '$blue'
+    q.client.secondary_color = '$cyan'
+    q.client.tertiary_color = '$azure'
     q.page['meta'] = ui.meta_card(box='', title='Telco Churn Analytics', layouts=[
         ui.layout(breakpoint='xs', zones=[
             ui.zone('header'),
@@ -146,7 +162,7 @@ def init(q: Q):
             ui.picker(
                 name='customers',
                 label='Customer Phone Number',
-                choices=[ui.choice(name=str(phone), label=str(phone)) for phone in df['Phone_No']],
+                choices=[ui.choice(name=str(phone), label=str(phone)) for phone in df['Phone']],
                 max_choices=1,
                 trigger=True
             ),
@@ -159,9 +175,6 @@ def init(q: Q):
 async def serve(q: Q):
     if not q.client.initialized:
         init(q)
-        q.client.primary_color = '$blue'
-        q.client.secondary_color = '$cyan'
-        q.client.tertiary_color = '$azure'
         q.client.initialized = True
 
     dark_theme = q.args.theme
