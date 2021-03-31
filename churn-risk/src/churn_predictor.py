@@ -15,6 +15,7 @@ class ChurnPredictor:
         h2o.init()
         # Initialize H2O-3 model and tests data set
         self.train_df = h2o.import_file(path='./data/churnTrain.csv', destination_frame="telco_churn_train.csv")
+        self.train_df['Area Code'] = self.train_df['Area Code'].asfactor()
 
         train, valid = self.train_df.split_frame([0.8])
         self.model = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)
@@ -26,6 +27,8 @@ class ChurnPredictor:
         self.model.train(x=columns_to_train, y="Churn?", training_frame=train, validation_frame=valid)
 
         self.h2o_test_df = h2o.import_file(path='./data/churnTest.csv', destination_frame="telco_churn_test.csv")
+        self.h2o_test_df['Area Code'] = self.h2o_test_df['Area Code'].asfactor()
+
         self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
         self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
 
