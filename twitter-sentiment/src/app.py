@@ -6,7 +6,7 @@ from .tweet_analyser import TweetAnalyser
 
 def configure_page(q: Q):
     q.page['twitter_app'].dialog = None
-    q.page['search'] = ui.form_card(box='search', items=[ui.textbox(name='search', trigger=True)])
+    q.page['search'] = ui.form_card(box='search', items=[ui.textbox(name='search', trigger=True, icon='Search')])
     q.client.tweet_analyser = TweetAnalyser(q.args.access_token, q.args.access_token_secret, q.args.consumer_key, q.args.consumer_secret)
 
 
