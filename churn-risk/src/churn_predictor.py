@@ -61,7 +61,6 @@ class ChurnPredictor:
         return 0 if idx > len(group_size) - 1 else cls.get_python_type(group_size[idx])
 
     def _get_explanation(self, contrib, row_index: Optional[int]) -> Tuple[bool, Any, List]:
-        print(f'_get_explanation: {contrib}')
         contrib_col = self.h2o_test_df[contrib]
         partial_plot = self.model.partial_plot(
             self.h2o_test_df, 
