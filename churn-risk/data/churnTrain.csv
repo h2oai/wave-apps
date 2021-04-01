@@ -1,4 +1,4 @@
-State,Account_Length,Area_Code,Phone_No,International_Plan,Voice_Mail_Plan,No_Vmail_Messages,Total_Day_minutes,Total_Day_Calls,Total_Day_charge,Total_Eve_Minutes,Total_Eve_Calls,Total_Eve_Charge,Total_Night_Minutes,Total_Night_Calls,Total_Night_Charge,Total_Intl_Minutes,Total_Intl_Calls,Total_Intl_Charge,No_CS_Calls,Churn?
+State,Account Length,Area Code,Phone,International Plan,Voice Mail Plan,No Vmail Messages,Total Day minutes,Total Day Calls,Day Charges,Total Eve Minutes,Total Eve Calls,Evening Charges,Total Night Minutes,Total Night Calls,Night Charges,Total Intl Minutes,Total Intl Calls,Intl Charges,No CS Calls,Churn?
 KS,128,415,3824657, no, yes,25,265.1,110,45.07,197.4,99,16.78,244.7,91,11.01,10,3,2.7,1,FALSE
 OH,107,415,3717191, no, yes,26,161.6,123,27.47,195.5,103,16.62,254.4,103,11.45,13.7,3,3.7,1,FALSE
 NJ,137,415,3581921, no, no,0,243.4,114,41.38,121.2,110,10.3,162.6,104,7.32,12.2,5,3.29,0,FALSE

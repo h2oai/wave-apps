@@ -1,4 +1,4 @@
-State,Account_Length,Area_Code,Phone_No,International_Plan,Voice_Mail_Plan,No_Vmail_Messages,Total_Day_minutes,Total_Day_Calls,Total_Day_charge,Total_Eve_Minutes,Total_Eve_Calls,Total_Eve_Charge,Total_Night_Minutes,Total_Night_Calls,Total_Night_Charge,Total_Intl_Minutes,Total_Intl_Calls,Total_Intl_Charge,No_CS_Calls
+State,Account Length,Area Code,Phone,International Plan,Voice Mail Plan,No Vmail Messages,Total Day minutes,Total Day Calls,Day Charges,Total Eve Minutes,Total Eve Calls,Evening Charges,Total Night Minutes,Total Night Calls,Night Charges,Total Intl Minutes,Total Intl Calls,Intl Charges,No CS Calls
 HI,101,510,3548815, no, no,0,70.9,123,12.05,211.9,73,18.01,236,73,10.62,10.6,3,2.86,3
 MT,137,510,3817211, no, no,0,223.6,86,38.01,244.8,139,20.81,94.2,81,4.24,9.5,7,2.57,0
 OH,103,408,4119481, no, yes,29,294.7,95,50.1,237.3,105,20.17,300.3,127,13.51,13.7,6,3.7,1

@@ -1,4 +1,5 @@
 import h2o
+from typing import List, Optional, Tuple, Any, Union
 from h2o.estimators.gbm import H2OGradientBoostingEstimator
 
 
@@ -11,85 +12,80 @@ class ChurnPredictor:
     """
 
     def __init__(self):
-        self.model = None
-        self.train_df = None
-        self.test_df = None
-        self.predicted_df = None
-        self.contributions_df = None
-
         h2o.init()
+        # Initialize H2O-3 model and tests data set
+        self.train_df = h2o.import_file(path='./data/churnTrain.csv', destination_frame="telco_churn_train.csv")
+        self.train_df['Area Code'] = self.train_df['Area Code'].asfactor()
 
-    def build_model(self, training_data_path, model_id):
-        train_df = h2o.import_file(
-            path=training_data_path, destination_frame="telco_churn_train.csv"
-        )
+        train, valid = self.train_df.split_frame([0.8])
+        self.model = H2OGradientBoostingEstimator(model_id="telco_churn_model", seed=1234)
 
-        predictors = train_df.columns
-        response = "Churn?"
-        train, valid = train_df.split_frame([0.8])
+        columns_to_train = self.train_df.columns
+        columns_to_train.remove("Churn?")
+        columns_to_train.remove("Phone")
 
-        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=1234)
-        self.model.train(
-            x=predictors, y=response, training_frame=train, validation_frame=valid
-        )
+        self.model.train(x=columns_to_train, y="Churn?", training_frame=train, validation_frame=valid)
 
-    def set_testing_data_frame(self, testing_data_path):
-        self.test_df = h2o.import_file(
-            path=testing_data_path, destination_frame="telco_churn_test.csv"
-        )
+        self.h2o_test_df = h2o.import_file(path='./data/churnTest.csv', destination_frame="telco_churn_test.csv")
+        self.h2o_test_df['Area Code'] = self.h2o_test_df['Area Code'].asfactor()
 
-    def predict(self):
-        self.predicted_df = self.model.predict(self.test_df)
-        self.contributions_df = self.model.predict_contributions(self.test_df)
+        self.predicted_df = self.model.predict(self.h2o_test_df).as_data_frame()
+        self.contributions_df = self.model.predict_contributions(self.h2o_test_df).drop('BiasTerm').as_data_frame()
 
-    def get_churn_rate_of_customer(self, row_index):
-        """
-        Return the churn rate of given customer as a percentage.
+    def get_churn_rate(self, row_index: Optional[int]) -> float:
+        predict_col = self.predicted_df["TRUE"]
+        churn = predict_col[row_index] if row_index is not None else predict_col.mean(axis=0)
+        return round(float(churn) * 100, 2)
 
-        :param row_index: row index of the customer in dataframe
-        :return: percentage as a float
-        """
-        return round(
-            float(self.predicted_df.as_data_frame()["TRUE"][row_index]) * 100, 2
-        )
+    def get_shap(self, row_index: Optional[int]) -> List[Tuple[Any, Any]]:
+        np_row = self.contributions_df.mean(axis=0) if row_index is None else self.contributions_df.iloc[row_index]
+        np_row = np_row.to_numpy()
+        shap = [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
+        shap.sort(key=lambda e : e[1])
+        return shap 
+    
+    def get_negative_explanation(self, row_index: Optional[int], min_contrib_col: Optional[str]) -> Tuple[bool, Any, List]:
+        contribs = min_contrib_col or self.contributions_df.idxmin(axis=1)[row_index]
+        return self._get_explanation(contribs, row_index)
 
-    def get_shap_explanation(self, row_index):
-        return self.model.shap_explain_row_plot(frame=self.test_df, row_index=row_index)
+    def get_positive_explanation(self, row_index: Optional[int], max_contrib_col: Optional[str]) -> Tuple[bool, Any, List]:
+        contribs = max_contrib_col or  self.contributions_df.idxmax(axis=1)[row_index]
+        return self._get_explanation(contribs, row_index)
 
-    def get_top_negative_pd_explanation(self, row_index):
-        """
-        Return the partial dependence explanation of the top negatively contributing feature.
+    @staticmethod
+    def get_python_type(val) -> Union[str, float, int]:
+        return val if isinstance(val, (str, float)) else val.item()
+        
+    @classmethod
+    def _get_size(cls, group_size, idx: int) -> Union[str, float, int]:
+        return 0 if idx > len(group_size) - 1 else cls.get_python_type(group_size[idx])
 
-        :param row_index: row index to select from H2OFrame for the explanation
-        :return: matplotlib figure object
-        """
-        # column_index = self.contributions_df.idxmin(axis=1).as_data_frame()[
-        #     "which.min"
-        # ][row_index]
+    def _get_explanation(self, contrib, row_index: Optional[int]) -> Tuple[bool, Any, List]:
+        contrib_col = self.h2o_test_df[contrib]
+        partial_plot = self.model.partial_plot(
+            self.h2o_test_df, 
+            plot=False,
+            cols=[contrib],
+            nbins=contrib_col.nlevels()[0] + 1 if contrib_col.isfactor()[0] else 20,
+            row_index=row_index
+        )[0].as_data_frame()
 
-        # Using Pandas DataFrame.idxmin() until https://h2oai.atlassian.net/browse/PUBDEV-7906 is fixed
-        pdf = self.contributions_df.as_data_frame()
-        del pdf["BiasTerm"]  # Delete bias column added by predict_contributions()
-        min_column_name = pdf.idxmin(axis=1)[row_index]
+        if self.h2o_test_df.type(contrib) in ['int', 'real']:
+            bins = [contrib_col.na_omit().min()] + partial_plot.iloc[:, 0].tolist() + [contrib_col.na_omit().max()]
 
-        return self.model.pd_plot(
-            frame=self.test_df,
-            row_index=row_index,
-            column=min_column_name,
-        )
+            group_by_size = contrib_col.cut(
+                bins,
+                labels=[str(i) for i in bins[1:]],
+                include_lowest=True
+            ).table().as_data_frame().iloc[:, 1].values
 
-    def get_top_positive_pd_explanation(self, row_index):
-        """
-        Return the partial dependence explanation of the top positively contributing feature.
+        else:
+            group_by_size = contrib_col.as_data_frame().groupby(contrib).size().values
 
-        :param row_index: row index to select from H2OFrame for the explanation
-        :return: matplotlib figure object
-        """
-        column_index = self.contributions_df.idxmax(axis=1).as_data_frame()[
-            "which.max"
-        ][row_index]
-        return self.model.pd_plot(
-            frame=self.test_df,
-            row_index=row_index,
-            column=self.test_df.col_names[column_index],
-        )
+        rows = [(
+            partial_plot.iloc[i, 0],
+            partial_plot.iloc[i, 1],
+            self._get_size(group_by_size, i)
+        ) for i in range(len(partial_plot))]
+
+        return isinstance(partial_plot.iloc[0: 0], float), contrib, rows
