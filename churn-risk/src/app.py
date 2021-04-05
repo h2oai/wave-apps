@@ -8,11 +8,25 @@ from pygments.lexers import get_lexer_by_name
 from h2o_wave import app, main, Q, ui, data
 from .churn_predictor import ChurnPredictor
 
-df = pd.read_csv('data/churnTest.csv')
+
+TRAIN_DATASET_PATH='./data/churnTrain.csv'
+TEST_DATASET_PATH='./data/churnTest.csv'
+TARGET_COLUMN="Churn?"
+CATEGORICAL_COLUMNS=['Area Code']
+DROP_COLUMNS=["Phone"]
+
+df = pd.read_csv(TEST_DATASET_PATH)
 df.dropna(inplace=True)
 df['Total Charges'] = (df['Day Charges'] + df['Evening Charges'] + df['Night Charges'] + df['Intl Charges'])
 rank = df['Total Charges'].rank(pct=True).values[0]
-churn_predictor = ChurnPredictor()
+
+churn_predictor = ChurnPredictor(
+    train_dataset_path=TRAIN_DATASET_PATH,
+    test_dataset_path=TEST_DATASET_PATH,
+    target_column=TARGET_COLUMN,
+    categorical_columns=CATEGORICAL_COLUMNS,
+    drop_columns=DROP_COLUMNS,
+)
 
 
 def render_shap_plot(q: Q, shap_rows: List, selected_row_index: Optional[int]):
