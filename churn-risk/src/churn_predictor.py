@@ -39,7 +39,7 @@ class ChurnPredictor:
         self.model = H2OGradientBoostingEstimator(model_id="churn_model", seed=1234)
         self.model.train(x=feature_columns, y=target_column, training_frame=train, validation_frame=valid)
 
-        self.churn_probabilities = self.model.predict(self.test_df)[:,-1].as_data_frame()
+        self.churn_probabilities = self.model.predict(self.test_df)[:,-1].as_data_frame().values
         self.contributions_df = self.model.predict_contributions(self.test_df).drop('BiasTerm').as_data_frame()
 
     def get_churn_rate(self, row_index: Optional[int]) -> float:
