@@ -1,0 +1,112 @@
+properties([
+        buildDiscarder(logRotator(numToKeepStr: "2")),
+        parameters([
+                stringParam(
+                        name: 'WAVE_REVISION',
+                        defaultValue: "wave-cli-for-cypress",
+                        description: 'Use branch name (e.g. master), release tag (e.g. v0.7.0) or commit hash (e.g. 35d055b063ad33278c9974ab24441dbf75d179d3)'
+                )
+        ])
+])
+
+ansiColor("xterm") {
+    timestamps {
+        node("MM-CPU") {
+            def waveRevision = params.getOrDefault("WAVE_REVISION", "master")
+            def version = waveRevision.replaceAll("/", "-")
+            def waveTag = "wave-test:${version}"
+            def appModule = "churn-risk"
+            def appDir = "${workspace}/${appModule}"
+
+            stage("Init") {
+                deleteDir()
+                checkout scm
+            }
+
+            stage("Build wave testing image") {
+                withCredentials([
+                        sshUserPrivateKey(
+                                credentialsId: 'h2oOpsGitPrivateKey',
+                                keyFileVariable: 'SSH_KEY',
+                        )
+                ]) {
+                    def gitCommand = "GIT_SSH_COMMAND='ssh -i \${SSH_KEY}' git"
+
+                    sh """
+                        rm -rf wave
+                        ${gitCommand} clone --single-branch --branch ${waveRevision} git@github.com:h2oai/wave.git
+                        cd wave
+                        VERSION=${version} make build-docker
+                        docker build -t ${waveTag} -f ${appDir}/ci/docker/Dockerfile --build-arg WAVE_IMAGE=${waveTag} --build-arg uid=\$(id -u) --build-arg gid=\$(id -g) .
+                    """
+                }
+            }
+            stage("Run tests") {
+                environment {
+                    DOCKER_TAG = waveTag
+                }
+                parallel([
+                        // E2E : {
+                        //     withCredentials([
+                        //             [
+                        //                     $class: 'AmazonWebServicesCredentialsBinding',
+                        //                     credentialsId: 'awsArtifactsUploader',
+                        //                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        //                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                        //             ]
+                        //     ]) {
+                        //         def workspace = env.WORKSPACE
+                        //         sh "mkdir -p cypress/videos cypress/reports cypress/screenshots cypress/integration"
+
+                        //         try {
+                        //             sh """
+                        //                 docker run -t --rm \
+                        //                     -u \$(id -u) \
+                        //                     -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+                        //                     -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+                        //                     -e PYTHONPATH=/app \
+                        //                     -v ${appDir}:/app \
+                        //                     -v ${workspace}/cypress/screenshots:/wave/test/cypress/screenshots \
+                        //                     -v ${workspace}/cypress/videos:/wave/test/cypress/videos \
+                        //                     -v ${workspace}/cypress/reports:/wave/test/cypress/reports \
+                        //                     -v ${workspace}/cypress/integration:/wave/test/cypress/integration \
+                        //                     ${waveTag} \
+                        //                     bash -c '. /wave/py/venv/bin/activate ; make install ; /wave/test/cypress.py -w -l debug -m src.app'
+                        //             """
+                        //         } finally {
+                        //             ignoreError { archiveArtifacts artifacts: 'cypress/**/*.*', fingerprint: true }
+                        //             ignoreError { junit "cypress/reports/*.xml" }
+                        //         }
+                        //     }
+                        // },
+                        // Unit: {
+                        //     try {
+                        //         sh """
+                        //         docker run -t --rm \
+                        //             -u \$(id -u) \
+                        //             -e PYTHONPATH=/app \
+                        //             -v ${appDir}:/app \
+                        //             ${waveTag} \
+                        //             bash -c 'make setup ; . venv/bin/activate ; make test-cov'
+                        //         """
+                        //         sh "ls -la"
+                        //     } finally {
+                        //         ignoreError {
+                        //             archiveArtifacts artifacts: "${appModule}/htmlcov/**/*.*", fingerprint: true
+                        //             archiveArtifacts artifacts: "${appModule}/unit-test-report/**/*.*", fingerprint: true
+                        //         }
+                        //         ignoreError { junit "${appModule}/unit-test-report.xml" }
+                        //     }
+                        // }
+                ])
+            }
+        }
+    }
+}
+
+def ignoreError(block) {
+    try {
+        block.call()
+    } catch (Exception ex) {
+    }
+}
