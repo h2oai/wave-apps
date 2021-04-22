@@ -1,15 +1,13 @@
 import h2o
 import pandas as pd
 
-from h2o.estimators.gbm import H2OGradientBoostingEstimator
+from h2o_wave_ml import build_model
 
 
-class Predictor:
+
+class ChurnPredictor:
     """
-    Wrapper for H2O-3
-
-    ChurnPredictor builds an abstraction between H2O-3 machine learning library and the Churn Risk app
-    giving the developer freedom to integrate any 3rd party machine library with a minimal change to the app code.
+    ChurnPredictor builds an abstraction between WaveML library and the Churn Risk app.
     """
 
     def __init__(self):
@@ -19,19 +17,10 @@ class Predictor:
         self.predicted_df = None
         self.contributions_df = None
 
-        h2o.init()
-
     def build_model(self, training_data_path, model_id):
-        train_df = h2o.import_file(path=training_data_path)
-
-        predictors = train_df.columns
-        response = "default.payment.next.month"
-        train, valid = train_df.split_frame([0.8])
-
-        self.model = H2OGradientBoostingEstimator(model_id=model_id, seed=100)
-        self.model.train(
-            x=predictors, y=response, training_frame=train, validation_frame=valid
-        )
+        self.wave_model = build_model(training_data_path, target_column='default.payment.next.month',
+            _h2o_max_runtime_secs=30, _h2o_nfolds=0)
+        self.model = self.wave_model.model
 
     def set_testing_data_frame(self, testing_data_path):
         self.test_df = h2o.import_file(path=testing_data_path)
