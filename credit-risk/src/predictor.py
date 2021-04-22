@@ -19,7 +19,7 @@ class ChurnPredictor:
 
     def build_model(self, training_data_path, model_id):
         self.wave_model = build_model(training_data_path, target_column='default.payment.next.month',
-            model_type=ModelType.H2O3, _h2o_max_runtime_secs=30, _h2o_nfolds=0)
+            model_type=ModelType.H2O3, _h2o3_max_runtime_secs=30, _h2o3_nfolds=0)
         self.model = self.wave_model.model
 
     def set_testing_data_frame(self, testing_data_path):
