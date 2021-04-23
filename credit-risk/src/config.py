@@ -1,4 +1,4 @@
-from .predictor import ChurnPredictor
+from .predictor import CreditPredictor
 
 
 class Configuration:
@@ -27,7 +27,7 @@ class Configuration:
 config = Configuration()
 
 # Initialize H2O-3 and run ML analysis
-predictor = ChurnPredictor()
+predictor = CreditPredictor()
 predictor.build_model(config.training_data_url, config.default_model)
 predictor.set_testing_data_frame(config.testing_data_url)
 predictor.predict()

@@ -5,9 +5,9 @@ from h2o_wave_ml import build_model, ModelType
 
 
 
-class ChurnPredictor:
+class CreditPredictor:
     """
-    ChurnPredictor builds an abstraction between WaveML library and the Churn Risk app.
+    CreditPredictor builds an abstraction between WaveML library and the Credit Risk app.
     """
 
     def __init__(self):
