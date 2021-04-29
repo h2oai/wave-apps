@@ -2,7 +2,7 @@
 Name = "ai.h2o.wave.explaining-ratings"
 Version = "0.1.0"
 Title = "Explainable Ratings"
-Description = "Application which allows a business user to extracting ratings, and displaying trends as word cloud"
+Description = "Demo for business users to visually understand NLP model predictions."
 LongDescription = "about.md"
 Category = "Data Science"
 Keywords = ["Data Science", "Wave", "Open Source"]

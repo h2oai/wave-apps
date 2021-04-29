@@ -2,7 +2,7 @@
 Name = "ai.h2o.wave.h2o-guess-the-number"
 Version = "0.2.0"
 Title = "Guess the Number"
-Description = "A simple game to learn the difference between q.app, q.user, and q.client in Wave"
+Description = "Prove you’re smarter than AI with this simple game."
 LongDescription = "about.md"
 Category = "Other"
 Keywords = ["wave", "wave apps"]

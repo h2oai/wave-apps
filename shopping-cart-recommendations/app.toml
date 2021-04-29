@@ -2,7 +2,7 @@
 Name = "ai.h2o.wave.shopping-cart-recommendations"
 Version = "0.1.0"
 Title = "Shopping Cart Recommendations"
-Description = "Recommendations based on shopping cart items"
+Description = "Demo of a recommendation engine on groceries items."
 LongDescription="about.md"
 Category = "Data Science"
 Keywords = ["Data Science", "Wave", "Open Source", "Market Basket Analysis"]
