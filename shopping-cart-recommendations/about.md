@@ -1,6 +1,6 @@
 ## App Description:
 
-The Shopping Cart Recommendation demo allows a user to search for an item and add it to a cart. Based on the item, a customized list of recommendations is updated using a pre-built market basked ruleset. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/shopping-cart-recommendations) app built on [public data](https://www.kaggle.com/c/instacart-market-basket-analysisand can be used as a starting point for H2O Wave developers.
+The Shopping Cart Recommendation demo allows a user to search for an item and add it to a cart. Based on the item, a customized list of recommendations is updated using a pre-built market basked ruleset. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/shopping-cart-recommendations) app built on [public data](https://www.kaggle.com/c/instacart-market-basket-analysis) and can be used as a starting point for H2O Wave developers.
 
 **Audience:** Anyone
 
