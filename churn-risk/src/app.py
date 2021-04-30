@@ -162,8 +162,8 @@ def init(q: Q):
         subtitle='EDA & Churn Modeling with AutoML & Wave',
         nav=[
             ui.nav_group('Main Menu', items=[
-                ui.nav_item(name='#analysis', label='Analysis'),
-                ui.nav_item(name='#code', label='Application Code'),
+                ui.nav_item(name='analysis', label='Analysis'),
+                ui.nav_item(name='code', label='Application Code'),
             ])
         ]
     )
@@ -205,7 +205,7 @@ async def serve(q: Q):
             q.client.tertiary_color = '$azure'
         q.page['title'].items[1].toggle.value = dark_theme
 
-    if q.args['#'] == 'code':
+    if q.args.code:
         del q.page['shap_plot']
         del q.page['top_negative_plot']
         del q.page['top_positive_plot']
