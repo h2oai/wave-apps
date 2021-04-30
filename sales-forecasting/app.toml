@@ -8,7 +8,7 @@ Category = "Retail"
 Keywords = ["sales", "time-series", "walmart"]
 
 [Runtime]
-Module = "wave-forecast"
+Module = "wave_forecast"
 
 [[Env]]
 Name = "AWS_ACCESS_KEY_ID"
