@@ -18,7 +18,6 @@ DROP_COLUMNS=["Phone"]
 df = pd.read_csv(TEST_DATASET_PATH)
 df.dropna(inplace=True)
 df['Total Charges'] = (df['Day Charges'] + df['Evening Charges'] + df['Night Charges'] + df['Intl Charges'])
-rank = df['Total Charges'].rank(pct=True).values[0]
 
 churn_predictor = ChurnPredictor(
     train_dataset_path=TRAIN_DATASET_PATH,
@@ -86,6 +85,7 @@ def render_desc_info(q: Q, selected_row_index: Optional[int]):
 
     total_charges = df['Total Charges']
     charge = total_charges[selected_row_index] if selected_row_index is not None else total_charges.mean(axis=0)
+    rank = df['Total Charges'].rank(pct=True).values[selected_row_index] if selected_row_index is not None else df['Total Charges'].rank(pct=True).mean(axis=0)
     q.page['total_charges'] = ui.tall_gauge_stat_card(
         box='top-stats',
         title='Total Charges' if selected_row_index else 'Average Total Charges',
@@ -162,8 +162,8 @@ def init(q: Q):
         subtitle='EDA & Churn Modeling with AutoML & Wave',
         nav=[
             ui.nav_group('Main Menu', items=[
-                ui.nav_item(name='#analysis', label='Analysis'),
-                ui.nav_item(name='#code', label='Application Code'),
+                ui.nav_item(name='analysis', label='Analysis'),
+                ui.nav_item(name='code', label='Application Code'),
             ])
         ]
     )
@@ -205,7 +205,7 @@ async def serve(q: Q):
             q.client.tertiary_color = '$azure'
         q.page['title'].items[1].toggle.value = dark_theme
 
-    if q.args['#'] == 'code':
+    if q.args.code:
         del q.page['shap_plot']
         del q.page['top_negative_plot']
         del q.page['top_positive_plot']
