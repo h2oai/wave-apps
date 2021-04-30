@@ -85,7 +85,7 @@ def render_desc_info(q: Q, selected_row_index: Optional[int]):
 
     total_charges = df['Total Charges']
     charge = total_charges[selected_row_index] if selected_row_index is not None else total_charges.mean(axis=0)
-    rank = df['Total Charges'].rank(pct=True).values[selected_row_index] if selected_row_index is not None else df['Total Charges'].rank(pct=True).values[0]
+    rank = df['Total Charges'].rank(pct=True).values[selected_row_index] if selected_row_index is not None else df['Total Charges'].rank(pct=True).mean(axis=0)
     q.page['total_charges'] = ui.tall_gauge_stat_card(
         box='top-stats',
         title='Total Charges' if selected_row_index else 'Average Total Charges',
