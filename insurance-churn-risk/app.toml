@@ -3,6 +3,7 @@ Name = "ai.h2o.wave.churn-risk"
 Version = "0.1.0"
 Title = "Home Insurance Churn Risk"
 Description = "Demo to predict churn risk of insurance customers and display top reason codes."
+LongDescription = "about.md"
 Category = "Data Science"
 Keywords = ["Data Science", "Wave", "Open Source"]
 

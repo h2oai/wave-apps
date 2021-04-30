@@ -3,6 +3,7 @@ Name = "ai.h2o.wave.walmart-forecasting"
 Version = "0.2.1"
 Title = "Sales Forecasting"
 Description = "Demo to explore demand and forecasts for supply chain optimization."
+LongDescription = "about.md"
 Category = "Retail"
 Keywords = ["sales", "time-series", "walmart"]
 

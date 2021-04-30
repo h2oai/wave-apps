@@ -1,8 +1,9 @@
 [App]
 Name = "ai.h2o.wave.credit-risk"
-Version = "0.1.0"
+Version = "0.1.01"
 Title = "Credit Card Risk"
 Description = "Demo for business users to review and update model predictions."
+LongDescription = "about.md"
 Category = "Data Science"
 Keywords = ["Data Science", "Wave", "Open Source"]
 

@@ -1,8 +1,8 @@
 ## App Description:
 
-This Telco Churn Risk demo app allows a business user to explore and understand predictions from a machine learning model. The user can search for a specific customer and see why and why not the model thinks that person is likely to cancel their contract. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/churn-risk) app built on [public data](https://www.kaggle.com/c/churn-analytics-bda/overview) and can be used as a starting point for H2O Wave developers.
+This Credit Card Default Risk demo presents predictions made by a machine learning model to a business user on whether or not someone is likely to pay off their credit card. The user can review each predict and make the final say on if the applicant is approved or denied. This is purely a demonstration of including a human-in-the-loop with machine learning modeling. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/credit-risk) app built on [public data](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset) and can be used as a starting point for H2O Wave developers.
 
-**Audience:** Business Analyst, Marketing Professional
+**Audience:** Business Analyst, Financial Services Risk team, Business Owner
 
 **Feedback:** Send an email to cloud-feedback@h2o.ai with any questions, feedback, or concerns
 

@@ -1,19 +1,11 @@
-### App Goal
-Show how a recommendation model could be used for an online shopping cart.
+## App Description:
 
-### Target Audience
-Application Developers & Marketing
+The Shopping Cart Recommendation demo allows a user to search for an item and add it to a cart. Based on the item, a customized list of recommendations is updated using a pre-built market basked ruleset. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/shopping-cart-recommendations) app built on [public data](https://www.kaggle.com/c/instacart-market-basket-analysisand can be used as a starting point for H2O Wave developers.
 
-### Industry
-Retail 
+**Audience:** Anyone
 
-### GitHub
-https://github.com/h2oai/wave-apps/tree/main/shopping-cart-recommendations
+**Feedback:** Send an email to cloud-feedback@h2o.ai with any questions, feedback, or concerns
 
-### Comes with Demo Mode (pre-loaded data, models, results, etc.)
-Yes
+## Products Used in the App:
 
-### Detailed Description
-This application allows the user to add products to empty cart by searching and by clicking on trending products.
-Once products are added to the cart user will get product suggestions based on the products already in the cart.
-This app comes with a pre-built market basket analysis ruleset. 
+**H2O Wave:** H2O Wave is an open-source Python development framework that makes it fast and easy for data scientists, machine learning engineers, and software developers to develop real-time interactive AI apps with sophisticated visualizations.
