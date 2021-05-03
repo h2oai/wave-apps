@@ -2,7 +2,7 @@
 Name = "ai.h2o.wave.twitter-sentiment"
 Version = "0.1.0"
 Title = "Twitter Sentiment"
-Description = "App for searching twitter hashtags and sentiment analysis"
+Description = "Search twitter and see the sentiment of the latest, related tweets."
 LongDescription="about.md"
 Category = "Data Science"
 Keywords =  ["Data Science", "Wave", "Open Source", "Sentiment Analysis"]

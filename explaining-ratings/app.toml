@@ -1,11 +1,11 @@
 [App]
 Name = "ai.h2o.wave.explaining-ratings"
-Version = "0.1.0"
-Title = "Explaining Ratings"
-Description = "Application which allows a business user to extracting ratings, and displaying trends as word cloud"
+Version = "1.0.0"
+Title = "Explainable Hotel Ratings"
+Description = "Demo for business users to visually explore and compare NLP model predictions."
 LongDescription = "about.md"
 Category = "Data Science"
-Keywords = ["Data Science", "Wave", "Open Source"]
+Keywords = ["NLP", "Wave", "Open Source"]
 
 [Runtime]
 Module = "src.app"

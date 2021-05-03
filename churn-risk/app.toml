@@ -1,10 +1,11 @@
 [App]
 Name = "ai.h2o.wave.churn-risk"
-Version = "0.1.0"
+Version = "1.0.0"
 Title = "Telco Churn Risk"
-Description = "Application which predicts churn risk of telco customers and analyze top reasons for churning and retaining"
-Category = "Data Science"
-Keywords = ["Data Science", "Wave", "Open Source"]
+Description = "Demo to predict churn risk of telco customers and display top reason codes."
+LongDescription = "about.md"
+Category = "Telecommunications"
+Keywords = ["Telecommunications", "Wave", "Open Source"]
 
 [Runtime]
 Module = "src.app"

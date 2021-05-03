@@ -1,10 +1,11 @@
 [App]
 Name = "ai.h2o.wave.credit-risk"
-Version = "0.1.0"
+Version = "0.2.0"
 Title = "Credit Card Risk"
-Description = "Application which allows a business user to review model predictions on whether or not someone will pay off their credit card"
-Category = "Data Science"
-Keywords = ["Data Science", "Wave", "Open Source"]
+Description = "Demo for business users to review and update model predictions."
+LongDescription = "about.md"
+Category = "FinServe"
+Keywords = ["FinServe", "Wave", "Open Source"]
 
 [Runtime]
 Module = "src.app"
