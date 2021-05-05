@@ -21,6 +21,7 @@ class ChurnPredictor:
             train_file_path=train_dataset_path,
             target_column=target_column,
             model_type=ModelType.H2O3,
+            categorical_columns=categorical_columns,
             drop_columns=drop_columns,
             _h2o3_max_runtime_secs=30,
             _h2o3_nfolds=0,
