@@ -95,7 +95,6 @@ VARIABLE_DESCRIPTIONS = {
 df = pd.read_csv(TEST_DATASET_PATH)
 df.fillna(0, inplace=True) # to avoid 'Out of range float values are not JSON compliant'
 df['Total Sum Assured'] = (df['SUM_INSURED_BUILDINGS'] + df['SUM_INSURED_CONTENTS'] + df['SPEC_SUM_INSURED'])
-rank = df['Total Sum Assured'].rank(pct=True).values[0]
 
 churn_predictor = ChurnPredictor(
     train_dataset_path=TRAIN_DATASET_PATH,
@@ -164,6 +163,7 @@ def render_desc_info(q: Q, selected_row_index: Optional[int]):
 
     total_sum_assured = df['Total Sum Assured']
     charge = total_sum_assured[selected_row_index] if selected_row_index is not None else total_sum_assured.mean(axis=0)
+    rank = total_sum_assured.rank(pct=True).values[selected_row_index] if selected_row_index is not None else total_sum_assured.rank(pct=True).mean(axis=0)
     q.page['total_sum_assured'] = ui.tall_gauge_stat_card(
         box='top-stats',
         title='Total Sum Assured' if selected_row_index else 'Average Total Sum Assured',
@@ -239,8 +239,8 @@ def init(q: Q):
         subtitle='EDA & Churn Modeling with AutoML & Wave',
         nav=[
             ui.nav_group('Main Menu', items=[
-                ui.nav_item(name='#analysis', label='Analysis'),
-                ui.nav_item(name='#code', label='Application Code'),
+                ui.nav_item(name='analysis', label='Analysis'),
+                ui.nav_item(name='code', label='Application Code'),
             ])
         ]
     )
@@ -282,7 +282,7 @@ async def serve(q: Q):
             q.client.tertiary_color = '$azure'
         q.page['title'].items[1].toggle.value = dark_theme
 
-    if q.args['#'] == 'code':
+    if q.args.code:
         del q.page['shap_plot']
         del q.page['top_negative_plot']
         del q.page['top_positive_plot']
