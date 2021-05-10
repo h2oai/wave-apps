@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.credit-risk"
-Version = "0.1.0"
+Version = "0.2.0"
 Title = "Credit Card Risk"
 Description = "Application which allows a business user to review model predictions on whether or not someone will pay off their credit card"
 Category = "Data Science"
