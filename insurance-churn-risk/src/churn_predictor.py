@@ -25,12 +25,15 @@ class ChurnPredictor:
             drop_columns=drop_columns,
             _h2o3_max_runtime_secs=30,
             _h2o3_nfolds=0,
-            _h2o3_include_algos=['DRF', 'XGBoost', 'GBM']
+            _h2o3_include_algos=['DRF', 'GBM']
         )
 
         self.model = self.wave_model.model
 
         self.test_df = h2o.import_file(path=test_dataset_path)
+        for column in categorical_columns:
+            self.test_df[column] = self.test_df[column].asfactor()
+
         self.churn_probabilities = self.model.predict(self.test_df)[:,-1].as_data_frame().values
         self.contributions_df = self.model.predict_contributions(self.test_df).drop('BiasTerm').as_data_frame()
 
