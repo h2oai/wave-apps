@@ -1,14 +1,12 @@
 import h2o
 from typing import List, Optional, Tuple, Any, Union
-from h2o.estimators.gbm import H2OGradientBoostingEstimator
+
+from h2o_wave_ml import build_model, ModelType
 
 
 class ChurnPredictor:
     """
-    Wrapper for H2O-3
-
-    ChurnPredictor builds an abstraction between H2O-3 machine learning library and the Churn Risk app
-    giving the developer freedom to integrate any 3rd party machine library with a minimal change to the app code.
+    ChurnPredictor builds an abstraction between WaveML library and the Insurance Churn Risk app.
     """
 
     def __init__(
@@ -19,25 +17,22 @@ class ChurnPredictor:
         categorical_columns: Optional[List[str]] = None,
         drop_columns: Optional[List[str]] = None
     ):
-        h2o.init()
+        self.wave_model = build_model(
+            train_file_path=train_dataset_path,
+            target_column=target_column,
+            model_type=ModelType.H2O3,
+            categorical_columns=categorical_columns,
+            drop_columns=drop_columns,
+            _h2o3_max_runtime_secs=30,
+            _h2o3_nfolds=0,
+            _h2o3_include_algos=['DRF', 'GBM']
+        )
 
-        self.train_df = h2o.import_file(path=train_dataset_path, destination_frame="churn_train.csv")
-        self.test_df = h2o.import_file(path=test_dataset_path, destination_frame="churn_test.csv")
+        self.model = self.wave_model.model
 
-        if categorical_columns is not None:
-            for column in categorical_columns:
-                self.train_df[column] = self.train_df[column].asfactor()
-                self.test_df[column] = self.test_df[column].asfactor()
-
-        feature_columns = self.train_df.columns
-        feature_columns.remove(target_column)
-        if drop_columns is not None:
-            for column in drop_columns:
-                feature_columns.remove(column)
-
-        train, valid = self.train_df.split_frame([0.8], seed=1234)
-        self.model = H2OGradientBoostingEstimator(model_id="churn_model", seed=1234)
-        self.model.train(x=feature_columns, y=target_column, training_frame=train, validation_frame=valid)
+        self.test_df = h2o.import_file(path=test_dataset_path)
+        for column in categorical_columns:
+            self.test_df[column] = self.test_df[column].asfactor()
 
         self.churn_probabilities = self.model.predict(self.test_df)[:,-1].as_data_frame().values
         self.contributions_df = self.model.predict_contributions(self.test_df).drop('BiasTerm').as_data_frame()
