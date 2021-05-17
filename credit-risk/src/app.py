@@ -43,7 +43,7 @@ def init_client(q: Q):
                         'customer_page',
                         zones=[
                             ui.zone('customer_risk_explanation'),
-                            ui.zone('customer_shap_plot', size='600px'),
+                            ui.zone('customer_shap_plot'),
                             ui.zone('button_group'),
                             ui.zone('customer_features'),
                         ]
@@ -63,7 +63,7 @@ def init_client(q: Q):
                                 'content',
                                 zones=[
                                     ui.zone('customer_risk_explanation'),
-                                    ui.zone('customer_shap_plot'), size='600px'),
+                                    ui.zone('customer_shap_plot'),
                                     ui.zone('button_group'),
                                 ]
                             ),
@@ -154,7 +154,7 @@ async def render_customer_page(q: Q):
                 groupable=False,
                 resettable=False,
                 multiple=False,
-                height='760px'
+                height='525px'
             )
         ]
     )
