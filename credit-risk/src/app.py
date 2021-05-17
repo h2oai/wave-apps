@@ -1,5 +1,5 @@
 import pandas as pd
-from h2o_wave import app, data, main, Q, ui
+from h2o_wave import app, data, handle_on, main, on, Q, ui
 
 from .model import Model
 
@@ -27,8 +27,6 @@ def init_app(q: Q):
     df.insert(loc=0, column='Status', value='Pending', allow_duplicates=True) 
     q.app.customer_df = df
 
-def init_user(q: Q):
-    q.user.initialized = True
 
 def init_client(q: Q):
     q.client.initialized = True
@@ -99,14 +97,29 @@ def init_client(q: Q):
     )
 
 
-def handle_approve_click(q: Q):
+@on()
+async def approve(q: Q):
     q.app.customer_df.loc[q.app.customer_df[ID_COLUMN] == q.client.selected_customer_id, 'Status'] = 'Approved'
+    await render_customer_selector(q)
 
 
-def handle_reject_click(q: Q):
+@on()
+async def reject(q: Q):
     q.app.customer_df.loc[q.app.customer_df[ID_COLUMN] == q.client.selected_customer_id, 'Status'] = 'Rejected'
+    await render_customer_selector(q)
 
 
+@on()
+async def dark_mode(q: Q):
+    q.page['meta'].theme = 'neon'
+
+
+@on()
+async def light_mode(q: Q):
+    q.page['meta'].theme = 'default'
+
+
+@on('customer_table')
 async def render_customer_page(q: Q):
 
     del q.page['customer_table']
@@ -177,14 +190,12 @@ async def render_customer_page(q: Q):
         items=[
             ui.buttons(
                 [
-                    ui.button(name='approve_btn', label='Approve', primary=approve),
-                    ui.button(name='reject_btn', label='Reject', primary=not approve),
+                    ui.button(name='approve', label='Approve', primary=approve),
+                    ui.button(name='reject', label='Reject', primary=not approve),
                 ]
             )
         ]
     )
-
-    await q.page.save()
 
 
 async def render_customer_selector(q: Q):
@@ -210,31 +221,13 @@ async def render_customer_selector(q: Q):
         ]
     )
 
-    await q.page.save()
-
 
 @app("/")
 async def serve(q: Q):
     if not q.app.initialized:
         init_app(q)
-    if not q.user.initialized:
-        init_user(q)
     if not q.client.initialized:
         init_client(q)
-
-    if q.args.dark_mode:
-        q.page['meta'].theme = 'neon'
-        await q.page.save()
-    elif q.args.light_mode:
-        q.page['meta'].theme = 'default'
-        await q.page.save()
-    elif q.args.customer_table:
-        await render_customer_page(q)
-    elif q.args.approve_btn:
-        handle_approve_click(q)
+    if not await handle_on(q):
         await render_customer_selector(q)
-    elif q.args.reject_btn:
-        handle_reject_click(q)
-        await render_customer_selector(q)
-    else:
-        await render_customer_selector(q)
+    await q.page.save()
