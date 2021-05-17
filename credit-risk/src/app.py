@@ -12,7 +12,8 @@ TARGET_COLUMN = "default.payment.next.month"
 APPROVAL_THRESHOLD = 0.35
 
 
-def init(q: Q):
+def init_app(q: Q):
+    q.app.initialized = True
     # build model
     q.app.model = Model(TRAIN_CSV, ID_COLUMN, TARGET_COLUMN)
     # prep df for analyzation
@@ -26,8 +27,11 @@ def init(q: Q):
     df.insert(loc=0, column='Status', value='Pending', allow_duplicates=True) 
     q.app.customer_df = df
 
+def init_user(q: Q):
+    q.user.initialized = True
 
-def layout(q: Q):
+def init_client(q: Q):
+    q.client.initialized = True
     q.page['meta'] = ui.meta_card(
         box='', 
         title='Credit Risk', 
@@ -212,9 +216,11 @@ async def render_customer_selector(q: Q):
 @app("/")
 async def serve(q: Q):
     if not q.app.initialized:
-        layout(q)
-        init(q)
-        q.app.initialized = True
+        init_app(q)
+    if not q.user.initialized:
+        init_user(q)
+    if not q.client.initialized:
+        init_client(q)
 
     if q.args.dark_mode:
         q.page['meta'].theme = 'neon'
