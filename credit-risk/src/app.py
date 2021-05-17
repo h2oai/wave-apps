@@ -4,10 +4,10 @@ from h2o_wave import app, data, handle_on, main, on, Q, ui
 from .model import Model
 
 
-TRAIN_CSV = "./data/Kaggle/CreditCard-train.csv"
-TEST_CSV = "./data/Kaggle/CreditCard-train.csv"
-ID_COLUMN = "ID"
-TARGET_COLUMN = "default.payment.next.month"
+TRAIN_CSV = './data/Kaggle/CreditCard-train.csv'
+TEST_CSV = './data/Kaggle/CreditCard-train.csv'
+ID_COLUMN = 'ID'
+TARGET_COLUMN = 'default.payment.next.month'
 # Recommend rejecting customer's with default probability appove this amount 
 APPROVAL_THRESHOLD = 0.35
 
@@ -135,9 +135,9 @@ async def render_customer_page(q: Q):
     customer_row = q.app.customer_df.loc[row_index]
     score = q.app.predictions_df.loc[row_index]
     approve = bool(score < APPROVAL_THRESHOLD)
-    contribs = q.app.contributions_df.loc[row_index].drop("BiasTerm")
+    contribs = q.app.contributions_df.loc[row_index].drop('BiasTerm')
 
-    q.client.selected_customer_id = customer_row["ID"]
+    q.client.selected_customer_id = customer_row['ID']
 
     # details
     q.client.cards.add('customer_features')
@@ -147,8 +147,8 @@ async def render_customer_page(q: Q):
             ui.table(
                 name='customer_features',
                 columns=[
-                    ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
-                    ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
+                    ui.table_column(name='attribute', label='Attribute', sortable=False, searchable=False, max_width='100'),
+                    ui.table_column(name='value', label='Value', sortable=False, searchable=False, max_width='100')
                 ],
                 rows=[ui.table_row(name=index, cells=[index, row]) for index, row in customer_row.map(str).iteritems()],
                 groupable=False,
@@ -170,10 +170,10 @@ async def render_customer_page(q: Q):
     explanation = (
         "- This customer **{{will_or_will_not}}** most probably settle the next month credit card balance.\n"
         "- Having a **{{top_contributing_feature}}** of **{{value_of_top_contributing_feature}}** is the top reason for that.\n"
-        "- It's a good idea to **{{accept_or_reject}}** this customer." 
+        "- It's recommended to **{{accept_or_reject}}** this customer." 
     )
     q.client.cards.add('customer_risk_explanation')
-    q.page["customer_risk_explanation"] = ui.markdown_card(
+    q.page['customer_risk_explanation'] = ui.markdown_card(
         box='customer_risk_explanation',
         title='Summary on Customer',
         content='=' + explanation,
@@ -186,14 +186,14 @@ async def render_customer_page(q: Q):
     q.client.cards.add('customer_shap_plot')
     q.page['customer_shap_plot'] = ui.plot_card(
         box='customer_shap_plot',
-        title="Effectiveness of each attribute on defaulting next payment",
+        title='Effectiveness of each attribute on defaulting next payment',
         data=data(['label', 'value'], rows=shap_values),
-        plot=ui.plot([ui.mark(type='interval', x='=value', x_title='SHAP value', y='=label')])
+        plot=ui.plot([ui.mark(type='interval', x='=value', x_title='Feature Contributions', y='=label')])
     )
 
     # approve/reject buttons
     q.client.cards.add('button_group')
-    q.page["button_group"] = ui.form_card(
+    q.page['button_group'] = ui.form_card(
         box='button_group',
         items=[
             ui.buttons(
@@ -213,7 +213,7 @@ async def render_customer_selector(q: Q):
     columns = [ui.table_column(name=column, label=column, sortable=True, searchable=True) for column in q.app.customer_df.columns]
     rows = [ui.table_row(name=str(index), cells=row.tolist()) for index, row in q.app.customer_df.applymap(str).iterrows()]
     q.client.cards.add('customer_table')
-    q.page["customer_table"] = ui.form_card(
+    q.page['customer_table'] = ui.form_card(
         box='customer_table',
         items=[
             ui.message_bar(text='Click "Status" to review a customer', type='info'),
@@ -228,7 +228,7 @@ async def render_customer_selector(q: Q):
     )
 
 
-@app("/")
+@app('/')
 async def serve(q: Q):
     if not q.app.initialized:
         init_app(q)
