@@ -63,7 +63,7 @@ def init_client(q: Q):
                                 'content',
                                 zones=[
                                     ui.zone('customer_risk_explanation'),
-                                    ui.zone('customer_shap_plot', size='600px'),
+                                    ui.zone('customer_shap_plot'), size='600px'),
                                     ui.zone('button_group'),
                                 ]
                             ),
@@ -97,6 +97,13 @@ def init_client(q: Q):
     )
 
 
+def clear_page(q: Q):
+    if q.client.cards:
+        for card in q.client.cards:
+            del q.page[card]
+    q.client.cards = set()
+
+
 @on()
 async def approve(q: Q):
     q.app.customer_df.loc[q.app.customer_df[ID_COLUMN] == q.client.selected_customer_id, 'Status'] = 'Approved'
@@ -122,7 +129,7 @@ async def light_mode(q: Q):
 @on('customer_table')
 async def render_customer_page(q: Q):
 
-    del q.page['customer_table']
+    clear_page(q)
 
     row_index = int(q.args.customer_table[0])
     customer_row = q.app.customer_df.loc[row_index]
@@ -133,25 +140,23 @@ async def render_customer_page(q: Q):
     q.client.selected_customer_id = customer_row["ID"]
 
     # details
-    q.page.add(
-        'customer_features', 
-        ui.form_card(
-            box='customer_features',
-            items=[
-                ui.table(
-                    name='customer_features',
-                    columns=[
-                        ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
-                        ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
-                    ],
-                    rows=[ui.table_row(name=index, cells=[index, row]) for index, row in customer_row.map(str).iteritems()],
-                    groupable=False,
-                    resettable=False,
-                    multiple=False,
-                    height='760px'
-                )
-            ]
-        )
+    q.client.cards.add('customer_features')
+    q.page['customer_features'] = ui.form_card(
+        box='customer_features',
+        items=[
+            ui.table(
+                name='customer_features',
+                columns=[
+                    ui.table_column(name="attribute", label="Attribute", sortable=False, searchable=False, max_width='100'),
+                    ui.table_column(name="value", label="Value", sortable=False, searchable=False, max_width='100')
+                ],
+                rows=[ui.table_row(name=index, cells=[index, row]) for index, row in customer_row.map(str).iteritems()],
+                groupable=False,
+                resettable=False,
+                multiple=False,
+                height='760px'
+            )
+        ]
     )
 
     # summary
@@ -167,6 +172,7 @@ async def render_customer_page(q: Q):
         "- Having a **{{top_contributing_feature}}** of **{{value_of_top_contributing_feature}}** is the top reason for that.\n"
         "- It's a good idea to **{{accept_or_reject}}** this customer." 
     )
+    q.client.cards.add('customer_risk_explanation')
     q.page["customer_risk_explanation"] = ui.markdown_card(
         box='customer_risk_explanation',
         title='Summary on Customer',
@@ -177,6 +183,7 @@ async def render_customer_page(q: Q):
     # shap plot
     shap_values = list(zip(contribs.index, contribs))
     shap_values.sort(key=lambda x: x[1])
+    q.client.cards.add('customer_shap_plot')
     q.page['customer_shap_plot'] = ui.plot_card(
         box='customer_shap_plot',
         title="Effectiveness of each attribute on defaulting next payment",
@@ -185,6 +192,7 @@ async def render_customer_page(q: Q):
     )
 
     # approve/reject buttons
+    q.client.cards.add('button_group')
     q.page["button_group"] = ui.form_card(
         box='button_group',
         items=[
@@ -200,13 +208,11 @@ async def render_customer_page(q: Q):
 
 async def render_customer_selector(q: Q):
 
-    del q.page['customer_features']
-    del q.page['customer_risk_explanation']
-    del q.page['customer_shap_plot']
-    del q.page['button_group']
+    clear_page(q)
 
     columns = [ui.table_column(name=column, label=column, sortable=True, searchable=True) for column in q.app.customer_df.columns]
     rows = [ui.table_row(name=str(index), cells=row.tolist()) for index, row in q.app.customer_df.applymap(str).iterrows()]
+    q.client.cards.add('customer_table')
     q.page["customer_table"] = ui.form_card(
         box='customer_table',
         items=[
