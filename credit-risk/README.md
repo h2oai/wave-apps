@@ -2,8 +2,9 @@
 This application builds a model using H2O-3 AutoML to predict if a customer will pay off their credit card. A reviewer can then look at the prediction value and reason codes of each customer and mark the customer as approved or denied for further credit. 
 
 
-![Credit Risk App Screenshot - Home Page](docs/screenshots/credit-risk-home-page.png)
-![Credit Risk App Screenshot - Customer Page](docs/screenshots/credit-risk-customer-page.png)
+![Credit Risk App Screenshot - Home Page](docs/screenshots/screenshot-1.png)
+![Credit Risk App Screenshot - Customer Page](docs/screenshots/screenshot-2.png)
+![Credit Risk App Screenshot - Customer Page](docs/screenshots/screenshot-3.png)
 
 
 ## Running this App Locally
