@@ -24,6 +24,7 @@ class Model:
                 train_file_path=self._train_csv,
                 target_column=self._target_column,
                 model_type=ModelType.H2O3,
+                drop_columns=[self._id_column],
                 _h2o3_max_runtime_secs=30,
                 _h2o3_nfolds=0,
                 _h2o3_include_algos=['DRF', 'XGBoost', 'GBM']
