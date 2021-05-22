@@ -6,7 +6,7 @@ from h2o_wave_ml import build_model, ModelType
 
 class ChurnPredictor:
     """
-    ChurnPredictor builds an abstraction between WaveML library and the Insurance Churn Risk app.
+    ChurnPredictor builds an abstraction between H2O WaveML library and the Insurance Churn Risk app.
     """
 
     def __init__(
