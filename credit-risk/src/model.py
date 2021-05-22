@@ -1,34 +1,35 @@
 import h2o
 import pandas as pd
 
-from h2o.estimators.gbm import H2OGradientBoostingEstimator
+from h2o_wave_ml import build_model, ModelType
 
 
 class Model:
     """
-    Model builds an abstraction between H2O-3 machine learning library and 
-    the app giving the developer freedom to integrate any 3rd party machine 
+    Model builds an abstraction between WaveML and the app
+    giving the developer freedom to integrate any 3rd party machine 
     library with a minimal change to the app code.
     """
 
     def __init__(self, train_csv: str, id_column: str, target_column: str) -> None:
-        h2o.init()
-
-        self._model = None
+        self._train_csv = train_csv
         self._id_column = id_column
         self._target_column = target_column
-        self._train_df = h2o.import_file(path=train_csv)
+        self._model = None
 
     @property
     def model(self):
         if not self._model:
-            y = self._target_column
-            x = self._train_df.columns
-            x.remove(y)
-            x.remove(self._id_column)
-            train, valid = self._train_df.split_frame([0.8])
-            self._model = H2OGradientBoostingEstimator(seed=1)
-            self._model.train(x=x, y=y, training_frame=train, validation_frame=valid)
+            wave_model = build_model(
+                train_file_path=self._train_csv,
+                target_column=self._target_column,
+                model_type=ModelType.H2O3,
+                _h2o3_max_runtime_secs=30,
+                _h2o3_nfolds=0,
+                _h2o3_include_algos=['DRF', 'XGBoost', 'GBM']
+            )
+
+            self._model = wave_model.model
         return self._model
 
     def predict(self, data: pd.DataFrame) -> pd.DataFrame:
