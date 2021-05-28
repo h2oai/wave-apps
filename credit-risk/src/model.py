@@ -6,7 +6,7 @@ from h2o_wave_ml import build_model, ModelType
 
 class Model:
     """
-    Model builds an abstraction between WaveML and the app
+    Model builds an abstraction between H2O Wave ML and the app
     giving the developer freedom to integrate any 3rd party machine 
     library with a minimal change to the app code.
     """

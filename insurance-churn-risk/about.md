@@ -8,6 +8,6 @@ This Insurance Churn Risk demo app allows a business user to explore and underst
 
 ## Products Used in the App:
 
-**H2O-3:** H2O-3 is a fully open source, distributed in-memory machine learning platform with linear scalability. H2O-3 supports the most widely used statistical and machine learning algorithms, including gradient boosted machines, generalized linear models, deep learning, and more.
+**H2O Wave ML:** H2O Wave ML is a companion package for H2O Wave that makes it quick and easy to integrate AI/ML models into applications. It provides a simple, high-level API for training, scoring, deploying and explaining machine learning models for building predictive and decision-support applications entirely in Python.
 
 **H2O Wave:** H2O Wave is an open-source Python development framework that makes it fast and easy for data scientists, machine learning engineers, and software developers to develop real-time interactive AI apps with sophisticated visualizations.

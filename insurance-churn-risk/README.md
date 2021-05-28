@@ -1,6 +1,6 @@
 # Wave Home Insurance Customer Churn Application
 
-This application builds a model using H2O-3 AutoML to predict which [Home Insurance Customers](https://www.kaggle.com/ycanario/home-insurance) are most likely to churn and why. Shapley values and partial dependence plots allow the user to understand why the model thinks each customer will or will not churn.
+This application builds a model using H2O Wave ML to predict which [Home Insurance Customers](https://www.kaggle.com/ycanario/home-insurance) are most likely to churn and why. Shapley values and partial dependence plots allow the user to understand why the model thinks each customer will or will not churn.
 
 ![Chrun App Screenshot](docs/screenshots/churn-risk-preview.png)
 
