@@ -13,7 +13,7 @@ This application allows users to build word clouds on the hotel reviews texts. I
 
 ### 1. Run the Wave Server
 
-New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app.
+New to H2O Wave? We recommend starting in the documentation to [download and run](https://wave.h2o.ai/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app.
 
 ### 2. Setup Your Python Environment
 
