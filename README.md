@@ -4,11 +4,11 @@ H2O Wave allows you to build AI apps, faster. This directory houses sample appli
 
 ## Installation 
 
-Follow the instructions [here](https://h2oai.github.io/wave/docs/installation) to download and run the latest Wave Server, a requirement for all sample apps. Then, choose an app from below for setup instructions.
+Follow the instructions [here](https://wave.h2o.ai/docs/installation) to download and run the latest Wave Server, a requirement for all sample apps. Then, choose an app from below for setup instructions.
 
 
 
-## Available Apps
+## Available Apps 
 
 ### [Explainable Hotel Ratings](explaining-ratings/README.md)
 

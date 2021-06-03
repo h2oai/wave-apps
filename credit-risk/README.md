@@ -15,7 +15,7 @@ This application builds a model using H2O Wave ML to predict if a customer will 
 3. JRE 11+ (needed to run H2O-3) 
 
 ### 1. Run the Wave Server
-New to H2O Wave? We recommend starting in the documentation to [download and run](https://h2oai.github.io/wave/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
+New to H2O Wave? We recommend starting in the documentation to [download and run](https://wave.h2o.ai/docs/installation) the Wave Server on your local machine. Once the server is up and running you can easily use any Wave app. 
 
 ### 2. Setup Your Python Environment
 
