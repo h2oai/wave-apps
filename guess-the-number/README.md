@@ -62,7 +62,7 @@ The previous section will help get the app up and running. However, the player i
 
 [wave-installation-term-gif]: ./static/install_wave_server_term.gif
 [wave-app-env-setup-term-gif]: ./static/wave_app_env_setup_term.gif
-[wave-docs-installation]: https://h2oai.github.io/wave/docs/installation
+[wave-docs-installation]: https://wave.h2o.ai/docs/installation
 [wave-app-state]: https://h2oai.github.io/wave/docs/state
 [wave-single-sign-on]: https://h2oai.github.io/wave/docs/security#single-sign-on
 [auth-dev-setup-keycloak]: ./dev_authentication_setup.md
