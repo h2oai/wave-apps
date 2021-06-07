@@ -1,6 +1,6 @@
 ## App Description:
 
-This is a single player game where the player guesses a number picked by the computer. All players that are logged into the same app instance can compare their high-scores against each other. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/guess-the-number) app that can be used as a starting point for H2O Wave developers.
+This is a single player game where the player guesses a number picked by the computer. All players that are logged into the same app instance can compare their high scores against each other. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/guess-the-number) app that can be used as a starting point for H2O Wave developers.
 
 **Audience:** Anyone
 
