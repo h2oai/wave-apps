@@ -1,6 +1,6 @@
 ## App Description:
 
-This Hotel Review Analysis demo allows a business user to explore satisfaction predictions made by a machine learning model. The user can compare the key words in the average prediction to various subsets of the data to understand how different guests enjoyed different types of hotels. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/explaining-ratings) app built on [public data](https://www.kaggle.com/datafiniti/hotel-reviews) and can be used as a starting point for H2O Wave developers.
+This Hotel Review Analysis demo allows a business user to explore satisfaction predictions made by a machine learning model. The user can compare the keywords in the average prediction to various subsets of the data to understand how different guests enjoyed different types of hotels. This is an [open source](https://github.com/h2oai/wave-apps/tree/main/explaining-ratings) app built on [public data](https://www.kaggle.com/datafiniti/hotel-reviews) and can be used as a starting point for H2O Wave developers.
 
 **Audience:** Business Analyst, Marketing Team
 
