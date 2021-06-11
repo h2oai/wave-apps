@@ -1,6 +1,6 @@
 [App]
-Name = "ai.h2o.wave.shopping-cart-recommendations-"
-Version = "0.2.0"
+Name = "ai.h2o.wave.shopping-cart-recommendations"
+Version = "0.3.0"
 Title = "Shopping Cart Recommendations"
 Description = "Demo of a recommendation engine on groceries items."
 LongDescription="about.md"
@@ -9,5 +9,3 @@ Keywords = ["Data Science", "Wave", "Open Source", "Market Basket Analysis"]
 
 [Runtime]
 Module = "src.app"
-MemoryReservation = "4Gi"
-MemoryLimit = "6Gi"
