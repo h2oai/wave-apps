@@ -7,7 +7,7 @@ from .utils import get_products_list, get_suggestions, get_trending_products
 
 
 def init_ui(q: Q):
-    q.page['meta'] = ui.meta_card(box='', layouts=[
+    q.page['meta'] = ui.meta_card(title='Shopping Cart Recomendations', box='', layouts=[
         ui.layout(
             breakpoint='xs',
             zones=[
@@ -65,8 +65,10 @@ def init_ui(q: Q):
                 values=q.client.cart_products,
                 trigger=True,
             ),
+            ui.button(name='toggle_theme', label='Toggle Theme', primary=True)
         ]
     )
+    q.client.theme = 'default'
 
 
 def init_data(q: Q):
@@ -123,5 +125,9 @@ async def serve(q: Q):
     update_cart(q)
     render_suggestions(q)
     render_trending(q)
+
+    meta = q.page['meta']
+    if q.args.toggle_theme:
+        meta.theme = q.client.theme = 'neon' if q.client.theme == 'default' else 'default'
 
     await q.page.save()
