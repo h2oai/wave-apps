@@ -9,5 +9,3 @@ Keywords = ["Data Science", "Wave", "Open Source", "Market Basket Analysis"]
 
 [Runtime]
 Module = "src.app"
-MemoryReservation = "4Gi"
-MemoryLimit = "6Gi"
