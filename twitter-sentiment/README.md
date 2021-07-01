@@ -26,7 +26,6 @@ cd wave-apps/twitter-sentiment
 make setup
 source venv/bin/activate
 ```
-
 ### 3. Run the App
 
 ```bash
@@ -40,5 +39,13 @@ Note! If you did not activate your virtual environment this will be:
 ```
 
 ### 4. View the App
-
 Point your favorite web browser to [localhost:10101](http://localhost:10101)
+
+
+#### Running in the H2O AI Hybrid Cloud
+
+This application uses an app secret for the Twitter login credentials so that it can be entered automatically upon the start of the app, avoiding manual/client login.
+
+```
+h2o secret create twitter-sentiment-secrets --from-literal=consumer_key=<CONSUMER KEY> --from-literal=consumer_secret=<CONSUMER SECRET> --from-literal=access_token=<ACCESS TOKEN> --from-literal=access_token_secret=<ACCESS TOKEN SECRET>
+```

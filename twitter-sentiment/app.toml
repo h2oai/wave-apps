@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.twitter-sentiment"
-Version = "0.1.0"
+Version = "0.1.1"
 Title = "Twitter Sentiment"
 Description = "Search twitter and see the sentiments of the latest and related tweets."
 LongDescription="about.md"
@@ -11,3 +11,23 @@ Keywords =  ["Data Science", "Wave", "Open Source", "Sentiment Analysis"]
 Module = "src.app"
 MemoryReservation = "4Gi"
 MemoryLimit = "6Gi"
+
+[[Env]]
+Name = "ACCESS_TOKEN"
+Secret = "twitter-sentiment-secrets"
+SecretKey = "access_token"
+
+[[Env]]
+Name = "ACCESS_TOKEN_SECRET"
+Secret = "twitter-sentiment-secrets"
+SecretKey = "access_token_secret"
+
+[[Env]]
+Name = "CONSUMER_KEY"
+Secret = "twitter-sentiment-secrets"
+SecretKey = "consumer_key"
+
+[[Env]]
+Name = "CONSUMER_SECRET"
+Secret = "twitter-sentiment-secrets"
+SecretKey = "consumer_secret"
