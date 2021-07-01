@@ -42,7 +42,7 @@ Note! If you did not activate your virtual environment this will be:
 Point your favorite web browser to [localhost:10101](http://localhost:10101)
 
 
-#### Running in the H2O AI Hybrid Cloud
+## Running in the H2O AI Hybrid Cloud
 
 This application uses an app secret for the Twitter login credentials so that it can be entered automatically upon the start of the app, avoiding manual/client login.
 
