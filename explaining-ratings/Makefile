@@ -1,22 +1,24 @@
-all: ## Build wheel
-	zip -r \
-        --exclude=".git/*" \
-        --exclude="/venv/*" \
-        --exclude="*.csv" \
-        --exclude="*__pycache__/*" \
-        $(shell basename $$PWD).qz .
+SHELL      := bash
+PYTHON     := python3
 
-setup: ## Create venv and install dependencies on it
-	python3 -m venv venv
-	./venv/bin/pip install -U pip
-	./venv/bin/pip install wheel
-	ARCHFLAGS="-arch x86_64" ./venv/bin/pip install -r requirements.txt
+.DEFAULT_GOAL := help
 
-install: ## Install dependencies on active python environment
-	ARCHFLAGS="-arch x86_64" pip install -r requirements.txt
+venv:
+	$(PYTHON) -m venv venv
 
-clean: ## Clean
-	rm -rf dist venv *.whl *.qz
+.PHONY: setup
+setup: | venv ## Setup a project
+	./venv/bin/python -m pip install -U pip
+	./venv/bin/python -m pip install -r requirements.txt
 
+.PHONY: run
+run: ## Run the App (run `make setup` first)
+	./venv/bin/wave run src.app
+
+.PHONY: clean
+clean: ## Remove all files produced by `make`
+	rm -rf venv
+
+.PHONY: help
 help: ## List all make tasks
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

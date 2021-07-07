@@ -13,7 +13,7 @@ setup: | venv ## Setup a project
 
 .PHONY: run
 run: ## Run the App (run `make setup` first)
-	./venv/bin/wave run src.app
+	./venv/bin/wave run guess_the_number.guess
 
 .PHONY: clean
 clean: ## Remove all files produced by `make`

@@ -13,7 +13,7 @@ setup: | venv ## Setup a project
 
 .PHONY: run
 run: ## Run the App (run `make setup` first)
-	./venv/bin/wave run src.app
+	./venv/bin/wave run wave_forecast
 
 .PHONY: clean
 clean: ## Remove all files produced by `make`
