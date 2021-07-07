@@ -4,21 +4,17 @@ from h2o_wave import Q, app, ui, main, data
 
 from .tweet_analyser import TweetAnalyser
 
-env_vars=[]
-
-
 def configure_page(q: Q, bypass_login):
     q.page['twitter_app'].dialog = None
     q.page['search'] = ui.form_card(box='search', items=[ui.textbox(name='search', trigger=True, icon='Search')])
-    q.client.tweet_analyser = TweetAnalyser(env_vars[0], env_vars[1], env_vars[2], env_vars[3]) if bypass_login else TweetAnalyser(q.args.access_token, q.args.access_token_secret, q.args.consumer_key, q.args.consumer_secret)
+    q.client.tweet_analyser = TweetAnalyser(q.app.env_vars[0], q.app.env_vars[1], q.app.env_vars[2], q.app.env_vars[3]) if bypass_login else TweetAnalyser(q.args.access_token, q.args.access_token_secret, q.args.consumer_key, q.args.consumer_secret)
 
 
 def init(q: Q):
-    env_vars.append(os.environ.get("ACCESS_TOKEN"))
-    env_vars.append(os.environ.get("ACCESS_TOKEN_SECRET"))
-    env_vars.append(os.environ.get("CONSUMER_KEY"))
-    env_vars.append(os.environ.get("CONSUMER_SECRET"))
-
+    q.app.env_vars.append(os.environ.get("ACCESS_TOKEN"))
+    q.app.env_vars.append(os.environ.get("ACCESS_TOKEN_SECRET"))
+    q.app.env_vars.append(os.environ.get("CONSUMER_KEY"))
+    q.app.env_vars.append(os.environ.get("CONSUMER_SECRET"))
     q.page['header'] = ui.header_card(
         box='header',
         title='Twitter Sentiment',
@@ -26,9 +22,10 @@ def init(q: Q):
         icon='UpgradeAnalysis',
         icon_color='#00A8E0',
     )
-
-    if not (None in env_vars):
-        q.client.word = True
+    if not (None in q.app.env_vars):
+        # Existing login credentials in environment variables --> bypass login 
+        configure_page(q, True)
+        search_tweets(q)
         q.page['twitter_app'] = ui.meta_card(
             box='',
             title='Twitter Sentiment',
@@ -39,6 +36,7 @@ def init(q: Q):
             ])]
         )
     else:
+        # Missing login credentials in environment variables --> required login 
         q.page['twitter_app'] = ui.meta_card(
             box='',
             title='Twitter Sentiment',
@@ -56,7 +54,6 @@ def init(q: Q):
                 ui.zone('twitter_cards', direction=ui.ZoneDirection.ROW, wrap='stretch', justify='center')
             ])]
         )
-
 
 def get_sentiment(polarity) -> Tuple[str, str]:
     compound = polarity['compound']
@@ -92,12 +89,13 @@ def search_tweets(q: Q):
 
 @app('/')
 async def serve(q: Q):
+    q.app.env_vars = []
     if not q.client.initialized:
         init(q)
-        q.client.word = True
         q.client.initialized = True
-
-        configure_page(q, False) if q.args.configure else configure_page(q, True)
+    if q.args.configure:
+        # Grant access after login credentials are manually passed
+        configure_page(q, False)
         search_tweets(q)
     elif  q.args.search:
       search_tweets(q)
