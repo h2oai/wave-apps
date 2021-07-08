@@ -31,22 +31,18 @@ scores against each other.
 
 - Need Python `3.7.9 +`
 
-```console
-$ git clone https://github.com/h2oai/wave-apps.git
-$ cd wave-apps/guess-the-number
-$ python3 -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
+```bash
+git clone https://github.com/h2oai/wave-apps.git
+cd wave-apps/guess-the-number
+make setup
 ```
-
-![wave-app-env-setup-term-gif]
 
 [Top](#guess-the-number)
 
 #### 3. Run the app by pointing to the module directory
 
-```console
-$ wave run guess_the_number/guess.py
+```bash
+make run
 ```
 
 - Point your web browser to `localhost:10101`. In the future, if you want to run this app you can skip step 2 as the environment is already set up.

@@ -20,21 +20,15 @@ New to H2O Wave? We recommend starting in the documentation to [download and run
 ### 2. Setup Your Python Environment
 
 ```bash
-$ git clone git@github.com:h2oai/wave-apps.git
-$ cd wave-apps/credit-risk
-$ make setup
-$ source venv/bin/activate
+git clone git@github.com:h2oai/wave-apps.git
+cd wave-apps/credit-risk
+make setup
 ```
 
 ### 3. Run the App
 
 ```bash
-wave run src.app
-```
-
-Note! If you did not activate your virtual environment this will be:
-```bash
-./venv/bin/wave run src.app
+make run
 ```
 
 ### 4. View the App
