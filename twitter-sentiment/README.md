@@ -2,8 +2,8 @@
 
 This application allows you to search for Twitter hashtags and do sentiment analysis using VaderSentiment
 
-![Twitter-Sentiment App Screenshot - Login Screen](docs/screenshots/login-page.png)
-![Twitter-Sentiment App Screenshot - Home Page](docs/screenshots/home-page.png)
+![Twitter-Sentiment App Screenshot - Login Screen](static/screenshot-1.png)
+![Twitter-Sentiment App Screenshot - Home Page](static/screenshot-2.png)
 
 ## Running this App Locally
 
@@ -25,7 +25,6 @@ git clone git@github.com:h2oai/wave-apps.git
 cd wave-apps/twitter-sentiment
 make setup
 ```
-
 ### 3. Run the App
 
 ```bash
@@ -33,5 +32,13 @@ make run
 ```
 
 ### 4. View the App
-
 Point your favorite web browser to [localhost:10101](http://localhost:10101)
+
+
+## Running in the H2O AI Hybrid Cloud
+
+This application uses an app secret for the Twitter login credentials so that it can be entered automatically upon the start of the app, avoiding manual/client login.
+
+```
+h2o secret create twitter-sentiment-secrets --from-literal=consumer_key=<CONSUMER KEY> --from-literal=consumer_secret=<CONSUMER SECRET> --from-literal=access_token=<ACCESS TOKEN> --from-literal=access_token_secret=<ACCESS TOKEN SECRET>
+```

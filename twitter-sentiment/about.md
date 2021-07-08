@@ -4,7 +4,7 @@ The Twitter Sentiment analysis app requires a [Twitter Developer Account]( https
 
 **Audience:** Marketing Analyst
 
-**Feedback:** Send an email to cloud-feedback@h2o.ai with any questions, feedback, or concerns
+**Feedback:** Send an email to cloud-feedback+twitter@h2o.ai with any questions, feedback, or concerns
 
 ## Products Used in the App:
 
