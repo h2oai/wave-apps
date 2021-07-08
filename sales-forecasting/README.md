@@ -15,25 +15,15 @@ New to H2O Wave? We recommend starting in the documentation to [download and run
 ### 2. Setup Your Python Environment
 
 ```bash
-$ git clone https://github.com/h2oai/wave-apps.git
-$ cd wave-apps/sales-forecasting
-$ python3 -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
+git clone https://github.com/h2oai/wave-apps.git
+cd wave-apps/sales-forecasting
+make setup
 ```
 
-### 3. Download input data from AWS S3
-
-```console
-$ cd wave-apps/sales-forecasting
-$ wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_train.csv
-$ wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_test_preds.csv
-```
-
-### 4. Run the App
+### 3. Run the App
 
 ```bash
-wave run wave_forecast
+make run
 ```
 
 Note! If you did not activate your virtual environment this will be:

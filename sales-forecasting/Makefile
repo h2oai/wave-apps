@@ -6,8 +6,14 @@ PYTHON     := python3
 venv:
 	$(PYTHON) -m venv venv
 
+walmart_train.csv:
+	wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_train.csv
+
+walmart_test_preds.csv:
+	wget https://h2o-benchmark.s3.amazonaws.com/walmart-sales-forecasting/walmart_test_preds.csv
+
 .PHONY: setup
-setup: | venv ## Setup a project
+setup: | walmart_train.csv walmart_test_preds.csv venv ## Setup a project
 	./venv/bin/python -m pip install -U pip
 	./venv/bin/python -m pip install -r requirements.txt
 
