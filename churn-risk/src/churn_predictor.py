@@ -44,9 +44,12 @@ class ChurnPredictor:
         return round(float(churn) * 100, 2)
 
     def get_shap(self, row_index: Optional[int]) -> List[Tuple[Any, Any]]:
+        # Take the column avg if no customer is selected
         np_row = self.contributions_df.mean(axis=0) if row_index is None else self.contributions_df.iloc[row_index]
         np_row = np_row.to_numpy()
+        # [(column_1, column_1_contrib), (column_2, column_2_contrib), ...]
         shap = [(self.contributions_df.columns[i], np_row[i]) for i in range(len(self.contributions_df.columns))]
+        # Sort such that contributions_df are in asc order
         shap.sort(key=lambda e : e[1])
         return shap
 

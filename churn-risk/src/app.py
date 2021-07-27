@@ -25,7 +25,7 @@ churn_predictor = ChurnPredictor(
 
 def render_shap_plot(q: Q, shap_rows: List, selected_row_index: Optional[int]):
     q.page['shap_plot'] = ui.plot_card(
-        box=ui.box('top-plot', height='700px'),
+        box=ui.box('top-left', height='700px'),
         title='Shap explanation' if selected_row_index else 'Global Shap',
         data=data(['label', 'value'], rows=shap_rows),
         plot=ui.plot(
@@ -46,7 +46,7 @@ def render_negative_pdp_plot(q: Q, shap_rows: List, selected_row_index: Optional
     if selected_row_index is not None:
         plot.append(ui.mark(x=churn_predictor.get_python_type(df[min_contrib_col][selected_row_index])))
     q.page['top_negative_plot'] = ui.plot_card(
-        box='middle',
+        box='bottom',
         title='Feature Most Contributing to Retention',
         data=data(['label', 'value', 'size'], rows=retention_rows),
         plot=ui.plot(plot)
@@ -65,7 +65,7 @@ def render_positive_pdp_plot(q: Q, shap_rows: List, selected_row_index: Optional
     if selected_row_index is not None:
         plot.append(ui.mark(x=churn_predictor.get_python_type(df[max_contrib_col][selected_row_index])))
     q.page['top_positive_plot'] = ui.plot_card(
-        box='middle',
+        box='bottom',
         title='Feature Most Contributing to Churn',
         data=data(['label', 'value', 'size'], rows=churn_rows),
         plot=ui.plot(plot)
@@ -75,7 +75,7 @@ def render_positive_pdp_plot(q: Q, shap_rows: List, selected_row_index: Optional
 def render_desc_info(q: Q, selected_row_index: Optional[int]):
     churn_rate = churn_predictor.get_churn_rate(selected_row_index)
     q.page['churn_rate'] = ui.tall_gauge_stat_card(
-        box='top-stats',
+        box='top-right',
         title='Churn Rate' if selected_row_index else 'Average Churn Prediction',
         value='={{intl churn minimum_fraction_digits=2 maximum_fraction_digits=2}}%',
         aux_value='',
@@ -89,7 +89,7 @@ def render_desc_info(q: Q, selected_row_index: Optional[int]):
     rank = df['Total Charges'].rank(pct=True).values[selected_row_index] if selected_row_index is not None else df[
         'Total Charges'].rank(pct=True).mean(axis=0)
     q.page['total_charges'] = ui.tall_gauge_stat_card(
-        box='top-stats',
+        box='top-right',
         title='Total Charges' if selected_row_index else 'Average Total Charges',
         value="=${{intl charge minimum_fraction_digits=2 maximum_fraction_digits=2}}",
         aux_value='={{intl rank style="percent" minimum_fraction_digits=0 maximum_fraction_digits=0}}',
@@ -109,7 +109,7 @@ def render_charges_breakdown(q: Q, selected_row_index: Optional[int]):
             rows.append((label, df[label].mean(axis=0)))
     color_range = f'{q.client.primary_color} {q.client.secondary_color} {q.client.tertiary_color} #67dde6'
     q.page['bar_chart'] = ui.plot_card(
-        box=ui.box('top-stats', height='300px'),
+        box=ui.box('top-right', height='300px'),
         title='Total call charges breakdown' if selected_row_index else 'Average Charges Breakdown',
         data=data(['label', 'value'], rows=rows),
         plot=ui.plot([ui.mark(type='interval', x='=label', y='=value', color='=label', color_range=color_range)])
@@ -167,10 +167,10 @@ def init(q: Q):
             ui.zone('content', zones=[
                 ui.zone('my_page'),
                 ui.zone('top', direction=ui.ZoneDirection.ROW, zones=[
-                    ui.zone('top-plot', size='70%'),
-                    ui.zone('top-stats')
+                    ui.zone('top-left', size='70%'),
+                    ui.zone('top-right')
                 ]),
-                ui.zone('middle', direction=ui.ZoneDirection.ROW),
+                ui.zone('bottom', direction=ui.ZoneDirection.ROW),
             ])
         ])
     ])
