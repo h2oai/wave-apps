@@ -15,17 +15,22 @@ serve <- function(qo)
   } else if (isTRUE(qo$args$choose_file)) {
     qo$page$add_card('meta', ui_meta_card(box='',
       scripts=list(
-        ui_script('https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css'),
+        ui_script('https://code.jquery.com/jquery-1.12.4.min.js'),
         ui_script('https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js')
       ),
       script=ui_inline_script(
-        content="$('#myTable').DataTable();",
-        requires='dataTables',
+        content = "var t = setInterval(() => {
+                     if ($().DataTable) {
+                       $('#myTable').DataTable();
+                       clearInterval(t);
+                     }
+                   }, 250);",
+        requires='jQuery',
         targets='myTable'
       )
     ))
     qo$page$add_card('table', ui_markup_card(
-      box='1 1 -1 -1',
+      box='1 1 12 10',
       title='First DataTables table',
       content="<table id='myTable'>
 				<thead>
