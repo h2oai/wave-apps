@@ -19,12 +19,12 @@ serve <- function(qo)
         ui_script('https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js')
       ),
       script=ui_inline_script(
-        content = "var t = setInterval(() => {
+        content = 'var t = setInterval(() => {
                      if ($().DataTable) {
-                       $('#myTable').DataTable();
+                       $("#myTable").DataTable();
                        clearInterval(t);
                      }
-                   }, 250);",
+                   }, 250);',
         requires=list("jQuery"),
         targets=list("myTable")
       )
@@ -32,7 +32,7 @@ serve <- function(qo)
     qo$page$add_card('table', ui_markup_card(
       box='1 1 12 10',
       title='First DataTables table',
-      content="<table id='myTable'>
+      content='<table id="myTable">
 				<thead>
 					<tr>
 						<th>Name</th>
@@ -55,7 +55,7 @@ serve <- function(qo)
 						<th>Position</th>
 					</tr>
 				</tfoot>
-			</table>"
+			</table>'
     ))
   } else if (isTRUE(qo$args$action1)) {
     print(args(qo$page$set))
