@@ -25,8 +25,8 @@ serve <- function(qo)
                        clearInterval(t);
                      }
                    }, 250);",
-        requires='jQuery',
-        targets='myTable'
+        requires=list("jQuery"),
+        targets=list("myTable")
       )
     ))
     qo$page$add_card('table', ui_markup_card(
