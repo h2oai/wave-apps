@@ -16,6 +16,7 @@ serve <- function(qo)
     qo$page$add_card('meta', ui_meta_card(box='',
       scripts=list(
         ui_script('https://code.jquery.com/jquery-1.12.4.min.js'),
+        ui_script('https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css'),
         ui_script('https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js')
       ),
       script=ui_inline_script(
@@ -32,7 +33,7 @@ serve <- function(qo)
     qo$page$add_card('table', ui_markup_card(
       box='1 1 12 10',
       title='First DataTables table',
-      content="<table id='myTable'>
+      content="<table id='myTable' class='display'>
 				<thead>
 					<tr>
 						<th>Name</th>
