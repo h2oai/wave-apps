@@ -19,9 +19,6 @@ serve <- function(qo)
         ui_script('https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js')
       ),
       script=ui_inline_script(
-        content="$(document).ready( function () {
-                   $('#myTable').DataTable();
-                 } );",
         requires='dataTables',
         targets='myTable'
       )
