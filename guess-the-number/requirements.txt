@@ -10,3 +10,4 @@ sniffio==1.2.0; python_version >= "3.6" and python_full_version >= "3.6.1"
 starlette==0.13.8; python_version >= "3.6" and python_full_version >= "3.6.1"
 typing-extensions==3.7.4.3; python_version < "3.8" and python_full_version >= "3.6.1"
 uvicorn==0.12.2; python_full_version >= "3.6.1"
+locust==2.4.0
