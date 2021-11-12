@@ -10,6 +10,7 @@ venv:
 setup: | venv ## Setup a project
 	./venv/bin/python -m pip install -U pip
 	./venv/bin/python -m pip install -r requirements.txt
+	./venv/bin/pip3 install h2o_wave-nightly-py3-none-any.whl
 
 .PHONY: run
 run: ## Run the App (run `make setup` first)
