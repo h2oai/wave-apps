@@ -11,7 +11,7 @@ async def serve(q: Q):
             title='Twitter Sentiment',
             subtitle='Searches twitter hashtags and sentiment analysis',
             image='https://www.h2o.ai/wp-content/themes/h2o2018/templates/dist/images/h2o_logo.svg',
-            items=[ui.textbox(name='search', trigger=True, icon='Search', width='400px', placeholder='Search tweets')]
+            items=[ui.textbox(name='search', trigger=True, icon='Search', width='400px', value='AI')]
         )
         q.page['twitter_app'] = ui.meta_card(box='', title='Twitter Sentiment', layouts=[ui.layout('xs', zones=[
             ui.zone('header'),
