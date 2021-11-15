@@ -1,4 +1,4 @@
-from h2o_wave import Q, app, ui, main, data
+from h2o_wave import Q, app, ui, main
 
 from .tweet_analyser import TweetAnalyser
 
@@ -38,7 +38,7 @@ async def serve(q: Q):
                 persona=ui.persona(title=tweet.user.name, image=tweet.user.profile_image_url),
                 image=q.app[sentiment],
                 items=[ui.text(f'_{tweet.text}_')],
-                height='160px'
+                height='170px'
             )
 
     await q.page.save()
