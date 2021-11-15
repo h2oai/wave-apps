@@ -5,6 +5,10 @@ from .tweet_analyser import TweetAnalyser
 
 @app('/')
 async def serve(q: Q):
+    if not q.app.initialized:
+        q.app.positive, q.app.neutral, q.app.negative = await q.site.upload(
+            ['static/positive.svg', 'static/neutral.svg', 'static/negative.svg'])
+        q.app.initialized = True
     if not q.client.initialized:
         q.page['header'] = ui.header_card(
             box='header',
@@ -22,24 +26,19 @@ async def serve(q: Q):
 
     for i, tweet in enumerate(q.client.tweet_analyser.search_tweets(q=q.args.search or 'AI')):
         if not tweet.retweeted:
-            polarity = q.client.tweet_analyser.get_polarity_scores(tweet.text)
-            compound = polarity['compound']
+            compound = q.client.tweet_analyser.get_polarity_scores(tweet.text)['compound']
             if compound > 0:
-                message_type, sentiment = 'success', 'Positive'
+                sentiment = 'positive'
             elif compound == 0:
-                message_type, sentiment = 'warning', 'Neutral'
+                sentiment = 'neutral'
             else:
-                message_type, sentiment = 'error', 'Negative'
-            q.page[f'twitter_card_{i}'] = ui.form_card(box=ui.box('twitter_cards', width='400px'), items=[
-                ui.message_bar(type=message_type, text=f'Sentiment - {sentiment}'),
-                ui.visualization(
-                    plot=ui.plot([ui.mark(type='interval', x='=sentiment', y='=value', color='=sentiment',
-                                          color_range='$red $yellow $green')]),
-                    data=data(['value', 'sentiment'], pack=True,
-                              rows=[(polarity['neg'], 'Negative'), (polarity['neu'], 'Neutral'),
-                                    (polarity['pos'], 'Positive')]),
-                ),
-                ui.text(f'_{tweet.text}_'),
-            ])
+                sentiment = 'negative'
+            q.page[f'twitter_card_{i}'] = ui.profile_card(
+                box=ui.box('twitter_cards', width='400px'),
+                persona=ui.persona(title=tweet.user.name, image=tweet.user.profile_image_url),
+                image=q.app[sentiment],
+                items=[ui.text(f'_{tweet.text}_')],
+                height='160px'
+            )
 
     await q.page.save()
