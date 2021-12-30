@@ -128,6 +128,6 @@ async def serve(q: Q):
 
     meta = q.page['meta']
     if q.args.toggle_theme:
-        meta.theme = q.client.theme = 'neon' if q.client.theme == 'default' else 'default'
+        meta.theme = q.client.theme = 'h2o-dark' if q.client.theme == 'default' else 'default'
 
     await q.page.save()
