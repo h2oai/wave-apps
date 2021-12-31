@@ -271,7 +271,7 @@ async def serve(q: Q):
     dark_theme = q.args.theme
     if dark_theme is not None:
         if dark_theme:
-            q.page['meta'].theme = 'neon'
+            q.page['meta'].theme = 'h2o-dark'
             q.client.primary_color = '$yellow'
             q.client.secondary_color = '$lime'
             q.client.tertiary_color = '$amber'

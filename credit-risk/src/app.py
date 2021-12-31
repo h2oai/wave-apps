@@ -118,7 +118,7 @@ async def reject(q: Q):
 
 @on()
 async def dark_mode(q: Q):
-    q.page['meta'].theme = 'neon'
+    q.page['meta'].theme = 'h2o-dark'
 
 
 @on()
