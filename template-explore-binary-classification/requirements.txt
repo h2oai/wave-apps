@@ -1,0 +1,5 @@
+h2o_wave==0.20.0
+toml==0.10.2
+loguru==0.6.0
+pandas==1.4.1
+matplotlib==3.5.1
