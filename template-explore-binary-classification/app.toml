@@ -1,0 +1,20 @@
+[App]
+Name = "ai.h2o.wave.exploring-binary-telco-churn"
+Version = "1.0.0"
+Title = "Exploring Telco Churn"
+Description = "Visually explore distributions of features for customer who do and do not churn"
+LongDescription = "README.md"
+
+[Runtime]
+Module = "app"
+
+[Brand]
+Title = "Exploring Telco Churn"
+Subtitle = "Visually explore binary classification datasets"
+Image = "https://www.kaggle.com/static/images/site-logo.svg"
+Theme = "kiwi"
+
+[Data]
+FileLocation = "https://h2o-internal-release.s3-us-west-2.amazonaws.com/data/Splunk/churn.csv"
+TargetColumn = "Churn?"
+
