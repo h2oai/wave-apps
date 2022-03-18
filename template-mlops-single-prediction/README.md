@@ -1,11 +1,11 @@
 # Template: Single Predictions from H2O MLOps Deployments
 
-This application will dynamically create a web-form to interact with an 
-MLOps deployment. Send feature to get predictions back immediately for regression, 
+This application will dynamically create a web-form to interact with an
+MLOps deployment. Send feature to get predictions back immediately for regression,
 binary, and multi-classification problems.
 
-Parameterize this app for your own use cases and deployments by updating the `app.toml` file. You 
-can find the source code at https://github.com/h2oai/wave-apps/template-mlops-single-prediction
+Parameterize this app for your own use cases and deployments by updating the `app.toml` file. You
+can find the source code at https://github.com/h2oai/wave-apps/tree/main/template-mlops-single-prediction
 
 ## Local Development Setup
 
@@ -16,7 +16,7 @@ python3 -m venv venv
 ```
 
 2. Run the template
-We use the `H2O_WAVE_NO_LOG` parameter to only show logs from our app, 
+We use the `H2O_WAVE_NO_LOG` parameter to only show logs from our app,
 not from the app server.
 
 ```shell script
