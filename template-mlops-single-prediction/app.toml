@@ -1,0 +1,19 @@
+[App]
+Name = "ai.h2o.wave.mlops-single-prediction-telco-churn"
+Version = "1.0.0"
+Title = "Telco Churn Predictions"
+Description = "Live predictions on if a customer is likely to churn or not."
+LongDescription = "README.md"
+
+[Runtime]
+Module = "app"
+
+[Brand]
+Title = "Telco Churn Predictions"
+Subtitle = "Live predictions on if a customer is likely to churn or not."
+Image = "https://www.kaggle.com/static/images/site-logo.svg"
+Theme = "kiwi"
+
+[Model]
+Endpoint = "https://model.demo.h2o.ai/1ce45739-4d33-48eb-91fb-fac8733d68ec/model/"
+
