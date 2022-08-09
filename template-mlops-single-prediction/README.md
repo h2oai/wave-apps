@@ -1,8 +1,19 @@
 # Template: Single Predictions from H2O MLOps Deployments
 
 This application will dynamically create a web-form to interact with an
-MLOps deployment. Send feature to get predictions back immediately for regression,
-binary, and multi-classification problems.
+MLOps deployment. Input your own data as features to get predictions back immediately for regression, binary, and multi-classification problems.
+
+First, open the app and click on the upper-right corner to open the __Edit App__ menu. Then, paste the URL of the deployed MLOps model on the __Deployment Endpoint__ field and fill out the other fields accordingly.
+
+![Edit App menu screenshot](static/screenshot-2.png)
+
+Finally, click on the __Save__ button and a web-form for the model you've chosen will be automatically created, allowing you or other users to interact with the model and check its results in a _no-code_ manner, instantaneously.
+
+![Classification example web-form screenshot](static/screenshot-1.png)
+
+To share the app with other users and create standalone versions of it, click again on the upper-right corner and click on __Download App Bundle__, then upload this file back to your __H2O AI Cloud__ environment to have one app created per model.
+
+## Standalone deployments
 
 Parameterize this app for your own use cases and deployments by updating the `app.toml` file. You
 can find the source code at https://github.com/h2oai/wave-apps/tree/main/template-mlops-single-prediction
