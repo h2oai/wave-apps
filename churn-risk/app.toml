@@ -11,3 +11,4 @@ Keywords = ["Telecommunications", "Wave", "Open Source"]
 Module = "src.app"
 MemoryReservation = "4Gi"
 MemoryLimit = "6Gi"
+RoutingMode = "BASE_URL"
