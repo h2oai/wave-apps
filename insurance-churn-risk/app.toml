@@ -1,6 +1,6 @@
 [App]
-Name = "ai.h2o.wave.churn-risk"
-Version = "1.0.0"
+Name = "ai.h2o.wave.insurance-churn-risk"
+Version = "1.1.0"
 Title = "Home Insurance Churn Risk"
 Description = "Demo to predict churn risk of insurance customers and display top factors."
 LongDescription = "about.md"
@@ -11,3 +11,4 @@ Keywords = ["Insurance", "Wave", "Open Source"]
 Module = "src.app"
 MemoryReservation = "8Gi"
 MemoryLimit = "10Gi"
+RoutingMode = "BASE_URL"

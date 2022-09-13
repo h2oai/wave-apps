@@ -1,0 +1,6 @@
+venv/
+app-data/
+conda*
+tests/
+flyway-*/
+reports/
