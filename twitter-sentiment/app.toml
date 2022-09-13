@@ -11,6 +11,7 @@ Keywords =  ["Data Science", "Wave", "Open Source", "Sentiment Analysis"]
 Module = "src.app"
 MemoryReservation = "4Gi"
 MemoryLimit = "6Gi"
+RoutingMode = "BASE_URL"
 
 [[Env]]
 Name = "ACCESS_TOKEN"
