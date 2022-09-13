@@ -10,3 +10,4 @@ Keywords = ["wave", "wave apps"]
 [Runtime]
 Module = "guess_the_number.guess"
 EnableOIDC = true
+RoutingMode = "BASE_URL"
