@@ -9,3 +9,4 @@ Keywords = ["Data Science", "Wave", "Open Source", "Market Basket Analysis"]
 
 [Runtime]
 Module = "src.app"
+RoutingMode = "BASE_URL"
