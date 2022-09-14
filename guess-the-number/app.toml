@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.h2o-guess-the-number"
-Version = "0.3.0"
+Version = "1.1.0"
 Title = "Guess the Number"
 Description = "Prove you’re smarter than AI with this simple game."
 LongDescription = "about.md"
@@ -10,3 +10,4 @@ Keywords = ["wave", "wave apps"]
 [Runtime]
 Module = "guess_the_number.guess"
 EnableOIDC = true
+RoutingMode = "BASE_URL"
