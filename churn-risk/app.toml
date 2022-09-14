@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.churn-risk"
-Version = "1.0.0"
+Version = "1.1.0"
 Title = "Telco Churn Risk"
 Description = "Demo to predict churn risk of telco customers and display top reason codes."
 LongDescription = "about.md"
@@ -11,3 +11,4 @@ Keywords = ["Telecommunications", "Wave", "Open Source"]
 Module = "src.app"
 MemoryReservation = "4Gi"
 MemoryLimit = "6Gi"
+RoutingMode = "BASE_URL"
