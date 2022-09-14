@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.shopping-cart-recommendations"
-Version = "0.3.1"
+Version = "1.1.0"
 Title = "Shopping Cart Recommendations"
 Description = "Demo of a recommendation engine on groceries items."
 LongDescription="about.md"

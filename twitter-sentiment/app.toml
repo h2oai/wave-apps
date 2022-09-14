@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.twitter-sentiment"
-Version = "0.1.1"
+Version = "1.1.0"
 Title = "Twitter Sentiment"
 Description = "Search keywords on twitter and see the sentiments of the latest tweets."
 LongDescription="about.md"
