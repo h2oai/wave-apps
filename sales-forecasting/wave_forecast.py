@@ -10,8 +10,21 @@ from h2o_wave import app, data, main, Q, ui
 
 
 # Inputs for the app, Should be read from a config file
-walmart_train_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_train.csv"
-walmart_predictions_s3 = "s3://h2o-benchmark/walmart-sales-forecasting/walmart_test_preds.csv"
+
+# Valid values for WALMART_SALES_FORECASTING_DATA_DIR
+# "s3://h2o-benchmark/walmart-sales-forecasting"
+# "s3://h2o-benchmark"
+# "s3://h2o-benchmark/walmart-sales-forecasting/"
+# "s3://h2o-benchmark/"
+walmart_sales_forecasting_data_env = os.getenv("WALMART_SALES_FORECASTING_DATA_DIR")
+
+if not walmart_sales_forecasting_data_env:
+    sys.exit(1)
+
+walmart_sales_forecasting_data_dir = walmart_sales_forecasting_data_env.rstrip("/")
+walmart_train_s3 = walmart_sales_forecasting_data_dir + "/walmart_train.csv"
+walmart_predictions_s3 = walmart_sales_forecasting_data_dir + "/walmart_test_preds.csv"
+
 walmart_train = './walmart_train.csv'
 walmart_predictions = './walmart_test_preds.csv'
 

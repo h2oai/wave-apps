@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.walmart-forecasting"
-Version = "0.2.1"
+Version = "0.2.2"
 Title = "Sales Forecasting"
 Description = "Demo to explore demand and forecasts for supply chain optimization."
 LongDescription = "about.md"
@@ -19,3 +19,8 @@ SecretKey = "accessKey"
 Name = "AWS_SECRET_ACCESS_KEY"
 Secret = "h2o-s3-readonly"
 SecretKey = "secretKey"
+
+[[Env]]
+Name = "WALMART_SALES_FORECASTING_DATA_DIR"
+Secret = "h2o-s3-readonly"
+SecretKey = "walmartSalesForecastingDataDir"
