@@ -1,4 +1,4 @@
-from h2o_wave import main, app, Q, ui, expando_to_dict, copy_expando
+from h2o_wave import main, app, Q, ui, expando_to_dict
 from wordcloud import WordCloud, STOPWORDS
 from .config import Configuration
 
