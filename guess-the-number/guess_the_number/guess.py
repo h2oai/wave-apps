@@ -8,6 +8,13 @@ from typing import Dict, List
 # Read https://h2oai.github.io/wave/docs/tutorial-counter#step-1-start-listening
 from h2o_wave import Q, app, main, ui
 
+zones = [
+    ui.zone(name='title', size='60px'),
+    ui.zone(name='banner', direction=ui.ZoneDirection.ROW,
+            wrap='start', justify='center'),
+    ui.zone(name='content', direction=ui.ZoneDirection.ROW,
+            wrap='start', justify='center'),
+]
 
 @dataclass
 class WaveColors:
@@ -114,7 +121,7 @@ async def start_new_game(q: Q):
     q.user.player.games[q.client.game.game_id] = q.client.game
 
     q.page['starting_game'] = ui.form_card(
-        box='4 4 3 3',
+        box=ui.box('content', width='50%'),
         items=[
             ui.text_l('I am thinking of a number between 1 and 100'),
             ui.text_m('can you guess what it is?'),
@@ -137,10 +144,39 @@ async def start_new_game(q: Q):
     await q.page.save()
 
 
+async def toggle_theme(q):
+
+    if not q.client.initialized:
+        q.page['meta_theme'] = ui.meta_card(box='', layouts=[
+            ui.layout(breakpoint='xs', zones=zones),
+            ui.layout(breakpoint='m', zones=zones),
+            ui.layout(breakpoint='xl', zones=zones),
+        ])
+        q.client.active_theme = 'default'
+        q.page['title_theme'] = ui.section_card(
+            box='title',
+            title='Plot theme demo',
+            subtitle='Toggle theme to see default plot colors change!',
+            items=[ui.toggle(name='toggle_theme',
+                             label='Dark theme', trigger=True)],
+        )
+
+        await make_base_ui(q)
+        await make_player_card(q)
+        await make_welcome_card(q)
+
+    q.client.initialized = True
+    if q.args.toggle_theme is not None:
+        q.client.active_theme = 'neon' if q.args.toggle_theme else 'default'
+        q.page['meta_theme'].theme = q.client.active_theme
+        q.page['title_theme'].items[0].toggle.value = q.client.active_theme == 'neon'
+
+    await q.page.save()
+
 async def make_base_ui(q):
     q.page['meta'] = ui.meta_card(box='', title='Guess the Number')
     q.page['title'] = ui.header_card(
-        box='1 1 3 1',
+        box=ui.box('banner', width='25%'),
         title='Guess the Number',
         subtitle='',
         icon='ChatBot',
@@ -151,7 +187,7 @@ async def make_base_ui(q):
 
 async def make_welcome_card(q):
     q.page['hello'] = ui.form_card(
-        box='4 4 3 3',
+        box=ui.box('content', width='50%'),
         items=[
             ui.text_l(f'Hello {q.user.player.first.title()},'),
             ui.text_xs('⠀'),
@@ -171,7 +207,7 @@ async def make_welcome_card(q):
 
 async def make_player_card(q: Q):
     q.page['player'] = ui.small_stat_card(
-        box='4 1 6 1',
+        box=ui.box('banner', width='25%'),
         title='Player Name',
         value=f'{q.user.player.first} {q.user.player.last}'.title(),
     )
@@ -234,7 +270,7 @@ async def show_leaderboard(q: Q):
     )
     del q.page['starting_game']
     q.page['leaderboard'] = ui.form_card(
-        box='3 2 5 9',
+        box=ui.box('content', width='50%'),
         items=[
             ui.label('Scores'),
             leaderboard,
@@ -322,7 +358,7 @@ async def show_private_leaderboard(q: Q):
     )
     del q.page['starting_game']
     q.page['leaderboard'] = ui.form_card(
-        box='3 2 5 9',
+        box=ui.box('content', width='50%'),
         items=[
             ui.label('Scores from your games'),
             leaderboard,
@@ -354,11 +390,8 @@ def user_initialize(q: Q):
 
 
 async def client_initialize(q: Q):
-    if not q.client.initialized:
-        await make_base_ui(q)
-        await make_player_card(q)
-        await make_welcome_card(q)
-        q.client.initialized = True
+
+        await toggle_theme(q)
 
 
 async def run_app(q: Q):
@@ -433,6 +466,7 @@ async def run_app(q: Q):
         if q.args.submit_game:
             q.client.game.is_public = True
             q.app.games[q.client.game.game_id] = q.client.game
+        del q.page['hello']
         del q.page['starting_game']
         await show_leaderboard(q)
     elif q.args.private_leaderboard:
