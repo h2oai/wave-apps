@@ -27,3 +27,9 @@ make run
 
 ### 4. View the App
 Point your favorite web browser to [localhost:10101](http://localhost:10101)
+
+
+## Screenshots
+
+![Light Theme](static/Screenshot-1.png) &nbsp;
+![Dark Theme](static/Screenshot-2.png)
