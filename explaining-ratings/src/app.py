@@ -115,48 +115,47 @@ async def serve(q: Q):
         q.client.filters = {}
         q.client.initialized = True
 
-    if q.args.theme_dark is not None and q.args.theme_dark != q.client.theme_dark:
+    args = expando_to_dict(q.args)
+    for arg in args:
+        if str(arg).startswith('filter_'):
+            handle_filter(q, str(arg).replace('filter_', ''), q.args[arg])
+
+    sidebar_items = q.page['sidebar'].items
+    if q.args.filter_categories:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[2].dropdown.value = q.args.filter_categories
+    if q.args.filter_city:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[3].dropdown.value = q.args.filter_city
+    if q.args.filter_country:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[4].dropdown.value = q.args.filter_country
+    if q.args.filter_postalCode:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[5].dropdown.value = q.args.filter_postalCode
+    if q.args.filter_province:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[6].dropdown.value = q.args.filter_province
+    if q.args.filter_rating:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[7].dropdown.value = q.args.filter_rating
+    if q.args.filter_userCity:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[8].dropdown.value = q.args.filter_userCity
+    if q.args.filter_userProvince:
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[9].dropdown.value = q.args.filter_userProvince
+    if q.args.review:
+        q.client.review = q.args.review
+        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
+        sidebar_items[0].dropdown.value = q.client.review
+        q.page['original'].image = plot_word_cloud(config.dataset[q.client.review], q)
+
+    if q.args.theme_dark is not None:
         await update_theme(q)
+    elif q.client.filters:
+        render_diff_word_cloud(q)
     else:
-        args = expando_to_dict(q.args)
-        for arg in args:
-            if str(arg).startswith('filter_'):
-                handle_filter(q, str(arg).replace('filter_', ''), q.args[arg])
-
-        sidebar_items = q.page['sidebar'].items
-        if q.args.filter_categories:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[2].dropdown.value = q.args.filter_categories
-        if q.args.filter_city:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[3].dropdown.value = q.args.filter_city
-        if q.args.filter_country:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[4].dropdown.value = q.args.filter_country
-        if q.args.filter_postalCode:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[5].dropdown.value = q.args.filter_postalCode
-        if q.args.filter_province:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[6].dropdown.value = q.args.filter_province
-        if q.args.filter_rating:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[7].dropdown.value = q.args.filter_rating
-        if q.args.filter_userCity:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[8].dropdown.value = q.args.filter_userCity
-        if q.args.filter_userProvince:
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[9].dropdown.value = q.args.filter_userProvince
-        if q.args.review:
-            q.client.review = q.args.review
-            # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-            sidebar_items[0].dropdown.value = q.client.review
-            q.page['original'].image = plot_word_cloud(config.dataset[q.client.review], q)
-
-        if q.client.filters:
-            render_diff_word_cloud(q)
-        else:
-            del q.page['diff']
+        del q.page['diff']
 
     await q.page.save()
