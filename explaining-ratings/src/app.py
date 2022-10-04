@@ -62,7 +62,16 @@ def init(q: Q):
             ]
         ),
     ])
-    q.page['header'] = ui.header_card(box='header', title='Hotel Reviews', subtitle='Explains the hotel reviews', icon='ReviewSolid', icon_color='#00A8E0')
+    q.page['header'] = ui.header_card(
+        box='header',
+        title='Hotel Reviews',
+        subtitle='Explains the hotel reviews',
+        icon='ReviewSolid',
+        icon_color='#00A8E0',
+        items=[
+            ui.toggle(name='theme_dark', label='Dark Mode', value=False, trigger=True)
+        ]
+    )
     q.client.review = config.review_column_list[0]
 
     form_filters = []
@@ -83,6 +92,20 @@ def handle_filter(q: Q, key: str, val: str):
         q.client.filters.pop(key, None)
     else:
         q.client.filters[key] = val
+
+
+async def update_theme(q: Q):
+    """
+    Update theme of app.
+    """
+    if q.args.theme_dark:
+        # Update theme from light to dark mode
+        q.page['meta'].theme = 'h2o-dark'
+    else:
+        # Update theme from dark to light mode
+        q.page['meta'].theme = 'light'
+
+    await q.page.save()
 
 
 @app('/')
@@ -128,7 +151,9 @@ async def serve(q: Q):
         sidebar_items[0].dropdown.value = q.client.review
         q.page['original'].image = plot_word_cloud(config.dataset[q.client.review], q)
 
-    if q.client.filters:
+    if q.args.theme_dark is not None:
+        await update_theme(q)
+    elif q.client.filters:
         render_diff_word_cloud(q)
     else:
         del q.page['diff']
