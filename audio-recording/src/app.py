@@ -81,7 +81,7 @@ async def serve(q: Q):
 
         q.page["footer"] = ui.footer_card(
             box="footer",
-            caption="Made with 💛 by H2O Wave Team.",
+            caption="Made with 💛 by [Ashish Lamsal](https://lamsalashish.com.np/) - community member.",
         )
 
         # absolute path for record.js
