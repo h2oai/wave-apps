@@ -52,13 +52,13 @@ Follow the instructions [here](https://wave.h2o.ai/docs/installation) to downloa
 
 
 
+## Note
+While trying to run any of the apps particularly on Windows, below are given some common errors and their fixes:
 
+**1. Makefile issue:** This is due to the os confusing between 'bin' and 'Scripts'. If you face this issue, open the Makefile present in the app folder using some Text Editor, and replace the word 'bin' with 'Scripts' in the virtual environment path of Setup and Run sections.
 
+**2. make command not found:** This error comes when make is not installed on your OS. You can install make easily in Windows. More info on installing make is available on the Internet.
 
-
-
-
-
-
+**3. Python not found:** This error is probably if Windows is not able to recognise the path of Python. The path of Python can be updated in the pyvenv.cfg file, located in [App Folder]/venv
 
 
