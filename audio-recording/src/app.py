@@ -40,6 +40,7 @@ async def serve(q: Q):
             ],
             theme=DARK_THEME,
         )
+        #header_card
         q.page["header"] = ui.header_card(
             box="header",
             title="Audio Recording App",
@@ -47,7 +48,7 @@ async def serve(q: Q):
             image="https://wave.h2o.ai/img/h2o-logo.svg",
             items=[ui.button(name="toggle_theme", label="🌙 Dark", primary=True)],
         )
-
+        #form-card creation
         q.page["form"] = ui.form_card(
             box=ui.box(
                 zone="content",
@@ -78,7 +79,7 @@ async def serve(q: Q):
                 ),
             ],
         )
-
+        #footer-card creation
         q.page["footer"] = ui.footer_card(
             box="footer",
             caption="Made with 💛 by [Ashish Lamsal](https://lamsalashish.com.np/) - community member.",
@@ -90,7 +91,7 @@ async def serve(q: Q):
         # Load initial JS from file record.js
         with open(script_path, encoding="utf-8") as f:
             q.page["meta"].script = ui.inline_script(f.read())
-
+        #Dark-Theme
         q.client.theme = DARK_THEME
         q.client.initialized = True
 
@@ -98,28 +99,30 @@ async def serve(q: Q):
     if q.args.toggle_theme:
         if q.client.theme == DARK_THEME:
             q.client.theme = LIGHT_THEME
+            #LIGHT-THEME
             q.page["header"].items[0].button.label = "☀️ Light"
         else:
+            #DARK-THEME
             q.client.theme = DARK_THEME
             q.page["header"].items[0].button.label = "🌙 Dark"
-
+        #CLIENT-THEME
         q.page["meta"].theme = q.client.theme
 
     # referenced to update content
     title = q.page["form"].items[0].inline.items[0].text_xl
     btn = q.page["form"].items[2].inline.items[0].button
-
+    #CONDITION-TO-START-RECORDING:
     if q.args.start_recording:
         # Start recording via JS.
         q.page["meta"].script = ui.inline_script("startRecording()")
 
         # Update Wave UI.
         title.content = "Recording..."
-
+        # buttons used
         btn.name = "stop_recording"
         btn.label = "Stop recording"
         btn.icon = "CircleStopSolid"
-
+        #stop recording condition
     elif q.args.stop_recording:
         # Stop recording via JS.
         q.page["meta"].script = ui.inline_script("stopRecording()")
@@ -135,5 +138,5 @@ async def serve(q: Q):
 
         # Just for demo purposes, allow for listening to recorded file.
         title.content = f"Listen to [recording]({q.events.audio.captured})"
-
+    #waiting for the page to response
     await q.page.save()
