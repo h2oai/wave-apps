@@ -140,23 +140,13 @@ async def start_new_game(q: Q):
 async def make_base_ui(q):
     q.page['meta'] = ui.meta_card(box='', title='Guess the Number')
     q.page['title'] = ui.header_card(
-        box='1 1 3 1',
+        box='1 1 9 1',
         title='Guess the Number',
-        subtitle='',
+        subtitle=f'Player Name : {q.user.player.first} {q.user.player.last}'.title(),
         icon='ChatBot',
         icon_color=WaveColors.cyan,
-    )
-    q.page['user'] = ui.header_card(
-        color='card',
-        box='4 1 6 1',
-        title=f'Player Name : {q.user.player.first} {q.user.player.last}'.title(
-        ),
-        subtitle='',
-        icon='PlayerSettings',
-        icon_color=WaveColors.cyan,
         items=[
-            ui.toggle(name='toggle_theme',
-                      label='Dark theme', trigger=True),
+            ui.toggle(name='toggle_theme', label='Dark theme', trigger=True),
         ],
     )
 
@@ -366,10 +356,8 @@ async def client_initialize(q: Q):
 
 
 async def theme_switch_handler(q: Q):
-
     q.client.active_theme = 'h2o-dark' if q.args.toggle_theme else 'default'
     q.page['meta'].theme = q.client.active_theme
-    q.page['title'].items[0].toggle.value = q.client.active_theme == 'h2o-dark'
     await q.page.save()
 
 
