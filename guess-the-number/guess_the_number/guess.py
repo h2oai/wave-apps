@@ -140,11 +140,12 @@ async def start_new_game(q: Q):
 async def make_base_ui(q):
     q.page['meta'] = ui.meta_card(box='', title='Guess the Number')
     q.page['title'] = ui.header_card(
-        box='1 1 9 1',
+        box='1 1 -1 1',
         title='Guess the Number',
         subtitle=f'Player Name : {q.user.player.first} {q.user.player.last}'.title(),
         icon='ChatBot',
         icon_color=WaveColors.cyan,
+        color='card',
         items=[
             ui.toggle(name='toggle_theme', label='Dark theme', trigger=True),
         ],
