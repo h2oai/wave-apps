@@ -60,6 +60,6 @@ make: *** [Makefile:11: setup] Error 2** This is due to the os confusing between
 
 **2. make command not found:** This error comes when make is not installed on your OS. You can install make easily in Windows. More info on installing make is available on the Internet. You can also refer to their official website here: https://gnuwin32.sourceforge.net/packages/make.htm
 
-**3. Python not found:** This error is probably if Windows is not able to recognise the path of Python. The path of Python can be updated in the pyvenv.cfg file, located in [App Folder]/venv
+**3. Python not found:** This error is probably if Windows is not able to recognise the path of Python. The path of Python can be updated in the pyvenv.cfg file, located in [App Folder]/venv. The venv folder comes preloaded in the app repo.
 
 
