@@ -52,13 +52,11 @@ Follow the instructions [here](https://wave.h2o.ai/docs/installation) to downloa
 
 
 
+## FAQs
+While trying to run any of the apps particularly on Windows terminal, below are given some common errors and their fixes:
 
+**1. make (e=2): The system cannot find the file specified** This is due to the os confusing between 'bin' and 'Scripts'. If you face this issue, open the Makefile present in the app folder using some Text Editor, and replace the word 'bin' with 'Scripts' in the virtual environment path of Setup and Run sections.
 
+**2. make command not found:** This error comes when make is not installed on your OS. You can install make easily in Windows. More info on installing make is available on the Internet. You can also refer to their official website here: https://gnuwin32.sourceforge.net/packages/make.htm
 
-
-
-
-
-
-
-
+**3. Python not found:** This error is probably if Windows is not able to recognise the path of Python, or if Python is not installed. In such case, install the latest version of Python from their official website https://www.python.org/downloads/ and add its path in the windows environment variables. Then restart windows. This will solve the issue.
