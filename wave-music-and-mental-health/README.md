@@ -19,7 +19,7 @@ Once we have completed all of the above steps and built the dashboard, we will b
 1. create a virtual environment with the command:
 
 ```bash
-pip -m venv .myenv
+python -m venv .myenv
 ```
 
 2. Activate the virtual environment
