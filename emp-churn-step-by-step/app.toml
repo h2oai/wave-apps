@@ -1,0 +1,8 @@
+[App]
+Name = "ai.h2o.q.training-app"
+Version = "0.0.3"
+Title = "Wave Training App"
+Description = "Create your own Wave App in steps."
+
+[Runtime]
+Module = "src.app13"
