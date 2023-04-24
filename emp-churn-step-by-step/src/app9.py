@@ -1,6 +1,6 @@
 # Step 9
 # Add Logging and Error Handling.
-# Set H2O_WAVE_NO_LOG=1 to avoid printing server messages
+# Set H2O_WAVE_NO_LOG=1 to avoid printing server (waved) messages
 # ---
 from h2o_wave import main, app, Q, ui, on, handle_on, data
 
