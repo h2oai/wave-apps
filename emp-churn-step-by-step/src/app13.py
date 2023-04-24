@@ -62,7 +62,7 @@ async def serve(q: Q):
             await init(q)
             q.client.initialized = True
             await q.page.save()
-        elif q.args['#'] is not None and q.args['#'] != q.client.current_tab:
+        elif q.args['#'] and q.args['#'] != q.client.current_tab:
             log.info("========Handle  Tab Change=====")
             log.info(f"Previous tab saved in q.client.current_tab: {q.client.current_tab}")
             action_taken = True
