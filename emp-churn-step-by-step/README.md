@@ -12,7 +12,7 @@ To install and run the code:
 
 - Install dependencies from the src/requirements.txt 
 
-- To run wave the first App, for the conescutive Apps, replace `app1` with the `app2`, ...`app13` 
+- To run wave the first App, for the consecutive Apps, replace `app1` with the `app2`, ...`app13` 
 
   ```bash
   wave run --no-reload src.app1
