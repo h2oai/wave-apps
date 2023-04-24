@@ -46,10 +46,15 @@ async def serve(q: Q):
         # log.info - always printed
         log.info("====== Start serve Function ========")
         log.info(f"q.args: {q.args}")
-        #log.info(f"q.client: {q.client}")
+        # log.info(f"q.client: {q.client}")
         # log.debug - printed only when LOG_LEVEL is set to DEBUG
-        log.info(f"q.user: {q.user}")
-        log.info(f"q.events: {q.events}")
+        log.debug(f"q.user: {q.user}")
+        log.debug(f"q.events: {q.events}")
+
+        # First time the app is loaded
+        if not q.app.initialized:
+            await init_app(q)
+            q.app.initialized = True
 
         # First time a browser(tab) opens the app
         if not q.client.initialized:
@@ -83,6 +88,14 @@ async def serve(q: Q):
         log.error(f"Unhandled Application Error: {str(err)}")
         log.error(traceback.format_exc())
         raise Exception(f"Unhandled Application Error: : {err}")
+
+
+async def init_app(q: Q) -> None:
+    # Read and load data into memory
+    log.info("==Start init_app Function ==")
+    q.app.predictions, q.app.shapley = load_data_from_db()
+    q.app.predictions = q.app.predictions.rename(columns={'Attrition.Yes': "Prediction"})
+    log.info("==Complete init_app Function ==")
 
 
 async def init(q: Q) -> None:
@@ -119,10 +132,8 @@ async def init(q: Q) -> None:
         box='footer',
         caption='Made with 💛 using [H2O Wave](https://wave.h2o.ai).'
     )
-    q.client.predictions, q.client.shapley = load_data_from_db()
-    q.client.predictions = q.client.predictions.rename(columns={'Attrition.Yes': "Prediction"})
 
-    spec = altair.Chart(q.client.predictions).mark_bar() \
+    spec = altair.Chart(q.app.predictions).mark_bar() \
         .encode(altair.X("Prediction", bin=True), y='count()', ) \
         .properties(width='container', height='container') \
         .interactive() \
@@ -133,7 +144,7 @@ async def init(q: Q) -> None:
                                                  ))
 
     # Variable importance graph. Get List of columns and importance
-    varimp, q.client.varimp_col = get_varimp(q.client.shapley)
+    varimp, q.client.varimp_col = get_varimp(q.app.shapley)
 
     add_card(q, 'varimp_card', ui.plot_card(box='horizontal',
                                             title='Top Factors Affecting Churn',
@@ -158,8 +169,8 @@ async def init(q: Q) -> None:
                                                                                 trigger=True,
                                                                                 )]))
 
-    q.client.churned_employees = churned_employees = q.client.predictions[
-        q.client.predictions['Prediction'] > q.client.threshold]
+    q.client.churned_employees = churned_employees = q.app.predictions[
+        q.app.predictions['Prediction'] > q.client.threshold]
 
     # Stats Cards
     add_card(q, 'stats_card', ui.form_card(box='vertical', items=[
@@ -168,7 +179,7 @@ async def init(q: Q) -> None:
                     value=str(len(churned_employees)),
                     caption='Predicted Churn Employees'),
             ui.stat(label='% of Employees',
-                    value="{0:.0%}".format(len(churned_employees) / len(q.client.predictions)),
+                    value="{0:.0%}".format(len(churned_employees) / len(q.app.predictions)),
                     caption='Predicted Churn Employees'),
             ui.stat(label='Average Years at the Company', value=str(round(churned_employees.YearsAtCompany.mean())),
                     caption='Predicted Churn Employees'),
@@ -186,7 +197,7 @@ async def init(q: Q) -> None:
 
     # Display Shapley values for the first employee in the table
     q.client.employee_num = q.client.churned_employees['EmployeeNumber'].iloc[0]
-    q.client.employee_varimp = get_local_varimp(q.client.shapley[q.client.shapley['EmployeeNumber'] == q.client.employee_num])
+    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
     add_card(q, 'shap_card',
              ui.plot_card(box='vertical',
                           title='Top Factors Affecting Churn for Employee {}'.format(q.client.employee_num),
@@ -216,39 +227,37 @@ def load_data_from_db():
     http_path = os.getenv("DATABRICKS_HTTP_PATH")
     token = os.getenv("DATABRICKS_TOKEN")
 
-    if server is None or http_path is None or token is None:
-        log.error(f"Env Variables: DATABRICKS_SERVER_HOSTNAME, DATABRICKS_HTTP_PATH and DATABRICKS_TOKEN are not defined")
+    if not all([server, http_path, token]):
+        log.error("Env Variables: DATABRICKS_SERVER_HOSTNAME, DATABRICKS_HTTP_PATH and DATABRICKS_TOKEN are not defined")
         raise Exception("Env Variables: DATABRICKS_SERVER_HOSTNAME, DATABRICKS_HTTP_PATH and DATABRICKS_TOKEN are not defined")
 
     try:
-        connection = sql.connect(server_hostname=server,
-                                 http_path=http_path,
-                                 access_token=token)
+        with sql.connect(server_hostname=server, http_path=http_path, access_token=token) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * from hive_metastore.default.wave_training_predictions")
+                rows = cursor.fetchall()
+                if not rows:
+                    log.warning("Empty result set for wave_training_predictions")
+                else:
+                    names = [x[0] for x in cursor.description]
+                    df_predictions = pd.DataFrame(rows, columns=names)
+
+                cursor.execute("SELECT * from hive_metastore.default.wave_training_shapley_values")
+                rows = cursor.fetchall()
+                if not rows:
+                    log.warning("Empty result set for wave_training_shapley_values")
+                else:
+                    names = [x[0] for x in cursor.description]
+                    df_shapley_values = pd.DataFrame(rows, columns=names)
 
     except Exception as err:
-        log.error(f"Unable to connect to Delta Lake. Error: {str(err)}")
+        log.error(f"Unable to connect/fetch from Delta Lake. Error: {str(err)}")
         log.error(traceback.format_exc())
-        raise Exception(f"Unable to connect to Delta Lake. Error : {err}")
+        raise Exception(f"Unable to connect/fetch from Delta Lake. Error : {err}")
 
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT * from hive_metastore.default.wave_training_predictions")
-
-    rows = cursor.fetchall()
-    names = [x[0] for x in cursor.description]
-    df_predictions = pd.DataFrame(rows, columns=names)
-
-    cursor.execute("SELECT * from hive_metastore.default.wave_training_shapley_values")
-
-    rows = cursor.fetchall()
-    names = [x[0] for x in cursor.description]
-    df_shapley_values = pd.DataFrame(rows, columns=names)
-
-    cursor.close()
-    connection.close()
-
-    log.info("==Start load_data_from_db Function ==")
+    log.info("==Complete load_data_from_db Function ==")
     return df_predictions, df_shapley_values
+
 
 
 async def render_threshold(q:Q):
@@ -260,18 +269,19 @@ async def render_threshold(q:Q):
     log.info("==Start render_threshold Function ==")
 
     # Get employees for the given threshold
-    q.client.churned_employees = q.client.predictions[q.client.predictions['Prediction'] > q.client.threshold]
+    q.client.churned_employees = q.app.predictions[q.app.predictions['Prediction'] > q.client.threshold]
 
     # Update Stats cards
     q.page['stats_card'].items[0].stats.items[0].value = str(9999)
     q.page['stats_card'].items[0].stats.items[0].value = str(len(q.client.churned_employees))
-    q.page['stats_card'].items[0].stats.items[1].value = "{0:.0%}".format(len(q.client.churned_employees) / len(q.client.predictions))
+    q.page['stats_card'].items[0].stats.items[1].value = "{0:.0%}".format(len(q.client.churned_employees) / len(q.app.predictions))
     q.page['stats_card'].items[0].stats.items[2].value = str(round(q.client.churned_employees.YearsAtCompany.mean()))
 
     # Update Churned Employees Table
     cols = ['EmployeeNumber'] + q.client.varimp_col + ["Prediction"]
-    q.page['table_card'].items[0].table.rows = [ui.table_row(name=str(row['EmployeeNumber']), cells=[str(k) for k in row[cols]]) for i, row in
-            q.client.churned_employees.iterrows()]
+    q.page['table_card'].items[0].table.rows = [ui.table_row(name=str(row['EmployeeNumber']),
+                                                             cells=[str(k) for k in row[cols]]) for i, row in
+                                                q.client.churned_employees.iterrows()]
 
     log.info("==Complete render_threshold Function ==")
 
@@ -283,7 +293,7 @@ async def render_emp_shapley(q: Q):
     :return:
     '''
     log.info("==Start render_emp_shapley Function ==")
-    q.client.employee_varimp = get_local_varimp(q.client.shapley[q.client.shapley['EmployeeNumber'] == q.client.employee_num])
+    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
 
     # Refresh Shapley Values Plot
     q.page['shap_card'].title = 'Top Factors Affecting Churn for Employee {}'.format(q.client.employee_num)
@@ -299,7 +309,7 @@ def get_varimp(shapley_vals, top_n=5):
     :return:
     '''
     log.info("==Start get_varimp Function ==")
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.abs().mean().reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")
@@ -318,7 +328,7 @@ def get_local_varimp(shapley_vals, top_n=5):
     :return:
     '''
     log.info("==Start get_local_varimp Function ==")
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.iloc[0].reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")

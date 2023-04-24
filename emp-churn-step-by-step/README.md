@@ -28,7 +28,7 @@ Here is a list of the training Apps:
 - App9: Adding debugging capabilities
 - App10: Refactoring App9 to refresh content only when there is a change due to user interaction. In the previous steps, we have redrawn cards every time, even if there was no change
 - App11: Same as App10 but pulling data from Delta Lake storage
-- App12: App10 plus table pagination logic
+- App12: App10 plus table pagination logic to handle large amount of data in the table
 - App13: App12 plus tabs and tab switching with no card recreation
 
 To suppress Wave server messages and facilitate App debugging, define `H2O_WAVE_NO_LOG=1`.

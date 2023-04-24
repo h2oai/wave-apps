@@ -45,10 +45,16 @@ async def serve(q: Q):
         # log.info - always printed
         log.info("====== Start serve Function ========")
         log.info(f"q.args: {q.args}")
-        #log.info(f"q.client: {q.client}")
+        # log.info(f"q.client: {q.client}")
+
         # log.debug - printed only when LOG_LEVEL is set to DEBUG
-        log.info(f"q.user: {q.user}")
-        log.info(f"q.events: {q.events}")
+        log.debug(f"q.user: {q.user}")
+        log.debug(f"q.events: {q.events}")
+
+        # First time the app is loaded
+        if not q.app.initialized:
+            await init_app(q)
+            q.app.initialized = True
 
         # First time a browser(tab) opens the app
         if not q.client.initialized:
@@ -82,6 +88,15 @@ async def serve(q: Q):
         log.error(f"Unhandled Application Error: {str(err)}")
         log.error(traceback.format_exc())
         raise Exception(f"Unhandled Application Error: : {err}")
+
+
+async def init_app(q: Q) -> None:
+    # Read and load data into memory
+    log.info("==Start init_app Function ==")
+    q.app.predictions = pd.read_csv("./src/static/predictions.csv")
+    q.app.predictions = q.app.predictions.rename(columns={'Attrition.Yes': "Prediction"})
+    q.app.shapley = pd.read_csv("./src/static/shapley_values.csv")
+    log.info("==Complete init_app Function ==")
 
 
 async def init(q: Q) -> None:
@@ -119,13 +134,7 @@ async def init(q: Q) -> None:
         caption='Made with 💛 using [H2O Wave](https://wave.h2o.ai).'
     )
 
-    q.client.predictions = pd.read_csv("./src/static/predictions.csv")
-    q.client.predictions = q.client.predictions.rename(columns={'Attrition.Yes': "Prediction"})
-    q.client.shapley = pd.read_csv("./src/static/shapley_values.csv")
-
-    #q.client.employee_num = 1
-
-    spec = altair.Chart(q.client.predictions).mark_bar() \
+    spec = altair.Chart(q.app.predictions).mark_bar() \
         .encode(altair.X("Prediction", bin=True), y='count()', ) \
         .properties(width='container', height='container') \
         .interactive() \
@@ -136,7 +145,7 @@ async def init(q: Q) -> None:
                                                  ))
 
     # Variable importance graph. Get List of columns and importance
-    varimp, q.client.varimp_col = get_varimp(q.client.shapley)
+    varimp, q.client.varimp_col = get_varimp(q.app.shapley)
 
     add_card(q, 'varimp_card', ui.plot_card(box='horizontal',
                                             title='Top Factors Affecting Churn',
@@ -161,8 +170,8 @@ async def init(q: Q) -> None:
                                                                                 trigger=True,
                                                                                 )]))
 
-    q.client.churned_employees = churned_employees = q.client.predictions[
-        q.client.predictions['Prediction'] > q.client.threshold]
+    q.client.churned_employees = churned_employees = q.app.predictions[
+        q.app.predictions['Prediction'] > q.client.threshold]
 
     # Stats Cards
     add_card(q, 'stats_card', ui.form_card(box='vertical', items=[
@@ -171,7 +180,7 @@ async def init(q: Q) -> None:
                     value=str(len(churned_employees)),
                     caption='Predicted Churn Employees'),
             ui.stat(label='% of Employees',
-                    value="{0:.0%}".format(len(churned_employees) / len(q.client.predictions)),
+                    value="{0:.0%}".format(len(churned_employees) / len(q.app.predictions)),
                     caption='Predicted Churn Employees'),
             ui.stat(label='Average Years at the Company', value=str(round(churned_employees.YearsAtCompany.mean())),
                     caption='Predicted Churn Employees'),
@@ -183,13 +192,13 @@ async def init(q: Q) -> None:
         ui.table(
             name='render_employee',
             columns=[ui.table_column(name=i, label=i, sortable=True) for i in cols],
-            rows=[ui.table_row(name=str(row['EmployeeNumber']), cells=[str(k) for k in row[cols]]) for i, row in
-                  churned_employees.iterrows()]
+            rows=[ui.table_row(name=str(row['EmployeeNumber']),
+                               cells=[str(k) for k in row[cols]]) for i, row in churned_employees.iterrows()]
         )]))
 
     # Display Shapley values for the first employee in the table
     q.client.employee_num = q.client.churned_employees['EmployeeNumber'].iloc[0]
-    q.client.employee_varimp = get_local_varimp(q.client.shapley[q.client.shapley['EmployeeNumber'] == q.client.employee_num])
+    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
     add_card(q, 'shap_card',
              ui.plot_card(box='vertical',
                           title='Top Factors Affecting Churn for Employee {}'.format(q.client.employee_num),
@@ -211,12 +220,12 @@ async def render_threshold(q:Q):
     log.info("==Start render_threshold Function ==")
 
     # Get employees for the given threshold
-    q.client.churned_employees = q.client.predictions[q.client.predictions['Prediction'] > q.client.threshold]
+    q.client.churned_employees = q.app.predictions[q.app.predictions['Prediction'] > q.client.threshold]
 
     # Update Stats cards
     q.page['stats_card'].items[0].stats.items[0].value = str(9999)
     q.page['stats_card'].items[0].stats.items[0].value = str(len(q.client.churned_employees))
-    q.page['stats_card'].items[0].stats.items[1].value = "{0:.0%}".format(len(q.client.churned_employees) / len(q.client.predictions))
+    q.page['stats_card'].items[0].stats.items[1].value = "{0:.0%}".format(len(q.client.churned_employees) / len(q.app.predictions))
     q.page['stats_card'].items[0].stats.items[2].value = str(round(q.client.churned_employees.YearsAtCompany.mean()))
 
     # Update Churned Employees Table
@@ -234,7 +243,7 @@ async def render_emp_shapley(q: Q):
     :return:
     '''
     log.info("==Start render_emp_shapley Function ==")
-    q.client.employee_varimp = get_local_varimp(q.client.shapley[q.client.shapley['EmployeeNumber'] == q.client.employee_num])
+    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
 
     # Refresh Shapley Values Plot
     q.page['shap_card'].title = 'Top Factors Affecting Churn for Employee {}'.format(q.client.employee_num)
@@ -250,7 +259,7 @@ def get_varimp(shapley_vals, top_n=5):
     :return:
     '''
     log.info("==Start get_varimp Function ==")
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.abs().mean().reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")
@@ -269,7 +278,7 @@ def get_local_varimp(shapley_vals, top_n=5):
     :return:
     '''
     log.info("==Start get_local_varimp Function ==")
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.iloc[0].reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")

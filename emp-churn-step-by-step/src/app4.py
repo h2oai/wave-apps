@@ -9,6 +9,11 @@ import pandas as pd
 
 @app('/')
 async def serve(q: Q):
+    # First time the app is loaded
+    if not q.app.initialized:
+        await init_app(q)
+        q.app.initialized = True
+
     # First time a browser comes to the app
     if not q.client.initialized:
         await init(q)
@@ -17,6 +22,13 @@ async def serve(q: Q):
     # Other browser interactions
     await handle_on(q)
     await q.page.save()
+
+
+async def init_app(q: Q) -> None:
+    # Read and load data into memory
+    q.app.predictions = pd.read_csv("./src/static/predictions.csv")
+    q.app.predictions = q.app.predictions.rename(columns={'Attrition.Yes': "Prediction"})
+    q.app.shapley = pd.read_csv("./src/static/shapley_values.csv")
 
 
 async def init(q: Q) -> None:
@@ -52,10 +64,6 @@ async def init(q: Q) -> None:
         caption='Made with 💛 using [H2O Wave](https://wave.h2o.ai).'
     )
 
-    q.client.predictions = pd.read_csv("./src/static/predictions.csv")
-    q.client.predictions = q.client.predictions.rename(columns={'Attrition.Yes': "Prediction"})
-    q.client.shapley = pd.read_csv("./src/static/shapley_values.csv")
-
     await home(q)
 
 
@@ -64,7 +72,7 @@ async def home(q: Q):
     clear_cards(q)
 
     # Distribution of prediction
-    spec = altair.Chart(q.client.predictions).mark_bar().encode(
+    spec = altair.Chart(q.app.predictions).mark_bar().encode(
         altair.X("Prediction", bin=True),
         y='count()',
     ).properties(width='container', height='container').interactive().to_json()
@@ -74,7 +82,7 @@ async def home(q: Q):
     ))
 
     # Variable importance graph
-    varimp = get_varimp(q.client.shapley)
+    varimp = get_varimp(q.app.shapley)
 
     add_card(q, 'varimp_card', ui.plot_card(box='horizontal', title='Top Factors Affecting Churn',
         data=data('feature importance', 5, rows=varimp),
@@ -83,7 +91,7 @@ async def home(q: Q):
 
 
 def get_varimp(shapley_vals, top_n=5):
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.abs().mean().reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")

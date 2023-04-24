@@ -19,7 +19,22 @@ async def serve(q: Q):
 async def init(q: Q) -> None:
     q.client.cards = set()
     q.client.dark_mode = False
-
+    # First we define the layout of the page
+    # The layout contains the header, footer and the main content
+    # To place content into the layout, we use zones and cards
+    # Zones are like containers that hold cards
+    # Cards are like the content that we want to display
+    # We can have multiple zones and cards in a layout
+    # We can also have multiple layouts
+    # Here we define a single layout with 3 zones: header, content and footer
+    # The content zone is further divided into 2 zones: horizontal and vertical
+    # The horizontal zone is for the cards that contain static content: main factors impacting Employee Churn
+    # and the histogram of model predictions
+    #
+    # The vertical zone is for the cards that contain dynamic content: threshold slider, the table of predictions and
+    # the local Shapley values
+    # The header and footer zones are for the header and footer
+    # The header and footer zones are not divided into further zones
     q.page['meta'] = ui.meta_card(
         box='',
         title='My Wave App',
@@ -39,6 +54,7 @@ async def init(q: Q) -> None:
             )
         ]
     )
+    # Place the header and footer into the layout
     q.page['header'] = ui.header_card(
         box='header',
         title='My Wave App',

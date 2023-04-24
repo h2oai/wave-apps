@@ -8,6 +8,11 @@ import pandas as pd
 
 @app('/')
 async def serve(q: Q):
+    # First time the app is loaded
+    if not q.app.initialized:
+        await init_app(q)
+        q.app.initialized = True
+
     # First time a browser comes to the app
     if not q.client.initialized:
         await init(q)
@@ -16,6 +21,11 @@ async def serve(q: Q):
     # Other browser interactions
     await handle_on(q)
     await q.page.save()
+
+
+async def init_app(q: Q) -> None:
+    # Read Shapley values
+    q.app.shapley = pd.read_csv("./src/static/shapley_values.csv")
 
 
 async def init(q: Q) -> None:
@@ -51,8 +61,6 @@ async def init(q: Q) -> None:
         caption='Made with 💛 using [H2O Wave](https://wave.h2o.ai).'
     )
 
-    q.client.shapley = pd.read_csv("./src/static/shapley_values.csv")
-
     await home(q)
 
 
@@ -60,7 +68,7 @@ async def init(q: Q) -> None:
 async def home(q: Q):
     clear_cards(q)
     # Variable importance graph
-    varimp = get_varimp(q.client.shapley)
+    varimp = get_varimp(q.app.shapley)
 
     add_card(q, 'varimp_card', ui.plot_card(box='horizontal', title='Top Factors Affecting Churn',
         data=data('feature importance', 5, rows=varimp),
@@ -69,13 +77,13 @@ async def home(q: Q):
 
 
 def get_varimp(shapley_vals, top_n=5):
-    varimp = shapley_vals[[i for i in shapley_vals.columns if ('contrib' in i) & (i != 'contrib_bias')]]
+    varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.abs().mean().reset_index()
     varimp.columns = ["Feature", "Importance"]
     varimp['Feature'] = varimp['Feature'].str.replace("contrib_", "")
     varimp = varimp.sort_values(by="Importance", ascending=False).head(n=top_n)
     varimp = varimp.values.tolist()[::-1]
-    
+
     return varimp
 
 # Use for cards that should be deleted on calling `clear_cards`. Useful for routing and page updates.
