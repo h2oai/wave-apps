@@ -1,5 +1,6 @@
 # Step 12
 # Employee table pagination - handle large number of records in table
+# Set H2O_WAVE_NO_LOG=1 to avoid printing server (waved) messages
 # ---
 from h2o_wave import main, app, Q, ui, on, handle_on, data
 
@@ -62,33 +63,29 @@ async def serve(q: Q):
             q.client.initialized = True
             await q.page.save()
         else:
-            action_taken = False
+            # Several q.args params can be populated at the same time.
+            # For example: q.args: threshold:0.5, render_employee:['90']
             if q.args.threshold is not None and q.client.threshold != q.args.threshold:
                 log.info("========Handle  Threshold Change=====")
                 q.client.threshold = q.args.threshold
                 await render_threshold(q)
-                action_taken = True
-
-            if q.args.render_employee is not None and len(q.args.render_employee) == 1 and int(
-                    q.args.render_employee[0]) != q.client.employee_num:
+            # First two conditions are to check that parameter exists and array is not empty
+            elif q.args.render_employee is not None and len(q.args.render_employee) == 1 and \
+                    int(q.args.render_employee[0]) != q.client.employee_num:
+                log.info("========Handle  Shapley values for selected employee=====")
                 q.client.employee_num = int(q.args.render_employee[0])
                 await render_emp_shapley(q)
-                action_taken = True
-
-            if not action_taken and q.events.render_employee and q.events.render_employee.page_change:
+            elif q.events.render_employee and q.events.render_employee.page_change:
                 log.info("========Handle  page Change=====")
                 q.client.page_offset = q.events.render_employee.page_change.get('offset', 0)
                 await render_pagination(q)
-                action_taken = True
-
-            if not action_taken and q.events.render_employee and q.events.render_employee.reset:
+            elif q.events.render_employee and q.events.render_employee.reset:
                 log.info("========Handle  page Reset=====")
                 q.client.page_offset = 0
                 await render_pagination(q)
-                action_taken = True
-
-            if not action_taken:
-                '''We should never get here, unless user did not change anything'''
+            else:
+                # We can get here if user did not change anything.
+                # For example, clicked on already selected Employee, or moved threshold slider to the same value
                 log.info("++++++++Unhandled condition or no Change+++++++++++++")
                 '''Will result in loading spinner going away '''
                 q.page['non-existent'].items = []
@@ -229,12 +226,12 @@ async def init(q: Q) -> None:
     log.info("==Complete init Function ==")
 
 
-async def render_threshold(q:Q):
-    '''
-    Accept threshold value from slider and Refresh Stats cars and table of employees
+async def render_threshold(q: Q):
+    """
+    Accept threshold value from slider and Refresh Stats cards and table of employees
     :param q:
     :return:
-    '''
+    """
     log.info("==Start render_threshold Function ==")
 
     # Get employees for the given threshold
@@ -262,29 +259,29 @@ async def render_threshold(q:Q):
     log.info("==Complete render_threshold Function ==")
 
 
-async def render_pagination(q:Q):
-    '''
+async def render_pagination(q: Q):
+    """
     Handle Page change for table of employees
     :param q:
     :return:
-    '''
+    """
     log.info("==Start render_pagination Function ==")
     cols = ['EmployeeNumber'] + q.client.varimp_col + ["Prediction"]
-    # Reset offset to first page
+    # Set table page offset
     offset = q.client.page_offset
     q.page['table_card'].items[0].table.rows = [ui.table_row(name=str(row['EmployeeNumber']),
                                                              cells=[str(k) for k in row[cols]]) for i, row in
-                                                                               q.client.churned_employees[offset: \
+                                                                               q.client.churned_employees[offset:
                                                                                    (offset + rows_per_page)].iterrows()]
     log.info("==Complete render_pagination Function ==")
 
 
 async def render_emp_shapley(q: Q):
-    '''
+    """
     Refresh Shapley values for the selected employee.
     :param q:
     :return:
-    '''
+    """
     log.info("==Start render_emp_shapley Function ==")
     q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
 
@@ -295,12 +292,12 @@ async def render_emp_shapley(q: Q):
 
 
 def get_varimp(shapley_vals, top_n=5):
-    '''
+    """
     Get Global variable importance based on Shapley Values
     :param shapley_vals:
     :param top_n:
     :return:
-    '''
+    """
     log.info("==Start get_varimp Function ==")
     varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.abs().mean().reset_index()
@@ -314,12 +311,12 @@ def get_varimp(shapley_vals, top_n=5):
 
 
 def get_local_varimp(shapley_vals, top_n=5):
-    '''
-    Format Shapley Values for given employee
+    """
+    Format Shapley Values for a given employee
     :param shapley_vals:
     :param top_n:
     :return:
-    '''
+    """
     log.info("==Start get_local_varimp Function ==")
     varimp = shapley_vals[[i for i in shapley_vals.columns if 'contrib' in i and i != 'contrib_bias']]
     varimp = varimp.iloc[0].reset_index()

@@ -62,20 +62,22 @@ async def serve(q: Q):
             q.client.initialized = True
             await q.page.save()
         else:
-            action_taken = False
+            # Several q.args params can be populated at the same time.
+            # For example: q.args: threshold:0.5, render_employee:['90']
             if q.args.threshold is not None and q.client.threshold != q.args.threshold:
+                log.info("++++++++Threshold Changed+++++++++++++")
                 q.client.threshold = q.args.threshold
                 await render_threshold(q)
-                action_taken = True
-
-            if q.args.render_employee is not None and len(q.args.render_employee) == 1 and int(
-                    q.args.render_employee[0]) != q.client.employee_num:
+            # First two conditions is to check that parameter exists and array is not empty
+            elif q.args.render_employee is not None and len(q.args.render_employee) == 1 and \
+                    int(q.args.render_employee[0]) != q.client.employee_num:
+                log.info("++++++++Employee for Shapley details table Changed+++++++++++++")
                 q.client.employee_num = int(q.args.render_employee[0])
                 await render_emp_shapley(q)
-                action_taken = True
 
-            if not action_taken:
-                '''We should never get here, unless user did not change anything'''
+            else:
+                # We can get here if user did not change anything.
+                # For example, clicked on already selected Employee, or moved threshold slider to the same value
                 log.info("++++++++Unhandled condition or no Change+++++++++++++")
                 '''Will result in loading spinner going away '''
                 q.page['non-existent'].items = []

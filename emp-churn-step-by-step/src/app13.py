@@ -1,8 +1,10 @@
 # Step 13
 # Add tabs and tabs switching
+# Set H2O_WAVE_NO_LOG=1 to avoid printing server (waved) messages
 # ---
 from h2o_wave import main, app, Q, ui, on, handle_on, data
 from h2o_wave.core import expando_to_dict
+from typing import Optional, List
 
 import altair
 import numpy as np
@@ -61,60 +63,59 @@ async def serve(q: Q):
             q.app.initialized = True
 
         # First time a browser(tab) opens the app
-        action_taken = False
         if not q.client.initialized:
             action_taken = True
             await init(q)
             q.client.initialized = True
             await q.page.save()
-        elif q.args['#'] and q.args['#'] != q.client.current_tab:
-            log.info("========Handle  Tab Change=====")
-            log.info(f"Previous tab saved in q.client.current_tab: {q.client.current_tab}")
-            action_taken = True
-            # Set new active menu item
-            q.page['nav_menu'].value = f'#{q.args["#"]}'
-            q.client.current_tab = q.args["#"]
-            if q.args['#'] == "details":
-                log.info("========Handle  Tab Change Switch to details=====")
-                # Restore threshold value to the last clicked on
-                log.info(f"previous threshold:{q.client.threshold}")
-                q.page['threshold_card'].items[0].slider.value = q.client.threshold
-                # Display a different tab
-                q.page["meta"] = q.client.details
-            else:
-                log.info("========Handle  Tab Change Switch to plots=====")
-                q.page["meta"] = q.client.emp_plots
+        else:
+            if q.args['#'] and q.args['#'] != q.client.current_tab:
+                log.info("========Handle  Tab Change=====")
+                log.info(f"Previous tab saved in q.client.current_tab: {q.client.current_tab}")
+                # Set new active menu item
+                q.page['nav_menu'].value = f'#{q.args["#"]}'
+                q.client.current_tab = q.args["#"]
 
-        if not action_taken:
-            if q.args.threshold is not None and q.client.threshold != q.args.threshold:
+                if q.args['#'] == "details":
+                    log.info("========Handle  Tab Change Switch to details=====")
+                    # Restore threshold value to the last clicked on
+                    log.info(f"previous threshold:{q.client.threshold}")
+                    q.page['threshold_card'].items[0].slider.value = q.client.threshold
+                    # Display a different tab
+                    # q.page["meta"] = q.client.details
+                    await render_emp_details(q)
+
+                elif q.args['#'] == "emp_plots":
+                    log.info("========Handle  Tab Change Switch to plots=====")
+                    # q.page["meta"] = q.client.emp_plots
+                    await render_emp_plots(q)
+
+            elif q.args.threshold is not None and q.client.threshold != q.args.threshold:
                 log.info("========Handle  Threshold Change=====")
                 q.client.threshold = q.args.threshold
                 await render_threshold(q)
-                action_taken = True
 
-            if q.args.render_employee is not None and len(q.args.render_employee) == 1 and int(
-                    q.args.render_employee[0]) != q.client.employee_num:
+            elif q.args.render_employee is not None and len(q.args.render_employee) == 1 and \
+                    int(q.args.render_employee[0]) != q.client.employee_num:
                 q.client.employee_num = int(q.args.render_employee[0])
                 await render_emp_shapley(q)
-                action_taken = True
 
-            if not action_taken and q.events.render_employee and q.events.render_employee.page_change:
+            elif q.events.render_employee and q.events.render_employee.page_change:
                 log.info("========Handle  page Change=====")
                 q.client.page_offset = q.events.render_employee.page_change.get('offset', 0)
                 await render_pagination(q)
-                action_taken = True
 
-            if not action_taken and q.events.render_employee and q.events.render_employee.reset:
+            elif q.events.render_employee and q.events.render_employee.reset:
                 log.info("========Handle  page Reset=====")
                 q.client.page_offset = 0
                 await render_pagination(q)
-                action_taken = True
 
-        if not action_taken:
-            '''We should never get here, unless user did not change anything'''
-            log.info("++++++++Unhandled condition or no Change+++++++++++++")
-            '''Will result in loading spinner going away '''
-            q.page['non-existent'].items = []
+            else:
+                # We can get here if user did not change anything.
+                # For example, clicked on already selected Employee, or moved threshold slider to the same value
+                log.info("++++++++Unhandled condition or no Change+++++++++++++")
+                '''Will result in loading spinner going away '''
+                q.page['non-existent'].items = []
 
         await q.page.save()
         log.info("====== End serve Function ========")
@@ -141,7 +142,7 @@ async def init(q: Q) -> None:
     q.client.dark_mode = False
     q.client.initialized = False
     # Define Layout for Tab Emp Plots
-    q.client.emp_plots = ui.meta_card(
+    q.page["meta"] = ui.meta_card(
         box='',
         title='Employee Churn Prediction',
         layouts=[
@@ -155,37 +156,15 @@ async def init(q: Q) -> None:
                             zones=[ui.zone(name='nav', size='14%'),
                                    ui.zone(name='content',
                                            size='86%',
-                                           zones=[ui.zone('horizontal', direction=ui.ZoneDirection.ROW)])
+                                           zones=[ui.zone('horizontal', direction=ui.ZoneDirection.ROW),
+                                                  ui.zone('vertical', size='1')])
                                    ]),
                     ui.zone(name='footer'),
                 ]
             )
         ]
     )
-    # Define Layout for Tab Details
-    q.client.details = ui.meta_card(
-        box='',
-        title='Employee Churn Prediction',
-        layouts=[
-            ui.layout(
-                breakpoint='xs',
-                min_height='100vh',
-                max_width='1200px',
-                zones=[
-                    ui.zone(name='header', direction='row', size='120px'),
-                    ui.zone(name='body', direction='row', size='1',
-                            zones=[ui.zone(name='nav', size='14%'),
-                                   ui.zone(name='content',
-                                           size='86%',
-                                           zones=[ui.zone('vertical', size='1')])
-                                   ]),
-                    ui.zone(name='footer'),
-                ]
-            )
-        ]
-    )
-    # Display Tab emp_plots first
-    q.page['meta'] = q.client.emp_plots
+
     q.page['header'] = ui.header_card(
         box='header',
         title='Employee Churn Prediction',
@@ -205,35 +184,76 @@ async def init(q: Q) -> None:
                                             ui.nav_group('Help', items=[
                                                 ui.nav_item(name='#help/contact', label='Contact Us', icon='Help'),
                                             ])])
-    q.client.current_tab = "emp_plots"
 
-    spec = altair.Chart(q.app.predictions).mark_bar() \
-        .encode(altair.X("Prediction", bin=True), y='count()', ) \
-        .properties(width='container', height='container') \
-        .interactive() \
-        .to_json()
-
-    add_card(q, 'predictions_card', ui.vega_card(box='horizontal', title='Churn Predictions',
-                                                 specification=spec
-                                                 ))
+    # Populate Data for emp_plots Tab
+    q.client.churn_pred = altair.Chart(q.app.predictions).mark_bar() \
+                                                         .encode(altair.X("Prediction", bin=True), y='count()', ) \
+                                                         .properties(width='container', height='container') \
+                                                         .interactive() \
+                                                         .to_json()
 
     # Variable importance graph. Get List of columns and importance
-    varimp, q.client.varimp_col = get_varimp(q.app.shapley)
+    q.client.varimp, q.client.varimp_col = get_varimp(q.app.shapley)
 
+    # Populate Initial Data for details Tab
+    # Card with threshold slider description
+    q.client.threshold = 0.5
+    q.client.churned_employees = q.app.predictions[q.app.predictions['Prediction'] > q.client.threshold]
+    q.client.page_offset = 0
+
+    # Set first employee in the table to populate Shapley values for the first time
+    q.client.employee_num = q.client.churned_employees['EmployeeNumber'].iloc[0]
+    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
+
+    if q.args['#'] == "details":
+        await render_emp_details(q)
+    else:  # if q.args['#'] is None or q.args['#'] == "emp_plots":
+        await render_emp_plots(q)
+    log.info("==Complete init Function ==")
+
+
+async def render_emp_plots(q: Q):
+    log.info("==Start render_emp_plots Function ==")
+    q.page['nav_menu'].value = '#emp_plots'
+    q.client.current_tab = "emp_plots"
+    clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
+
+    # Add card from already loaded Churn prediction chart
+    add_card(q, 'predictions_card', ui.vega_card(box='horizontal', title='Churn Predictions',
+                                                 specification=q.client.churn_pred
+                                                 ))
+
+    # Add card from already loaded Variable importance graph
     add_card(q, 'varimp_card', ui.plot_card(box='horizontal',
                                             title='Top Factors Affecting Churn',
-                                            data=data('feature importance', 5, rows=varimp),
+                                            data=data('feature importance', 5, rows=q.client.varimp),
                                             plot=ui.plot([ui.mark(type='interval', x='=importance', y='=feature',
                                                                   x_min=0, color='#9c3a3a')])
                                             ))
+    log.info("==Complete render_emp_plots Function ==")
 
-    # Card with threshold slider description
+
+async def render_emp_details(q: Q):
+    """
+    Render the details page:
+        - Threshold selection card according to last set threshold
+        - Employees table
+        - Shapley values for the selected (set to first in init function) employee from the Employees table
+
+    :param q:
+    :return:
+    """
+    log.info("==Start render_emp_details Function ==")
+    q.page['nav_menu'].value = '#details'
+    q.client.current_tab = "details"
+    clear_cards(q)  # When routing, drop all the cards except of the main ones (header, sidebar, meta).
+
+    # Card with description for threshold slider card that follows
     add_card(q, 'description_card', ui.form_card(box='vertical', items=[
         ui.text("Use the slider below to change the cutoff for churn prediction and update the statistics.")
     ]
                                                  ))
 
-    q.client.threshold = 0.5
     add_card(q, 'threshold_card', ui.form_card(box='vertical', items=[ui.slider(name='threshold',
                                                                                 label='Prediction Threshold',
                                                                                 min=0,
@@ -242,20 +262,16 @@ async def init(q: Q) -> None:
                                                                                 value=q.client.threshold,
                                                                                 trigger=True,
                                                                                 )]))
-
-    q.client.churned_employees = churned_employees = q.app.predictions[
-        q.app.predictions['Prediction'] > q.client.threshold]
-
     # Stats Cards
     add_card(q, 'stats_card', ui.form_card(box='vertical', items=[
         ui.stats([
             ui.stat(label='Number of Employees',
-                    value=str(len(churned_employees)),
+                    value=str(len(q.client.churned_employees)),
                     caption='Predicted Churn Employees'),
             ui.stat(label='% of Employees',
-                    value="{0:.0%}".format(len(churned_employees) / len(q.app.predictions)),
+                    value="{0:.0%}".format(len(q.client.churned_employees) / len(q.app.predictions)),
                     caption='Predicted Churn Employees'),
-            ui.stat(label='Average Years at the Company', value=str(round(churned_employees.YearsAtCompany.mean())),
+            ui.stat(label='Average Years at the Company', value=str(round(q.client.churned_employees.YearsAtCompany.mean())),
                     caption='Predicted Churn Employees'),
         ], justify='between')]))
 
@@ -274,9 +290,7 @@ async def init(q: Q) -> None:
         )]))
     q.client.page_offset = 0
 
-    # Display Shapley values for the first employee in the table
-    q.client.employee_num = q.client.churned_employees['EmployeeNumber'].iloc[0]
-    q.client.employee_varimp = get_local_varimp(q.app.shapley[q.app.shapley['EmployeeNumber'] == q.client.employee_num])
+    # Display Shapley values for employee stored in the q.client.employee_num
     add_card(q, 'shap_card',
              ui.plot_card(box='vertical',
                           title='Top Factors Affecting Churn for Employee {}'.format(q.client.employee_num),
@@ -286,12 +300,12 @@ async def init(q: Q) -> None:
                                                 color_range='#28733b #9c3a3a')])
                           ))
 
-    log.info("==Complete init Function ==")
+    log.info("==Complete render_emp_plots Function ==")
 
 
 async def render_threshold(q: Q):
     """
-    Accept threshold value from slider and Refresh Stats cars and table of employees
+    Accept threshold value from slider and Refresh Stats cards and table of employees
     :param q:
     :return:
     """
@@ -394,9 +408,21 @@ def get_local_varimp(shapley_vals, top_n=5):
     return varimp
 
 
-# Use for cards that should be deleted on calling `clear_cards`. Useful for routing and page updates.
+# Use for page cards that should be removed when navigating away.
+# For pages that should be always present on screen use q.page[key] = ...
 def add_card(q, name, card) -> None:
-    log.info("==Start add_card Function for card:"+str(name)+" ==")
+    log.info("==Start add_card Function for card:" + str(name) + " ==")
     q.client.cards.add(name)
     q.page[name] = card
     log.info("==Complete add_card Function==")
+
+
+# Remove all the cards related to navigation.
+def clear_cards(q, ignore: Optional[List[str]] = []) -> None:
+    if not q.client.cards:
+        return
+
+    for name in q.client.cards.copy():
+        if name not in ignore:
+            del q.page[name]
+            q.client.cards.remove(name)

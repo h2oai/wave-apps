@@ -1,36 +1,41 @@
-# Step by step Apps
+# Getting Started with H2O Wave
 
+This project was bootstrapped with `wave init` command.
 
+## Running the app
 
-This is a series of self-contained Wave Apps that build upon each other. We begin with basic concepts and advance to more efficient development patterns for Wave.
+Make sure you have activated a Python virtual environment with `h2o-wave` installed.
 
-The Wave App highlights the capabilities of the Wave framework. It loads prediction and Shapley values files, and presents various information about Employee Churn based on the selected employee record and probability cut-off to display Shapley values.
+If you haven't created a python env yet, simply run the following command (assuming Python 3.7 is installed properly).
 
-To install and run the code:
+For MacOS / Linux:
 
-- Create virtual Python virtual environment - the code was tested with Python 3.8
+```sh
+python3 -m venv venv
+source venv/bin/activate
+pip install h2o-wave
+```
 
-- Install dependencies from the src/requirements.txt 
+For Windows:
 
-- To run wave the first App, for the consecutive Apps, replace `app1` with the `app2`, ...`app13` 
+```sh
+python3 -m venv venv
+venv\Scripts\activate.bat
+pip install h2o-wave
+```
 
-  ```bash
-  wave run --no-reload src.app1
-  ........................
-  wave run --no-reload src.app13
-  ```
+Once the virtual environment is setup and active, run:
 
+```sh
+wave run app.py
+```
 
+Which will start a Wave app at <http://localhost:10101>.
 
-Here is a list of the training Apps:
+## Interactive examples
 
-- App1 through App8: Step-by-step development of the Employee Churn dashboard
-- App9: Adding debugging capabilities
-- App10: Refactoring App9 to refresh content only when there is a change due to user interaction. In the previous steps, we have redrawn cards every time, even if there was no change
-- App11: Same as App10 but pulling data from Delta Lake storage
-- App12: App10 plus table pagination logic to handle large amount of data in the table
-- App13: App12 plus tabs and tab switching with no card recreation
+If you prefer learning by doing, you can run `wave fetch` command that will download all the existing small Python examples that show Wave in action. The best part is that all these examples are interactive, meaning you can edit their code directly within the browser and observe the changes.
 
-To suppress Wave server messages and facilitate App debugging, define `H2O_WAVE_NO_LOG=1`.
+## Learn More
 
-TODO: Implement sorting and filtering logic for the Employee table. The current sorting logic applies only to the data within the current (single) page.
+To learn more about H2O Wave, check out the [docs](https://wave.h2o.ai/).
