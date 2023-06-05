@@ -44,7 +44,6 @@ async def init(q: Q) -> None:
         title='Employee Churn Prediction',
         subtitle="Predict which employees are at risk and identify relevant factors."
     )
-    import os
     q.page['footer'] = ui.footer_card(
         box='footer',
         caption='Made with 💛 using [H2O Wave](https://wave.h2o.ai).'
