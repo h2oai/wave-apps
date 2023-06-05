@@ -52,6 +52,19 @@ Follow the instructions [here](https://wave.h2o.ai/docs/installation) to downloa
 
 
 
+### [Employee Churn - Step by Step Training Apps](emp-churn-step-by-step/README.md)
+
+**Details:** These are a collection of self-contained applications that showcase the development of an Employee Churn application. Each application introduces additional components and progressively enhances the application with appropriate design patterns:
+
+- Debugging
+- Updating the content of cards without recreating them
+- Switching between multiple layouts using menu tabs
+
+
+
+
+
+
 ## FAQs
 While trying to run any of the apps particularly on Windows terminal, below are given some common errors and their fixes:
 
