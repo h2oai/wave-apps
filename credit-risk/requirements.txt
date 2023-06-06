@@ -10,3 +10,4 @@ colorama>=0.3.8
 future
 https://h2o-release.s3.amazonaws.com/h2o/rel-zizler/7/Python/h2o-3.34.0.7-py2.py3-none-any.whl
 
+

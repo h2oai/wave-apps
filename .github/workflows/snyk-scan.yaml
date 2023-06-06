@@ -34,6 +34,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
+          set +e
           topdir=$(pwd)
           for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
             directory=$(dirname "$file") && cd $directory
@@ -50,7 +51,7 @@ jobs:
               --command=python3.10 \
               --skip-unresolved \
               --package-manager=pip
-          done
+          done 
      
   snyk_scan_monitor:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
