@@ -2,5 +2,3 @@ h2o_wave==0.20.0
 toml==0.10.2
 loguru==0.6.0
 httpx==0.16.1
-
-
