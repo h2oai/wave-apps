@@ -1,0 +1,94 @@
+name: Snyk Security Vulnerability Scan
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - main
+
+jobs:
+  snyk_scan_test:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: snyk/actions/setup@master
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      
+      - name: Check changed Deps files
+        uses: tj-actions/changed-files@v35
+        id: changed-files
+        with:
+          files: | # This will match all the files with below patterns
+            **/requirements.txt
+    
+      - name: Scan python dependencies
+        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, 'requirements.txt')
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          set +e
+          topdir=$(pwd)
+          for file in ${{ steps.changed-files.outputs.all_changed_and_modified_files }}; do
+            directory=$(dirname "$file") && cd $directory
+            
+            #remove local/dev/test dependencies
+            sed '/^\.\//d; /^https:\/\//d; /^flake8/d; /^black==/d' requirements.txt > t.txt \
+              && mv t.txt requirements.txt
+
+            python3.8 -m pip install -r requirements.txt && cd $topdir
+
+            snyk test \
+              -d \
+              --file=$file \
+              --command=python3.8 \
+              --skip-unresolved \
+              --package-manager=pip
+          done 
+     
+  snyk_scan_monitor:
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: snyk/actions/setup@master
+
+      - name: Extract github branch/tag name
+        shell: bash
+        run: echo "ref=$(echo ${GITHUB_REF##*/})" >> $GITHUB_OUTPUT
+        id: extract_ref
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+        
+      - name: Monitor Python dependencies
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          topdir=$(pwd)
+          for file in $(find . -name "requirements.txt"); do
+            file=${file:2} && directory=$(dirname "$file") && cd $directory
+
+            #remove local/dev/test dependencies
+            sed '/^\.\//d; /^https:\/\//d; /^flake8/d; /^black==/d' requirements.txt > t.txt \
+              && mv t.txt requirements.txt
+
+            python3.8 -m pip install -r requirements.txt && cd $topdir
+          
+            snyk monitor \
+              -d \
+              --file=$file \
+              --command=python3.8 \
+              --skip-unresolved \
+              --package-manager=pip \
+              --remote-repo-url=wave-apps/${{ steps.extract_ref.outputs.ref }} \
+              --org=wave-apps \
+              --project-name=WAVE-APPS/wave-apps/${{ steps.extract_ref.outputs.ref }}/$file
+          done
