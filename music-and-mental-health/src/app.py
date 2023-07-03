@@ -1,12 +1,11 @@
 from h2o_wave import Q, ui, main, app
 import pandas as pd
 from siuba import *
-from siuba.siu import call
-from charts import show_table, streaming_service, fav_age_effect, fav_depression, fav_insomnia
+from .charts import show_table, streaming_service, fav_age_effect, fav_depression, fav_insomnia
 
 
 # read the data anc cover
-music = pd.read_csv("../music_mental_survey_clean.csv")
+music = pd.read_csv("music_mental_survey_clean.csv")
 music = music >> select(~_["Unnamed: 0"])  # remove unwanted column
 
 

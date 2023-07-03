@@ -19,7 +19,7 @@ def update_chart(fig):
 async def show_table(df):
     return ui.table(
         name="table",
-        height="410px",
+        height="390px",
         # Add pagination attribute to make your table paginated.
         pagination=ui.table_pagination(total_rows=100, rows_per_page=5),
         events=["page_change"],
