@@ -150,7 +150,6 @@ async def login_page(q: Q, err_msg: str = ""):
     add_card(q, 'login', ui.form_card(box='centered', items=items))
 
 
-@on()
 async def login(q: Q, home_page: Callable[[Q], Awaitable[Any]]):
     """Process login.
 
@@ -171,9 +170,11 @@ async def login(q: Q, home_page: Callable[[Q], Awaitable[Any]]):
             await login_page(q, "Wrong credentials")
 
 
-@on()
 async def logout(q: Q):
     """Remove the secret. Remove header and sidebar"""
     q.user.secret = None
     clear_header_and_sidebar(q)
+    q.page['meta'] = ui.meta_card(box='', script=ui.inline_script(
+        'history.replaceState(history.state, "Logout", "/");'
+    ))  # Manipulate address bar to show base address
     await login_page(q)
