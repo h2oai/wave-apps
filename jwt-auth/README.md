@@ -1,7 +1,7 @@
 # Wave app with JWT authentication
-This is an example on how to add authentication to a h2o wave app. It builds on a `wave init` example to demonstrate how non-authenticated users will not have access to the application.
+This is an example on how to add authentication to a h2o wave app. It builds on a `wave init` example to demonstrate how non-authenticated users will not have access to the application. It also serves as a demonstration how to control and customize routing flow in a wave app.
 
-This is meant in case OpenID Connect is not available to your project.
+Using OpenID Connect is a safer way to provide authentication to your users. Check the instructions for use with OpenID Connect [here](https://wave.h2o.ai/docs/security#single-sign-on) and how to set up keycloak [here](https://wave.h2o.ai/docs/development/#using-openid-connect). Keycloak via docker is a very easy way to set up your own OpenID Connect provider.
 
 ## Setup
 Run `pip install -r requirements.txt` to install all dependencies.
