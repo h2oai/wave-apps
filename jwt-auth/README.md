@@ -38,10 +38,9 @@ If you want to use a different database then mongodb, implement an interface acc
 
 In `app.py`, the default `init()` and the `serve()` function were adjusted to support authentication based routing:
 - Header and sidebar are still defined in `init()` but only populated after successful login. Function to fill and clear the header and sidebar are in `wave_auth.py`
+- Extra zone for centered login box (`centered`)
 - The auth based routing is implemented in `handle_auth_on()` which wraps the default `h2o_wave.routing.handle_on()` function. This should allow to write pages just as with regular routing.
 
-## Open issues
-- Logging out will not remove the current path in the browser. E.g., logging out from `http://localhost:10101/#page2` and then logging back in will not lead back to `#page2` but to the home-page set for `handle_auth_on`. As a side effect, this will not allow you to load `#page2` by clicking on the sidebar, however F5/refresh will work. I have not found a way to remove or manipulate the client url path to make this more elegant
 
 ## References
 This project was bootstrapped with `wave init` -> `App with header & sidebar + navigation` command.
