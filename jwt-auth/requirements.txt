@@ -1,0 +1,4 @@
+h2o-wave==0.25.2
+mongoengine
+python-jose[cryptography]
+passlib[bcrypt]

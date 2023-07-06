@@ -50,6 +50,9 @@ Follow the instructions [here](https://wave.h2o.ai/docs/installation) to downloa
 
 **Details:** This application pulls tweets and uses the open source VaderSentiment to understand positive and negative tweets
 
+### [JWT-Auth](jwt-auth/README.md)
+
+**Details:** This is an example on how to add JWT-based authentication to a h2o wave app.
 
 
 ### [Employee Churn - Step by Step Training Apps](emp-churn-step-by-step/README.md)
