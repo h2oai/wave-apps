@@ -1,0 +1,16 @@
+---
+version: '3.8'
+networks:
+  default:
+    driver: host
+    
+services:
+  wave_local_dev:
+    image: "wave_local_dev:latest"
+    build: .
+    ports:
+      - "10101:10101/tcp"
+      - "10101:10101/udp"
+    volumes:
+      - ./src:/app/src
+...
