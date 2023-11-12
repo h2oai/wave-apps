@@ -27,8 +27,8 @@ cd wave-apps/docker-development
 docker-compose up
 ```
 
-***Notes on networking***: in testing `host` only networking worked on Linux for docker-ce and docker-ee. But for podman one needs to add
-the `podman` network while on OSX one should use the default network.
+***Notes on networking***: in testing `host` only networking worked on Linux for *docker-ce* and *docker-ee*. But for *podman* one needs to add
+the `podman` network. While on OSX one should use the default network.
 
 TODO: Windows
 
