@@ -19,6 +19,17 @@ docker build . -t wave_local_dev
 docker run -p 10101:10101 -v $(pwd)/src:/app/src wave_local_dev:latest
 ```
 
+or via `docker compose`/`podman-compose` (with an alias of podman and podman-composee as docker and docker-compose)
+
+```sh
+git clone https://github.com/h2oai/wave-apps.git
+cd wave-apps/docker-development
+docker-compose up
+```
+
+***Notes on networking***: in testing `host` only networking worked on Linux for docker-ce and docker-ee. But for podman one needs to add
+the `podman` network while on OSX one should use the default network.
+
 TODO: Windows
 
 ## Features
