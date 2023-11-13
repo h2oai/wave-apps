@@ -3,10 +3,11 @@ version: '3.8'
     
 services:
   wave_local_dev:
-    image: "wave_local_dev:latest"
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "10101:10101/tcp"
+      - "10101:10101"
     volumes:
       - ./src:/app/src
 ...
