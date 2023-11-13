@@ -1,4 +1,6 @@
-FROM python:3.7
+# Force platform to download proper wheel (with waved included).
+# An alternative is to either download wheel manually or download and run waved separately.
+FROM --platform=linux/amd64 python:3.8
 
 # Create a project directory.
 RUN mkdir /app
