@@ -8,7 +8,7 @@ Wave is no different from other web frameworks which means you can even reuse yo
 
 * Docker installed - <https://www.docker.com/>
 
-## Installation
+## Setup
 
 Clone the repo and `cd` into corresponding directory
 
