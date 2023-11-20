@@ -17,7 +17,7 @@ git clone https://github.com/h2oai/wave-apps.git
 cd wave-apps/docker-development
 ```
 
-Linux / MacOS
+Linux / MacOS and Windows via WSL/Docker for Desktop
 
 ```sh
 docker build . -t wave_local_dev
