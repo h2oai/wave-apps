@@ -160,7 +160,7 @@ async def render_customer_page(q: Q):
     )
 
     # summary
-    top_feature = contribs.idxmin(axis=1) if approve else contribs.idxmax(axis=1)
+    top_feature = contribs.idxmin(axis=0) if approve else contribs.idxmax(axis=0)
     explanation_data = {
         'will_or_will_not': 'will' if approve else 'will not',
         'top_contributing_feature': top_feature,

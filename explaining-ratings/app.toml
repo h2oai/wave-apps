@@ -1,6 +1,6 @@
 [App]
 Name = "ai.h2o.wave.explaining-ratings"
-Version = "1.1.0"
+Version = "1.2.0"
 Title = "Explainable Hotel Ratings"
 Description = "Demo to visually explore and compare predictions from text data."
 LongDescription = "about.md"

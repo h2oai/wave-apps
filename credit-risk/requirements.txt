@@ -1,7 +1,7 @@
-numpy==1.19.1
-pandas==1.1.0
+numpy==1.21.0
+pandas==1.4.0
 plotly==4.10.0
-pygments==2.7.1
+pygments==2.15.0
 h2o-wave<1.0
 h2o-wave-ml>=0.7.0
 requests
