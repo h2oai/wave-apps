@@ -7,6 +7,6 @@ httpx==0.16.1
 idna==2.10
 rfc3986==1.4.0
 sniffio==1.2.0
-starlette==0.13.8
-typing-extensions==3.7.4.3
+starlette==0.37.1
+typing-extensions==3.10.0
 uvicorn==0.12.2

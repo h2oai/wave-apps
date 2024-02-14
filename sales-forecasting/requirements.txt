@@ -16,7 +16,7 @@ rfc3986==1.4.0; python_version >= "3.6" and python_full_version >= "3.6.1"
 s3transfer==0.3.3
 six==1.15.0; python_full_version >= "3.6.1"
 sniffio==1.2.0; python_version >= "3.6" and python_full_version >= "3.6.1"
-starlette==0.13.8; python_version >= "3.6" and python_full_version >= "3.6.1"
-typing-extensions==3.7.4.3; python_version < "3.8" and python_full_version >= "3.6.1"
+starlette==0.37.1
+typing-extensions==3.10.0
 urllib3==1.26.2; python_version >= "2.7" and python_full_version < "3.0.0" and python_version != "3.4" or python_full_version >= "3.5.0" and python_version < "4" and python_version != "3.4"
 uvicorn==0.12.2; python_full_version >= "3.6.1"
