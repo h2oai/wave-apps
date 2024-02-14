@@ -1,3 +1,4 @@
+certifi==2024.2.2
 h2o_wave==0.26.3
 toml==0.10.2
 loguru==0.6.0
