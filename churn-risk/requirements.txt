@@ -3,6 +3,7 @@ Pygments==2.15.0
 h2o-wave<1.0
 h2o-wave-ml>=0.7.0
 https://h2o-release.s3.amazonaws.com/h2o/rel-zizler/7/Python/h2o-3.34.0.7-py2.py3-none-any.whl
+setuptools==65.5.1
 
 black==20.8b1
 flake8-black==0.2.1

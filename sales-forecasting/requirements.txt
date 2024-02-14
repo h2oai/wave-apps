@@ -4,11 +4,11 @@ certifi==2024.2.2
 click==7.1.2; python_full_version >= "3.6.1"
 h11==0.11.0; python_version >= "3.6" and python_full_version >= "3.6.1"
 h2o-wave<1.0; python_full_version >= "3.6.1"
-httpcore==0.12.2; python_version >= "3.6" and python_full_version >= "3.6.1"
-httpx==0.16.1; python_version >= "3.6" and python_full_version >= "3.6.1"
+httpcore==0.15.0
+httpx==0.23.0
 idna==2.10; python_version >= "3.6" and python_full_version >= "3.6.1"
 jmespath==0.10.0; python_version >= "2.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0"
-numpy==1.21.0; python_version >= "3.6" and python_full_version >= "3.6.1"
+numpy==1.22.2
 pandas==1.4.0; python_version >= "3.6" and python_full_version >= "3.6.1"
 python-dateutil==2.8.1; python_full_version >= "3.6.1"
 pytz==2020.4; python_full_version >= "3.6.1"
@@ -18,5 +18,5 @@ six==1.15.0; python_full_version >= "3.6.1"
 sniffio==1.2.0; python_version >= "3.6" and python_full_version >= "3.6.1"
 starlette==0.37.1
 typing-extensions==3.10.0
-urllib3==1.26.2; python_version >= "2.7" and python_full_version < "3.0.0" and python_version != "3.4" or python_full_version >= "3.5.0" and python_version < "4" and python_version != "3.4"
-uvicorn==0.12.2; python_full_version >= "3.6.1"
+urllib3==1.26.18
+uvicorn==0.12.3
