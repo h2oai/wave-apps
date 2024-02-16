@@ -1,5 +1,5 @@
-pandas==1.4.0
-Pygments==2.15.0
+pandas==1.5.3
+pygments==2.17.2
 h2o-wave<1.0
 h2o-wave-ml>=0.7.0
 https://h2o-release.s3.amazonaws.com/h2o/rel-zizler/7/Python/h2o-3.34.0.7-py2.py3-none-any.whl
