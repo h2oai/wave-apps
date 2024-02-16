@@ -1,12 +1,2 @@
 certifi==2024.2.2
-click==7.1.2
-h11==0.11.0
 h2o-wave<1.0
-httpcore==0.15.0
-httpx==0.23.0
-idna==2.10
-rfc3986==1.4.0
-sniffio==1.2.0
-starlette==0.37.1
-typing-extensions==3.10.0
-uvicorn==0.12.3

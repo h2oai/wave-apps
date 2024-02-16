@@ -357,24 +357,24 @@ async def client_initialize(q: Q):
 
 
 async def theme_switch_handler(q: Q):
-    q.client.active_theme = 'h2o-dark' if 'toggle_theme' in q.args.data and q.args.data['toggle_theme'] else 'default'
+    q.client.active_theme = 'h2o-dark' if q.args.toggle_theme else 'default'
     q.page['meta'].theme = q.client.active_theme
     await q.page.save()
 
 
 async def run_app(q: Q):
-    if 'start_game' in q.args.data and q.args.data['start_game']:
-        if 'submit_game' in q.args.data and q.args.data['submit_game']:
+    if q.args.start_game:
+        if q.args.submit_game:
             q.client.game.is_public = True
             q.app.games[q.client.game.game_id] = q.client.game
         del q.page['leaderboard']
         del q.page['hello']
         await start_new_game(q)
-    elif 'quit_game' in q.args.data and q.args.data['quit_game']:
+    elif q.args.quit_game:
         del q.page['starting_game']
         await make_welcome_card(q)
-    elif 'guess' in q.args.data and q.args.data['guess']:
-        message = q.client.game.guess(q.args.data['guess'])
+    elif q.args.guess:
+        message = q.client.game.guess(q.args.guess)
         if message == 'You Got It!':
             q.page['starting_game'].items = [
                 ui.text_l(
@@ -421,7 +421,7 @@ async def run_app(q: Q):
                     label='your guess',
                     min=1,
                     max=100,
-                    value=q.args.data['guess'] if 'guess' in q.args.data else "",
+                    value=q.args.guess,
                     trigger=True,
                 ),
                 ui.text_xs('⠀'),
@@ -430,16 +430,16 @@ async def run_app(q: Q):
                     justify='center',
                 ),
             ]
-    elif 'leaderboard' in q.args.data and q.args.data['leaderboard']:
-        if 'submit_game' in q.args.data and q.args.data['submit_game']:
+    elif q.args.leaderboard:
+        if q.args.submit_game:
             q.client.game.is_public = True
             q.app.games[q.client.game.game_id] = q.client.game
         del q.page['starting_game']
         await show_leaderboard(q)
-    elif 'private_leaderboard' in q.args.data and  q.args.data['private_leaderboard']:
+    elif q.args.private_leaderboard:
         await show_private_leaderboard(q)
 
-    if 'toggle_theme' in q.args.data and q.args.data['toggle_theme'] is not None:
+    if q.args.toggle_theme is not None:
         await theme_switch_handler(q)
     await q.page.save()
 
