@@ -1,4 +1,6 @@
-pandas==1.1.0
+pandas==1.5.3
 h2o-wave<1.0
-matplotlib
-wordcloud
+matplotlib==3.8.3
+wordcloud==1.9.3
+numpy==1.26.4
+setuptools==65.5.1

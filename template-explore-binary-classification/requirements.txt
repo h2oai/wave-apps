@@ -1,5 +1,11 @@
-h2o_wave==0.20.0
+certifi==2024.2.2
+h2o_wave==0.26.3
 toml==0.10.2
 loguru==0.6.0
-pandas==1.4.1
+pandas==1.5.3
 matplotlib==3.5.1
+starlette==0.37.1
+typing-extensions==3.10.0
+httpcore==0.15.0
+httpx==0.23.0
+setuptools==65.5.1

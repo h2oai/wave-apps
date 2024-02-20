@@ -1,0 +1,9 @@
+ignore:
+  SNYK-PYTHON-H2O-6125908:
+    - "*":
+      reason: Not fixed version for h2o yet
+      expires: 2025-01-01T00:00:00.000Z
+  snyk:lic:pip:certifi:MPL-2.0:
+    - "*":
+      reason: False positive
+      expires: 2025-01-01T00:00:00.000Z
