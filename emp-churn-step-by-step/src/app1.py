@@ -1,7 +1,7 @@
 # Step 1
 # Setting Up Layout:Header, main page and footer
 # ---
-from h2o_wave import main, app, Q, ui, on, handle_on, data
+from h2o_wave import main, app, Q, ui, on, run_on, data
 
 
 @app('/')
@@ -12,7 +12,7 @@ async def serve(q: Q):
         q.client.initialized = True
 
     # Other browser interactions
-    await handle_on(q)
+    await run_on(q)
     await q.page.save()
 
 

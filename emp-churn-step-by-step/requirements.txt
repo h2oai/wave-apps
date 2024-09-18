@@ -1,1 +1,4 @@
-h2o-wave==0.24.0
+h2o-wave==1.5.1
+altair==5.4.1
+pandas==2.2.2
+numpy==2.1.1
