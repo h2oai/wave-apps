@@ -74,9 +74,9 @@ async def serve(q: Q):
 async def init_app(q: Q) -> None:
     # Read and load data into memory
     log.info("==Start init_app Function ==")
-    q.app.predictions = pd.read_csv("./src/static/predictions.csv")
+    q.app.predictions = pd.read_csv("./static/predictions.csv")
     q.app.predictions = q.app.predictions.rename(columns={'Attrition.Yes': "Prediction"})
-    q.app.shapley = pd.read_csv("./src/static/shapley_values.csv")
+    q.app.shapley = pd.read_csv("./static/shapley_values.csv")
     log.info("==Complete init_app Function ==")
 
 
