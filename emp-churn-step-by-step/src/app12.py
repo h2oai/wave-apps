@@ -2,7 +2,7 @@
 # Employee table pagination - handle large number of records in table
 # Set H2O_WAVE_NO_LOG=1 to avoid printing server (waved) messages
 # ---
-from h2o_wave import main, app, Q, ui, on, handle_on, data
+from h2o_wave import main, app, Q, ui, on, data
 
 import altair
 import numpy as np
@@ -10,7 +10,7 @@ import pandas as pd
 from typing import List
 
 import logging
-from os import environ
+import os
 import traceback
 
 log = logging.getLogger("app")
@@ -29,7 +29,7 @@ def setup_logger():
     )
     ch.setFormatter(formatter)
     log.addHandler(ch)
-    log.setLevel(environ.get("LOG_LEVEL", "INFO").upper())
+    log.setLevel(os.environ.get("LOG_LEVEL", "INFO").upper())
 
 
 def on_startup():
@@ -102,11 +102,13 @@ async def serve(q: Q):
 
 async def init_app(q: Q) -> None:
     # Read and load data into memory
-    log.info("==Start init_app Function ==")
-    q.app.predictions = pd.read_csv("./src/static/predictions.csv")
+    file_path = os.path.abspath(__file__)
+    dir_path = os.path.dirname(file_path)
+    predictions_file = os.path.join(dir_path, 'static', 'predictions.csv')
+    shapley_file = os.path.join(dir_path, 'static', 'shapley_values.csv')
+    q.app.predictions = pd.read_csv(predictions_file)
     q.app.predictions = q.app.predictions.rename(columns={'Attrition.Yes': "Prediction"})
-    q.app.shapley = pd.read_csv("./src/static/shapley_values.csv")
-    log.info("==Complete init_app Function ==")
+    q.app.shapley = pd.read_csv(shapley_file)
 
 
 async def init(q: Q) -> None:
