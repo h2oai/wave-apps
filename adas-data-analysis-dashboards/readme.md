@@ -19,5 +19,6 @@ The dataset comprises approximately 1.8 million records of ADAS alerts recorded 
 - Clone the repository
 - Initialize & Activate a virtual environment
 - Install the requirements
+- run download.py to download the data into data directory
 - wave run app.py
 - Open a web browser and navigate to `http://localhost:10101/` to view the app.
