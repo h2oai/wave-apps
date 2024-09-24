@@ -8,8 +8,12 @@ The dataset comprises approximately 1.8 million records of ADAS alerts recorded 
 
 ### APP Features:
 - The app helps Visualizes the geographical distribution of ADAS alerts across India using a responsive, interactive map.
+![Alt text](static/2.png)
+- The app features loading a data frame that supports interactive search, selection and grouping using h2o-wave components.
+![Alt text](static/df.png)
 - The app features direct integration of interactive Plotly visualizations using HTML. This approach allows for the seamless embedding of complex, interactive plots within the H2O Wave interface, enhancing the user experience and providing rich, explorable data visualizations
 ![Alt text](static/4.png)
+
 
 ### Instructions to Run the App:
 - Clone the repository
