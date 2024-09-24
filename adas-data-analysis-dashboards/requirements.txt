@@ -1,0 +1,10 @@
+plotly
+pandas
+numpy
+matplotlib
+seaborn
+folium
+scikit-learn
+nbformat==4.2.0
+h2o-wave
+statsmodels
