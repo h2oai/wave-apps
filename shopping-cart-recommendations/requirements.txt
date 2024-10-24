@@ -1,5 +1,5 @@
-certifi==2024.2.2
+certifi==2024.7.4
 h2o-wave<1.0
 pandas==1.5.3
 numpy==1.26.4
-urllib3==1.26.18
+urllib3==1.26.19
