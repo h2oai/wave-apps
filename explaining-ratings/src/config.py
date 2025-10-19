@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 class Configuration:
     def __init__(self):
         self.review_column_list = ['reviews.title', 'reviews.text']
@@ -17,7 +16,8 @@ class Configuration:
             'userCity': 'Reviewer City',
             'userProvince': 'Reviewer Province',
         }
-        df = pd.read_csv('data/Hotel_Reviews.csv').head(50)
-        df.dropna(subset=self.filterable_columns, inplace=True)
+        # Load full dataset (or a larger sample)
+        df = pd.read_csv('data/Hotel_Reviews.csv')
+        df.dropna(subset=self.filterable_columns + self.review_column_list, inplace=True)
         df['rating'] = df['rating'].astype(int)
         self.dataset = df

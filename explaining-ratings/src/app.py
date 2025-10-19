@@ -21,7 +21,7 @@ def plot_word_cloud(df, q: Q):
 
     word_cloud.height = height
     word_cloud.width = width
-    word_cloud.generate(''.join(df))
+    word_cloud.generate(' '.join(df.astype(str)))
 
     fig = plt.figure(figsize=figsize)
     plt.imshow(word_cloud)
@@ -37,16 +37,23 @@ def plot_word_cloud(df, q: Q):
 
 
 def render_diff_word_cloud(q: Q):
-    df = config.dataset
+    df = config.dataset.copy()
 
     for key, value in q.client.filters.items():
         df = df[df[key] == value]
 
     if len(df):
-        q.page['diff'] = ui.image_card(box='content', title='Diff', type='png', image=plot_word_cloud(df[q.client.review], q))
+        q.page['diff'] = ui.image_card(
+            box='content',
+            title='Filtered Reviews',
+            type='png',
+            image=plot_word_cloud(df[q.client.review], q)
+        )
     else:
-        # TODO: Move into sidebar when https://github.com/h2oai/wave/pull/507 merged.
-        q.page['diff'] = ui.form_card(box='content', items=[ui.message_bar(type='warning', text='No reviews matching filter criteria!')])
+        q.page['diff'] = ui.form_card(
+            box='content',
+            items=[ui.message_bar(type='warning', text='No reviews match the current filters!')]
+        )
 
 
 def init(q: Q):
@@ -73,18 +80,43 @@ def init(q: Q):
         ]
     )
     q.client.review = config.review_column_list[0]
+    q.client.filters = {}
 
+    # Build filter dropdowns dynamically
     form_filters = []
     for column in config.filterable_columns:
-        choices = [ui.choice(name='empty', label='All')] + [ui.choice(name=str(column), label=str(column)) for column in config.dataset[column].drop_duplicates()]
-        form_filters.append(ui.dropdown(name=f'filter_{column}', label=config.column_mapping[column], trigger=True, value='empty', choices=choices))
+        choices = [ui.choice(name='empty', label='All')] + [
+            ui.choice(name=str(val), label=str(val)) for val in sorted(config.dataset[column].dropna().unique())
+        ]
+        form_filters.append(
+            ui.dropdown(
+                name=f'filter_{column}',
+                label=config.column_mapping[column],
+                trigger=True,
+                value='empty',
+                choices=choices
+            )
+        )
 
-    sidebar_items = [ui.dropdown(name='review', label='Review type', value=q.client.review, trigger=True,
-        choices=[ui.choice(name=column, label=config.column_mapping[column]) for column in config.dataset[config.review_column_list]]
-    ),
-    ui.separator('Filters')] + form_filters
+    sidebar_items = [
+        ui.dropdown(
+            name='review',
+            label='Review type',
+            value=q.client.review,
+            trigger=True,
+            choices=[ui.choice(name=col, label=config.column_mapping[col]) for col in config.review_column_list]
+        ),
+        ui.separator('Filters')
+    ] + form_filters
+
     q.page['sidebar'] = ui.form_card(box='sidebar', items=sidebar_items)
-    q.page['original'] = ui.image_card(box='content', title='Original', type='png', image=plot_word_cloud(config.dataset[q.client.review], q))
+    q.page['original'] = ui.image_card(
+        box='content',
+        title='All Reviews',
+        type='png',
+        image=plot_word_cloud(config.dataset[q.client.review], q)
+    )
+    q.client.initialized = True
 
 
 def handle_filter(q: Q, key: str, val: str):
@@ -94,68 +126,61 @@ def handle_filter(q: Q, key: str, val: str):
         q.client.filters[key] = val
 
 
-async def update_theme(q: Q):
-    """
-    Update theme of app.
-    """
-    if q.args.theme_dark:
-        # Update theme from light to dark mode
-        q.page['meta'].theme = 'h2o-dark'
-    else:
-        # Update theme from dark to light mode
-        q.page['meta'].theme = 'light'
+def sync_dropdown_states(q: Q):
+    """Sync all dropdowns in sidebar to current client state (workaround for Wave #150)."""
+    items = q.page['sidebar'].items
+    # Map item name to index for safe updates
+    item_map = {}
+    for i, item in enumerate(items):
+        if hasattr(item, 'dropdown') and item.dropdown.name:
+            item_map[item.dropdown.name] = i
 
-    await q.page.save()
+    # Sync review type
+    if 'review' in item_map:
+        items[item_map['review']].dropdown.value = q.client.review
+
+    # Sync filters
+    for col in config.filterable_columns:
+        dropdown_name = f'filter_{col}'
+        if dropdown_name in item_map:
+            items[item_map[dropdown_name]].dropdown.value = q.client.filters.get(col, 'empty')
+
+
+async def update_theme(q: Q):
+    q.page['meta'].theme = 'h2o-dark' if q.args.theme_dark else 'light'
 
 
 @app('/')
 async def serve(q: Q):
     if not q.client.initialized:
         init(q)
-        q.client.filters = {}
-        q.client.initialized = True
 
-    args = expando_to_dict(q.args)
-    for arg in args:
-        if str(arg).startswith('filter_'):
-            handle_filter(q, str(arg).replace('filter_', ''), q.args[arg])
-
-    sidebar_items = q.page['sidebar'].items
-    if q.args.filter_categories:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[2].dropdown.value = q.args.filter_categories
-    if q.args.filter_city:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[3].dropdown.value = q.args.filter_city
-    if q.args.filter_country:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[4].dropdown.value = q.args.filter_country
-    if q.args.filter_postalCode:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[5].dropdown.value = q.args.filter_postalCode
-    if q.args.filter_province:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[6].dropdown.value = q.args.filter_province
-    if q.args.filter_rating:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[7].dropdown.value = q.args.filter_rating
-    if q.args.filter_userCity:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[8].dropdown.value = q.args.filter_userCity
-    if q.args.filter_userProvince:
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[9].dropdown.value = q.args.filter_userProvince
-    if q.args.review:
-        q.client.review = q.args.review
-        # TODO: Remove after https://github.com/h2oai/wave/issues/150 gets resolved.
-        sidebar_items[0].dropdown.value = q.client.review
-        q.page['original'].image = plot_word_cloud(config.dataset[q.client.review], q)
-
+    # Handle theme toggle
     if q.args.theme_dark is not None:
         await update_theme(q)
-    elif q.client.filters:
+        sync_dropdown_states(q)
+        await q.page.save()
+        return
+
+    # Handle review type change
+    if q.args.review is not None:
+        q.client.review = q.args.review
+
+    # Handle filter changes
+    args = expando_to_dict(q.args)
+    for arg, val in args.items():
+        if arg.startswith('filter_'):
+            col = arg.replace('filter_', '')
+            handle_filter(q, col, val)
+
+    # Always sync dropdown states to prevent visual reset (Wave #150 workaround)
+    sync_dropdown_states(q)
+
+    # Update visuals
+    q.page['original'].image = plot_word_cloud(config.dataset[q.client.review], q)
+    if q.client.filters:
         render_diff_word_cloud(q)
-    else:
+    elif 'diff' in q.page:
         del q.page['diff']
 
     await q.page.save()
