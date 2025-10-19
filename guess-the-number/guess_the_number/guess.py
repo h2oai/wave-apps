@@ -4,14 +4,11 @@ from datetime import datetime, timedelta
 from random import randint
 from typing import Dict, List
 
-# don't forget to import main below
-# Read https://h2oai.github.io/wave/docs/tutorial-counter#step-1-start-listening
 from h2o_wave import Q, app, main, ui
 
 
 @dataclass
 class WaveColors:
-    # Colors from Wave default Theme.
     red: str = '#F44336'
     pink: str = '#E91E63'
     purple: str = '#9C27B0'
@@ -52,6 +49,8 @@ class Game:
         self.end_time = self.start_time
 
     def guess(self, value: int) -> str:
+        if self.status != 'playing':
+            return 'Game already finished!'
         self.guesses.append(value)
         self.guess_times.append(datetime.now() - self.start_time)
         if value < self.number:
@@ -67,9 +66,7 @@ class Game:
         days = duration.days
         hours, rem = divmod(duration.seconds, 3600)
         minutes, seconds = divmod(rem, 60)
-        time_str = (
-            f'**{seconds}** Seconds, and **{duration.microseconds}** Microseconds'
-        )
+        time_str = f'**{seconds}** Seconds, and **{duration.microseconds}** Microseconds'
         if minutes > 0:
             time_str = f'**{minutes}** Minutes, ' + time_str
         if hours > 0:
@@ -110,6 +107,10 @@ class Player:
 
 
 async def start_new_game(q: Q):
+    # Clear any previous game state
+    q.client.game = None
+    q.client.completed_game_for_submission = None
+
     q.client.game = Game(q.user.player.player_id)
     q.user.player.games[q.client.game.game_id] = q.client.game
 
@@ -117,14 +118,14 @@ async def start_new_game(q: Q):
         box='4 4 3 3',
         items=[
             ui.text_l('I am thinking of a number between 1 and 100'),
-            ui.text_m('can you guess what it is?'),
+            ui.text_m('Can you guess what it is?'),
             ui.text_xs('⠀'),
             ui.slider(
                 name='guess',
-                label='your guess',
+                label='Your guess',
                 min=1,
                 max=100,
-                value=100,
+                value=50,
                 trigger=True,
             ),
             ui.text_xs('⠀'),
@@ -142,7 +143,7 @@ async def make_base_ui(q):
     q.page['title'] = ui.header_card(
         box='1 1 -1 1',
         title='Guess the Number',
-        subtitle=f'Player Name : {q.user.player.first} {q.user.player.last}'.title(),
+        subtitle=f'Player: {q.user.player.name}',
         icon='ChatBot',
         icon_color=WaveColors.cyan,
         color='card',
@@ -150,7 +151,6 @@ async def make_base_ui(q):
             ui.toggle(name='toggle_theme', label='Dark theme', trigger=True),
         ],
     )
-
     await q.page.save()
 
 
@@ -175,37 +175,14 @@ async def make_welcome_card(q):
 
 
 async def show_leaderboard(q: Q):
+    # Only include completed public games
+    public_games = [g for g in q.app.games.values() if g.status == 'done' and g.is_public]
+
     columns = [
-        ui.table_column(
-            name='name',
-            label='Name',
-            sortable=True,
-            searchable=False,
-            max_width='230',
-            data_type='string',
-            link=False,
-        ),
-        ui.table_column(
-            name='number',
-            label='Number',
-            sortable=True,
-            max_width='100',
-            data_type='number',
-        ),
-        ui.table_column(
-            name='num_of_guesses',
-            label='# of Guesses',
-            sortable=True,
-            max_width='120',
-            data_type='number',
-        ),
-        ui.table_column(
-            name='game_time',
-            label='Time (s)',
-            sortable=True,
-            max_width='160',
-            data_type='number',
-        ),
+        ui.table_column(name='name', label='Name', max_width='200'),
+        ui.table_column(name='number', label='Number', data_type='number', max_width='80'),
+        ui.table_column(name='num_of_guesses', label='# Guesses', data_type='number', max_width='100'),
+        ui.table_column(name='game_time', label='Time (s)', data_type='number', max_width='100'),
     ]
     scores = [
         ui.table_row(
@@ -217,121 +194,76 @@ async def show_leaderboard(q: Q):
                 str(game.time_seconds()),
             ],
         )
-        for game in q.app.games.values()
+        for game in public_games
     ]
-    leaderboard = ui.table(
-        name='leaderboard',
-        columns=columns,
-        rows=scores,
-        groupable=False,
-        downloadable=False,
-        resettable=False,
-        height='600px',
-    )
-    del q.page['starting_game']
     q.page['leaderboard'] = ui.form_card(
         box='3 2 5 9',
         items=[
-            ui.label('Scores'),
-            leaderboard,
+            ui.label('Public Leaderboard'),
+            ui.table(
+                name='leaderboard_table',
+                columns=columns,
+                rows=scores,
+                height='500px'
+            ),
             ui.text_xs('⠀'),
             ui.buttons(
                 items=[
                     ui.button(name='start_game', label='Play', primary=True),
-                    ui.button(name='leaderboard', label='Refresh', primary=True),
-                    ui.button(
-                        name='private_leaderboard',
-                        label='Show my games only',
-                        primary=True,
-                    ),
+                    ui.button(name='private_leaderboard', label='My Games', primary=False),
                 ],
                 justify='center',
             ),
         ],
     )
+    # Clean up other cards
+    for card in ['hello', 'starting_game']:
+        if card in q.page:
+            del q.page[card]
     await q.page.save()
 
 
 async def show_private_leaderboard(q: Q):
+    player_games = [g for g in q.user.player.games.values() if g.status == 'done']
+
     columns = [
-        ui.table_column(
-            name='game_id',
-            label='Game #',
-            sortable=False,
-            searchable=False,
-            max_width='150',
-            data_type='string',
-            link=False,
-        ),
-        ui.table_column(
-            name='number',
-            label='Number',
-            sortable=True,
-            max_width='90',
-            data_type='number',
-        ),
-        ui.table_column(
-            name='num_of_guesses',
-            label='# of Guesses',
-            sortable=True,
-            max_width='120',
-            data_type='number',
-        ),
-        ui.table_column(
-            name='status',
-            label='Status',
-            sortable=False,
-            filterable=True,
-            max_width='90',
-            data_type='string',
-            cell_type=ui.icon_table_cell_type(),
-        ),
-        ui.table_column(
-            name='game_time',
-            label='Time (s)',
-            sortable=True,
-            max_width='150',
-            data_type='number',
-        ),
+        ui.table_column(name='idx', label='Game #', max_width='80'),
+        ui.table_column(name='number', label='Number', data_type='number', max_width='80'),
+        ui.table_column(name='guesses', label='# Guesses', data_type='number', max_width='100'),
+        ui.table_column(name='time', label='Time (s)', data_type='number', max_width='100'),
+        ui.table_column(name='public', label='Public', max_width='80'),
     ]
     scores = [
         ui.table_row(
             name=game.game_id,
             cells=[
-                str(idx),
+                str(i + 1),
                 str(game.number),
                 str(len(game.guesses)),
-                'MedalSolid' if game.status == 'done' else 'Running',
                 str(game.time_seconds()),
+                '✅' if game.is_public else '🔒',
             ],
         )
-        for idx, game in enumerate(q.user.player.games.values(), 1)
+        for i, game in enumerate(player_games)
     ]
-    leaderboard = ui.table(
-        name='leaderboard',
-        columns=columns,
-        rows=scores,
-        groupable=False,
-        downloadable=False,
-        resettable=False,
-        height='600px',
-    )
-    del q.page['starting_game']
     q.page['leaderboard'] = ui.form_card(
         box='3 2 5 9',
         items=[
-            ui.label('Scores from your games'),
-            leaderboard,
+            ui.label('Your Completed Games'),
+            ui.table(name='private_table', columns=columns, rows=scores, height='500px'),
             ui.text_xs('⠀'),
             ui.buttons(
                 items=[
                     ui.button(name='start_game', label='Play', primary=True),
-                    ui.button(name='leaderboard', label='Show all games', primary=True),
+                    ui.button(name='leaderboard', label='Public Scores', primary=False),
                 ],
                 justify='center',
             ),
         ],
     )
+    for card in ['hello', 'starting_game']:
+        if card in q.page:
+            del q.page[card]
     await q.page.save()
 
 
@@ -343,10 +275,12 @@ def app_initialize(q: Q):
 
 
 def user_initialize(q: Q):
-    player_id = q.auth.subject
+    player_id = q.auth.subject or 'anonymous'
     if player_id not in q.app.players:
-        q.user.player = Player(email=q.auth.username, player_id=player_id)
+        q.user.player = Player(email=q.auth.username or 'guest@example.com', player_id=player_id)
         q.app.players[player_id] = q.user.player
+    else:
+        q.user.player = q.app.players[player_id]
 
 
 async def client_initialize(q: Q):
@@ -354,6 +288,7 @@ async def client_initialize(q: Q):
         await make_base_ui(q)
         await make_welcome_card(q)
         q.client.initialized = True
+        q.client.active_theme = 'default'
 
 
 async def theme_switch_handler(q: Q):
@@ -363,62 +298,61 @@ async def theme_switch_handler(q: Q):
 
 
 async def run_app(q: Q):
+    # Handle theme
+    if q.args.toggle_theme is not None:
+        await theme_switch_handler(q)
+        return
+
+    # Start new game
     if q.args.start_game:
-        if q.args.submit_game:
-            q.client.game.is_public = True
-            q.app.games[q.client.game.game_id] = q.client.game
-        del q.page['leaderboard']
-        del q.page['hello']
+        for card in ['hello', 'leaderboard']:
+            if card in q.page:
+                del q.page[card]
         await start_new_game(q)
-    elif q.args.quit_game:
+        return
+
+    # Quit game
+    if q.args.quit_game:
         del q.page['starting_game']
         await make_welcome_card(q)
-    elif q.args.guess:
-        message = q.client.game.guess(q.args.guess)
+        return
+
+    # Make a guess
+    if q.args.guess is not None and q.client.game:
+        message = q.client.game.guess(int(q.args.guess))
         if message == 'You Got It!':
+            # Store completed game for potential submission
+            q.client.completed_game = q.client.game
             q.page['starting_game'].items = [
-                ui.text_l(
-                    f'🏅 🎉 🎂 You Got It, The number is **{q.client.game.number}**'
-                ),
-                ui.text_m(
-                    f'You made **{len(q.client.game.guesses)}** guesses in'
-                ),
+                ui.text_l(f'🏅 🎉 You Got It! The number was **{q.client.game.number}**'),
+                ui.text_m(f'You made **{len(q.client.game.guesses)}** guesses in'),
                 ui.text_m(f'{q.client.game.game_time()}.'),
                 ui.toggle(
                     name='submit_game',
-                    label='Submit your game to Public Scoreboard',
+                    label='Submit to Public Leaderboard',
+                    value=False,
                     trigger=False,
                 ),
                 ui.text_xs('⠀'),
                 ui.buttons(
                     items=[
-                        ui.button(
-                            name='leaderboard',
-                            label='View Scores',
-                            primary=True,
-                        ),
-                        ui.button(
-                            name='start_game',
-                            label='Play Again',
-                            primary=False,
-                        ),
+                        ui.button(name='leaderboard', label='View Scores', primary=True),
+                        ui.button(name='start_game', label='Play Again', primary=False),
                     ],
                     justify='center',
                 ),
             ]
         else:
-            previous_guesses = [str(x) for x in q.client.game.guesses]
-            if len(previous_guesses) > 16:
-                previous_guesses = previous_guesses[-16:]
-                previous_guesses[0] = '...'
-            guesses_str = ", ".join(previous_guesses)
+            guesses_str = ", ".join(str(g) for g in q.client.game.guesses[-10:])  # last 10
+            if len(q.client.game.guesses) > 10:
+                guesses_str = "…, " + guesses_str
             q.page['starting_game'].items = [
                 ui.text_l(message),
-                ui.text_m(guesses_str),
+                ui.text_m(f'Your guesses: {guesses_str}'),
                 ui.text_xs('⠀'),
                 ui.slider(
                     name='guess',
-                    label='your guess',
+                    label='Your guess',
                     min=1,
                     max=100,
                     value=q.args.guess,
@@ -430,23 +364,28 @@ async def run_app(q: Q):
                     justify='center',
                 ),
             ]
-    elif q.args.leaderboard:
-        if q.args.submit_game:
-            q.client.game.is_public = True
-            q.app.games[q.client.game.game_id] = q.client.game
-        del q.page['starting_game']
-        await show_leaderboard(q)
-    elif q.args.private_leaderboard:
-        await show_private_leaderboard(q)
+        await q.page.save()
+        return
 
-    if q.args.toggle_theme is not None:
-        await theme_switch_handler(q)
+    # View leaderboards
+    if q.args.leaderboard:
+        # Handle submission BEFORE showing leaderboard
+        if q.args.submit_game and hasattr(q.client, 'completed_game'):
+            q.client.completed_game.is_public = True
+            q.app.games[q.client.completed_game.game_id] = q.client.completed_game
+            delattr(q.client, 'completed_game')  # prevent re-submission
+        await show_leaderboard(q)
+        return
+
+    if q.args.private_leaderboard:
+        await show_private_leaderboard(q)
+        return
+
     await q.page.save()
 
 
 @app('/')
 async def serve(q: Q):
-    print(q.args)
     app_initialize(q)
     user_initialize(q)
     await client_initialize(q)
